@@ -1,0 +1,30 @@
+# Generation 56
+# original fitness: 15.779999732971191 (15 protected and 24 unprotected wins out of 50)
+
+# Tested 1000 games (mulligan opening hand with no protection, keep any other win): 
+#    {-1=427, 0=360, 1=191, 2=20, 3=2}
+#    573 wins (stddev=15.641962792437528 ; p=0.573)
+#    213 protected wins (stddev=12.947239087929132 ; p=0.213)
+
+4 Balustrade Spy
+4 Undercity Informer
+4 Narcomoeba
+4 Lotus Petal
+4 Dark Ritual
+1 Dread Return
+1 Thassa's Oracle
+3 Chrome Mox
+3 Elvish Spirit Guide
+3 Simian Spirit Guide
+4 Summoner's Pact
+4 Chancellor of the Tangle
+1 Wild Cantor
+1 Rite of Flame
+1 Grim Monolith
+4 Cabal Ritual
+1 Emeria's Call
+2 Sea Gate Restoration
+2 Agadeem's Awakening
+1 Turntimber Symbiosis
+4 Pact of Negation
+4 Chancellor of the Annex

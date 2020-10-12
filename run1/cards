@@ -1,0 +1,51 @@
+static int fourofs = 2;
+static int oneofs = 4;
+
+static String[] cards = {
+    // Always 4-ofs
+    "Balustrade Spy",
+    "Undercity Informer",
+
+    //4
+    //At least 1-ofs (allow 5-ofs for now; assuming that won't matter)
+    "Angel of Glory's Rise",
+    "Azami, Lady of Scrolls",
+    "Laboratory Maniac",
+    "Dread Return",
+
+    //1
+    "Narcomoeba",
+
+    //8
+    "Chrome Mox",
+    "Dark Ritual",
+    "Elvish Spirit Guide",
+    "Lotus Petal",
+    "Manamorphose",
+    "Simian Spirit Guide",
+    "Summoner's Pact",
+    "Wild Cantor",
+
+    //3
+    "Cabal Ritual",
+    "Gitaxian Probe",
+    "Tinder Wall",
+
+    //3
+    "Chancellor of the Tangle",
+    "Grim Monolith",
+    "Street Wraith",
+
+    //5
+    "Bridge from Below",
+    "Cabal Therapy",
+    "Lingering Souls",
+    "Lion's Eye Diamond",
+    "Phantasmagorian",
+
+    //4
+    "Rite of Flame",
+    "Pyretic Ritual",
+    "Desperate Ritual",
+    "Seething Song",
+};

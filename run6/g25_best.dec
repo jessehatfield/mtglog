@@ -1,0 +1,39 @@
+# Generation 25
+# original fitness 14.779999732971191 (14 protected and 25 unprotected wins out of 50)
+#
+# Tested 1000 games (mulligans prioritize win only):
+#    523 wins (stddev=15.794650993295166 ; p=0.523)
+#    138 protected wins (stddev=10.906695191486742 ; p=0.138)
+#    {0=385, -1=477, 1=126, 2=11, 3=1}
+# Tested 1000 games (mulligans prioritize win with 1+ protection):
+#    200 protected wins (stddev=12.649110640673518 ; p=0.2)
+#    {-1=800, 1=186, 2=14}
+# Tested 1000 games (mulligan opening hand with no protection, keep any other win): 
+#    487 wins (stddev=15.806043148112687 ; p=0.487)
+#    167 protected wins (stddev=11.79453263168999 ; p=0.167)
+#    {0=320, -1=513, 1=148, 2=18, 3=1}
+
+4 Balustrade Spy
+4 Undercity Informer
+4 Narcomoeba
+4 Lotus Petal
+4 Dark Ritual
+1 Dread Return
+1 Thassa's Oracle
+3 Chrome Mox
+3 Elvish Spirit Guide
+2 Simian Spirit Guide
+2 Summoner's Pact
+2 Chancellor of the Tangle
+1 Wild Cantor
+1 Rite of Flame
+1 Grim Monolith
+1 Desperate Ritual
+3 Lion's Eye Diamond
+3 Emeria's Call
+4 Agadeem's Awakening
+1 Turntimber Symbiosis
+4 Pact of Negation
+1 Force of Will
+2 Unmask
+4 Chancellor of the Annex

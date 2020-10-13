@@ -5,53 +5,70 @@ import ec.util.Parameter;
 import ec.vector.IntegerVectorIndividual;
 import ec.vector.IntegerVectorSpecies;
 
+/**
+ * Individual represented by a vector of integers with a constant sum. Based on
+ * IntegerVectorIndividual but enforces the constant sum constraint after mutation by randomly
+ * incrementing/decrementing a random gene (whichever is necessary) until the sum is restored to
+ * the required number.
+ */
 public class DecklistVectorIndividual extends IntegerVectorIndividual {
     public static final String P_TOTAL = "size";
-    public static final String P_MAX = "max";
 
-    public int totalCards;
-    public int maxCardCopies;
+    public int genomeTotal;
+    public int minSumIndividual;
+    public int maxSumIndividual;
 
     @Override
     public void setup(EvolutionState state, Parameter base) {
         super.setup(state, base);
         final Parameter def = defaultBase();
-        totalCards = state.parameters.getIntWithDefault(base.push(P_TOTAL),
+        genomeTotal = state.parameters.getIntWithDefault(base.push(P_TOTAL),
                 def.push(P_TOTAL), 60);
-        maxCardCopies = state.parameters.getIntWithDefault(base.push(P_MAX),
-                def.push(P_MAX), 4);
+        minSumIndividual = 0;
+        maxSumIndividual = 0;
+        for (int i = 0; i < genomeLength(); i++) {
+            minSumIndividual += ((IntegerVectorSpecies) species).minGene(i);
+            maxSumIndividual += ((IntegerVectorSpecies) species).maxGene(i);
+        }
     }
 
-    private void fillRandomly(EvolutionState state, int thread, int target) {
-        int n = 0;
-        while (n < target) {
-            final int nextCard = state.random[thread].nextInt(genomeLength());
-            if (genome[nextCard] < maxCardCopies)  {
-                genome[nextCard]++;
-                n++;
+    /**
+     * Increment genes at random or decrement genes at random until the genome sum is equal to the
+     * required sum (incrementing if the starting total is less than desired, or decrementing if
+     * the starting total is greater than desired), ensuring that the individual numbers remain
+     * individually valid (i.e. don't increment beyond a gene's maximum or decrement below its
+     * minimum).
+     * @param state Evolution state providing RNGs
+     * @param thread Index into the threaded objects of the state
+     */
+    public void ensureValidSum(EvolutionState state, int thread) {
+        final IntegerVectorSpecies s = (IntegerVectorSpecies) species;
+        int currentTotal = 0;
+        int actualTarget = Math.min(Math.max(genomeTotal, minSumIndividual), maxSumIndividual);
+        for (int i = 0; i < genome.length; i++) {
+            currentTotal += genome[i];
+        }
+        while (currentTotal != actualTarget) {
+            final int i = state.random[thread].nextInt(genomeLength());
+            if (currentTotal < actualTarget && genome[i] < s.maxGene(i))  {
+                genome[i]++;
+                currentTotal++;
+            } else if (currentTotal > actualTarget && genome[i] > s.minGene(i)) {
+                genome[i]--;
+                currentTotal--;
             }
         }
     }
 
     @Override
     public void reset(EvolutionState state, int thread) {
-        for (int i = 0; i < genomeLength(); i++) {
-            genome[i] = 0;
-        }
-        fillRandomly(state, thread, totalCards);
+        super.reset(state, thread);
+        ensureValidSum(state, thread);
     }
 
     @Override
     public void defaultMutate(EvolutionState state, int thread) {
-        final IntegerVectorSpecies s = (IntegerVectorSpecies) species;
-        int cutCards = 0;
-        for (int i = 0; i < genome.length; i++) {
-            if (state.random[thread].nextBoolean(s.mutationProbability(i))
-                    && genome[i] > 0) {
-                genome[i]--;
-                cutCards++;
-            }
-        }
-        fillRandomly(state, thread, cutCards);
+        super.defaultMutate(state, thread);
+        ensureValidSum(state, thread);
     }
 }

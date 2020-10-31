@@ -36,7 +36,7 @@ public class Deck {
     }
 
     public Deck(String[] cards, int[] counts) {
-        this(cards, counts, new int[] {});
+        this(cards, counts, new int[cards.length]);
     }
 
     public int getSize() {
@@ -110,7 +110,7 @@ public class Deck {
             BufferedReader in = new BufferedReader(new FileReader(filename));
             String line = in.readLine();
             while (line != null) {
-                line = line.trim(); 
+                line = line.trim();
                 if (!line.startsWith("#")) {
                     String[] parts = line.split(" ", 2);
                     if (parts.length > 1) {
@@ -162,5 +162,20 @@ public class Deck {
             e.printStackTrace();
             return null;
         }
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Deck deck = (Deck) o;
+        return minSize == deck.minSize &&
+                maindeck.equals(deck.maindeck) &&
+                sideboard.equals(deck.sideboard);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(maindeck, sideboard, minSize);
     }
 }

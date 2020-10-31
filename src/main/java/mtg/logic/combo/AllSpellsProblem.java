@@ -14,7 +14,6 @@ public class AllSpellsProblem extends MtgProblem {
         prolog.consultFile("oops.pl");
         prolog.consultFile("test.pl");
         System.out.println("Prolog files loaded.");
-        prolog.setShowProgress(10);
     }
 
     @Override
@@ -81,6 +80,7 @@ public class AllSpellsProblem extends MtgProblem {
     public static void main(String[] args) {
         if (args.length >= 2) {
             AllSpellsProblem app = new AllSpellsProblem();
+            app.prolog.setShowProgress(10);
             int minProtection = 0;
             int greedyMullCount = 7;
             int handSize = 7;

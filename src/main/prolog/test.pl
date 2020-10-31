@@ -79,7 +79,6 @@ play_games(N, DECK, SB, HAND_SIZE, MAX_MULLIGANS, MIN_PROTECTION, GREEDY_MULLIGA
     M is N-1,
     play_games(M, DECK, SB, HAND_SIZE, MAX_MULLIGANS, MIN_PROTECTION, GREEDY_MULLIGANS, HANDS2, SEQS2, P2, WINS2),
     (
-        not(showProgress(_));
         showProgress(INTERVAL),
         (
             M mod INTERVAL > 0;
@@ -96,6 +95,8 @@ playtest(DECK_NAME, N, HAND_SIZE, MAX_MULLIGANS, MIN_PROTECTION, GREEDY_MULLIGAN
     format('~w: ~d / ~d (~1f%)\n', [DECK_NAME, WINS, N, P]).
 playtest(DECK_NAME, N, HAND_SIZE, MAX_MULLIGANS, WINS) :-
     playtest(DECK_NAME, N, HAND_SIZE, MAX_MULLIGANS, 0, 0, WINS).
+
+%showProgress(1000).
 
 main :-
     consult('mana.pl'),

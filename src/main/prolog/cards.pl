@@ -11,6 +11,7 @@
 % Multiple Bridge from Below
 % Casting the land/spells (e.g. Turntimber Symbiosis)
 % Finale of Devastation
+% Neoform and Eldritch Evolution
 
 % Placeholder
 card('Unknown', [
@@ -554,6 +555,28 @@ card('Defense Grid', [
     board  - 1,
     gy     - 0,
     protection - 1
+]).
+
+% Cards we don't cast but might search for for Chrome Mox
+card('Spiritmonger', [
+    cost   - [0, 0, 1, 0, 1, 0, 3],
+    yield  - [0, 0, 0, 0, 0, 0, 0],
+    net    - 0,
+    colors - [bg],
+    types  - [creature],
+    spell  - -1,
+    board  - 0,
+    gy     - 0
+]).
+card('The Mimeoplasm', [
+    cost   - [0, 1, 1, 0, 1, 0, 2],
+    yield  - [0, 0, 0, 0, 0, 0, 0],
+    net    - 0,
+    colors - [ubg],
+    types  - [creature],
+    spell  - -1,
+    board  - 0,
+    gy     - 0
 ]).
 
 % Special non-real cards

@@ -107,6 +107,9 @@ public class AllSpellsDeck extends Deck {
             "Misdirection",
             "Leyline of Lifeforce",
 
+            //1 Non-immediate win condition
+            "Empty the Warrens",
+
             //3 ways to get cards into the graveyard (unused for now)
             "Bridge from Below",
             "Lingering Souls",
@@ -117,7 +120,6 @@ public class AllSpellsDeck extends Deck {
             "Living Wish",
             "Cephalid Illusionist",
             "Shuko",
-            "Empty the Warrens",
             "Burning Wish"
     };
     private final static int deckSize = 60;

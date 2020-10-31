@@ -74,22 +74,23 @@ public class DecklistVectorIndividualTest {
     public void testEnsureValidSum() {
         final DecklistVectorIndividual ind = (DecklistVectorIndividual) species.newIndividual(state, 0);
         ind.setup(state, VectorDefaults.base());
-        ind.genome[0] = 4;
+        ind.genome[1] = 2;
+        ind.genome[2] = 4;
         System.out.println(Arrays.toString(ind.genome));
-        Assert.assertEquals(4, currentTotal(ind));
+        Assert.assertEquals(6, currentTotal(ind));
         assertValidGenes(ind);
         ind.ensureValidSum(state, 0);
         System.out.println(Arrays.toString(ind.genome));
         Assert.assertEquals(60, currentTotal(ind));
         assertValidGenes(ind);
-        for (int i = 0, changes = 0; i < ind.genome.length && changes < 10; i++) {
+        for (int i = 2, changes = 0; i < ind.genome.length && changes < 5; i++) {
             if (ind.genome[i] < 4) {
                 ind.genome[i]++;
                 changes++;
             }
         }
         System.out.println(Arrays.toString(ind.genome));
-        Assert.assertEquals(70, currentTotal(ind));
+        Assert.assertEquals(65, currentTotal(ind));
         ind.ensureValidSum(state, 0);
         System.out.println(Arrays.toString(ind.genome));
         Assert.assertEquals(60, currentTotal(ind));

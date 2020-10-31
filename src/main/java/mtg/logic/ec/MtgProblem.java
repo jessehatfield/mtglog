@@ -46,7 +46,7 @@ public abstract class MtgProblem extends Problem implements SimpleProblemForm {
      * the absolute value of the former difference will always be greater than that of the
      * latter unless the former is actually 0.
      */
-    private double fitnessCombined(final IntegerVectorIndividual ind, final Deck deck, final EvolutionState state, final int threadnum) {
+    private double fitnessPrioritizeProtection(final IntegerVectorIndividual ind, final Deck deck, final EvolutionState state, final int threadnum) {
         final Map<String, Integer> results = prolog.simulateGames(deck, trials, 7, false, autoMull, minProtection, greedyMullCount, state.random[threadnum]);
         final int w = results.get("wins");
         final int wp = results.get("protected");
@@ -54,6 +54,32 @@ public abstract class MtgProblem extends Problem implements SimpleProblemForm {
         final float pProtected = ((float) wp) / trials;
         // Fitness calculation: Protected wins should take precedence, with overall wins breaking
         final double f = wp + pWin;
+        System.out.println("\tindividual " + Arrays.toString(ind.genome)
+                + ": " + w + " wins with " + wp + " protected wins out of " + trials
+                + " ; fitness=" + f);
+        return f;
+    }
+
+    /**
+     * Fitness function that combines protected wins with overall wins, with overall wins taking
+     * precedence and protected wins breaking ties.
+     *
+     * To achieve this: use == <n overall wins> + <p protected wins>
+     * Relies on the fact that the smallest possible difference in the former is 1
+     * (A has one more win than B), and the largest possible difference in the latter
+     * is also 1 (B has N protected wins while A has 0), but both can't apply at the same time so
+     * the absolute value of the former difference will always be greater than that of the
+     * latter unless the former is actually 0.
+     */
+    private double fitnessPrioritizeWin(final IntegerVectorIndividual ind, final Deck deck, final EvolutionState state, final int threadnum) {
+        final Map<String, Integer> results = prolog.simulateGames(deck, trials, 7, false, autoMull, minProtection, greedyMullCount, state.random[threadnum]);
+        System.out.println(results);
+        final int w = results.get("wins");
+        final int wp = results.get("protected");
+        final float pWin = ((float) w) / trials;
+        final float pProtected = ((float) wp) / trials;
+        // Fitness calculation: Overall wins should take precedence, with protected wins breaking ties
+        final double f = w + pProtected;
         System.out.println("\tindividual " + Arrays.toString(ind.genome)
                 + ": " + w + " wins with " + wp + " protected wins out of " + trials
                 + " ; fitness=" + f);
@@ -84,7 +110,7 @@ public abstract class MtgProblem extends Problem implements SimpleProblemForm {
         final IntegerVectorIndividual ind2 = (IntegerVectorIndividual) ind;
         final Deck deck = createDeck(ind2.genome);
         System.out.println("Evaluating " + Arrays.toString(ind2.genome) + " (" + deck.getSize() + " cards)...");
-        double f = fitnessCombined(ind2, deck, state, threadnum);
+        double f = fitnessPrioritizeWin(ind2, deck, state, threadnum);
         if (deck.getSize() > deck.getMinSize()) { // this should never happen
             // but if it does, ensure it can't beat any valid individual's fitness
             f -= (trials + 1);

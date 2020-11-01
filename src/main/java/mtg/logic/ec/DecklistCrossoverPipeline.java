@@ -104,13 +104,21 @@ public class DecklistCrossoverPipeline extends BreedingPipeline {
 
     IntegerVectorIndividual crossover(IntegerVectorIndividual parent1,
                    IntegerVectorIndividual parent2, MersenneTwisterFast rng) {
-        // Collect all cards from both parents as a 2n-sized list of indices
+        final IntegerVectorSpecies species = (IntegerVectorSpecies) parent1.species;
+        // Collect all cards from both parents as a 2n-sized list of indices,
+        // with placeholders for required cards
         final int[] shuffled = new int[total * 2];
         int nCards = 0;
         for (int cardIndex = 0; cardIndex < parent1.genomeLength(); cardIndex++) {
             int totalCopies = parent1.genome[cardIndex] + parent2.genome[cardIndex];
-            for (int i = 0; i < totalCopies; i++) {
+            int requiredCopies = species == null ? 0 : (int) species.minGene(cardIndex);
+            int freeCopies = totalCopies - requiredCopies;
+            for (int i = 0; i < freeCopies; i++) {
                 shuffled[nCards] = cardIndex;
+                nCards++;
+            }
+            for (int i = 0; i < requiredCopies; i++) {
+                shuffled[nCards] = -1;
                 nCards++;
             }
         }
@@ -121,14 +129,20 @@ public class DecklistCrossoverPipeline extends BreedingPipeline {
             shuffled[i] = shuffled[j];
             shuffled[j] = temp;
         }
-        // Deal out n cards to the child, obeying max count restrictions if nonzero
+        // Initialize child with minimum, then deal out free cards, obeying max restrictions
         IntegerVectorIndividual child = (IntegerVectorIndividual) parent1.clone();
-        for (int i = 0; i < child.genomeLength(); i++) {
-            child.genome[i] = 0;
-        }
         nCards = 0;
+        for (int i = 0; i < child.genomeLength(); i++) {
+            child.genome[i] = species == null ? 0 : (int) species.minGene(i);
+            nCards += child.genome[i];
+        }
         for (int cardIndex : shuffled) {
-            if (child.genome[cardIndex] < max_copies || max_copies < 1) {
+            if (cardIndex < 0) {
+                continue;
+            }
+            final int max_gene = species == null ? Integer.MAX_VALUE : (int) species.maxGene(cardIndex);
+            final int max_card_copies = Math.min(max_copies, max_gene);
+            if (child.genome[cardIndex] < max_card_copies || max_card_copies < 0) {
                 child.genome[cardIndex]++;
                 nCards++;
                 if (nCards >= total) {

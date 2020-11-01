@@ -5,14 +5,18 @@ import ec.Individual;
 import ec.Problem;
 import ec.simple.SimpleFitness;
 import ec.simple.SimpleProblemForm;
+import ec.util.Parameter;
 import ec.vector.IntegerVectorIndividual;
 import mtg.logic.Deck;
+import mtg.logic.DeckTemplate;
 import mtg.logic.PrologEngine;
+
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.Map;
 
 public abstract class MtgProblem extends Problem implements SimpleProblemForm {
-    protected abstract Deck createDeck(int[] genome);
+//    protected abstract Deck createDeck(int[] genome);
 
     protected final PrologEngine prolog;
     protected final int trials;
@@ -26,7 +30,7 @@ public abstract class MtgProblem extends Problem implements SimpleProblemForm {
     public static String MIN_PROTECTION_PROPERTY = "mtg.eval.protection";
     public static String GREEDY_MULL_COUNT = "mtg.eval.mull.greedy";
 
-    public MtgProblem() {
+    public MtgProblem() throws IOException {
         String prologDir = System.getProperty(PROLOG_SRC_PROPERTY, System.getProperty("user.dir"));
         this.prolog = new PrologEngine(prologDir);
         this.trials = Integer.parseInt(System.getProperty(N_TRIALS_PROPERTY, "1"));
@@ -108,7 +112,8 @@ public abstract class MtgProblem extends Problem implements SimpleProblemForm {
             return;
         }
         final IntegerVectorIndividual ind2 = (IntegerVectorIndividual) ind;
-        final Deck deck = createDeck(ind2.genome);
+        final DecklistVectorSpecies species = (DecklistVectorSpecies) ind.species;
+        final Deck deck = species.template.toDeck(ind2.genome);
         System.out.println("Evaluating " + Arrays.toString(ind2.genome) + " (" + deck.getSize() + " cards)...");
         double f = fitnessPrioritizeWin(ind2, deck, state, threadnum);
         if (deck.getSize() > deck.getMinSize()) { // this should never happen
@@ -118,4 +123,12 @@ public abstract class MtgProblem extends Problem implements SimpleProblemForm {
         ((SimpleFitness)ind2.fitness).setFitness(state, f, false);
         ind2.evaluated = true;
     }
+
+    /*
+    @Override
+    public void setup(final EvolutionState state, final Parameter base) {
+        final Parameter def = this.defaultBase();
+        this.trials = state.parameters.getInt(base.push(P_N_GAMES), def.push(P_N_GAMES));
+    }
+     */
 }

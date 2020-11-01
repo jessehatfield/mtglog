@@ -96,7 +96,7 @@ playtest(DECK_NAME, N, HAND_SIZE, MAX_MULLIGANS, MIN_PROTECTION, GREEDY_MULLIGAN
 playtest(DECK_NAME, N, HAND_SIZE, MAX_MULLIGANS, WINS) :-
     playtest(DECK_NAME, N, HAND_SIZE, MAX_MULLIGANS, 0, 0, WINS).
 
-%showProgress(1000).
+showProgress(1000).
 
 main :-
     consult('mana.pl'),

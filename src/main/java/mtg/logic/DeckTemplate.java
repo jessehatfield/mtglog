@@ -1,8 +1,6 @@
 package mtg.logic;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.IOException;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -13,6 +11,21 @@ import java.util.regex.Pattern;
 /**
  * Defines a template for a specific deck with some room for variation between
  * lists.
+ *
+ * Input files should resemble those understood by {@link Deck} except
+ * that counts can be an inclusive range instead of a number, or can be omitted
+ * entirely to range from the default minimum (typically 0) to the default
+ * maximum (typically 4).
+ *
+ * Example:
+ *     # Required
+ *     4 A
+ *     1-4 B
+ *     # Optional
+ *     C
+ *     0-2 D
+ * will yield a template that accepts distributions over [A, B, C, D] that range
+ * from [4, 1, 0, 0] to [4, 4, 0, 2]
  */
 public class DeckTemplate {
     public final static Pattern RANGE_PATTERN = Pattern.compile(
@@ -20,7 +33,6 @@ public class DeckTemplate {
     public final static Pattern EXACT_PATTERN = Pattern.compile("^([0-9])+[xX]?\\s+(.*)$");
     public final static Pattern SIDEBOARD_PATTERN = Pattern.compile(
             "^(/+\\s*)?sideboard$", Pattern.CASE_INSENSITIVE);
-//    public final static Pattern COMMENT_PATTERN = Pattern.compile("^(#|%|//).*|^$");
     public final static Pattern COMMENT_PATTERN = Pattern.compile("^(.*)(#|%|//).*$");
 
     public final static int DEFAULT_MAX_COUNT = 4;
@@ -31,26 +43,28 @@ public class DeckTemplate {
 
     /**
      * Instantiate a template from a file.
-     * Input files should resemble those understood by {@link Deck} except
-     * that counts can be an inclusive range instead of a number, or can be omitted
-     * entirely to range from the default minimum (typically 0) to the default
-     * maximum (typically 4).
-     *
-     * Example:
-     *     # Required
-     *     4 A
-     *     1-4 B
-     *     # Optional
-     *     C
-     *     0-2 D
-     * will yield a template that accepts distributions over [A, B, C, D] that range
-     * from [4, 1, 0, 0] to [4, 4, 0, 2]
      * @param filename Path to the template file
      */
     public DeckTemplate(final String filename) throws IOException {
+        this(new FileReader(filename));
+    }
+
+    /**
+     * Instantiate a template from an input stream.
+     * @param in Input stream that will provide the template specification
+     */
+    public DeckTemplate(final InputStream in) throws IOException {
+        this(new InputStreamReader(in));
+    }
+
+    /**
+     * Instantiate a template from a Reader.
+     * @param reader Reader that will provide the template specification
+     */
+    public DeckTemplate(final Reader reader) throws IOException {
         final List<List<Entry>> entryLists = new ArrayList<>();
         entryLists.add(new ArrayList<>());
-        try (final BufferedReader in = new BufferedReader(new FileReader(filename))) {
+        try (final BufferedReader in = new BufferedReader(reader)) {
             String line = in.readLine();
             while (line != null) {
                 line = line.trim();
@@ -93,7 +107,7 @@ public class DeckTemplate {
         }
         final int numSegments = entryLists.size();
         if (numSegments < 1 || numSegments > 2) {
-            System.err.println("Error reading file: " + filename);
+            throw new IOException("Error reading template: " + numSegments + " distinct segments");
         } else {
             segments.add(new Segment(entryLists.get(0), 60, 60));
             if (numSegments > 1) {
@@ -150,6 +164,27 @@ public class DeckTemplate {
 
     private static int addMax(final Collection<Entry> entries) {
         return entries.stream().map(e -> e.maxCount).reduce(0, Integer::sum);
+    }
+
+    public int getMin(int i) {
+        return getEntry(i).minCount;
+    }
+
+    public int getMax(int i) {
+        return getEntry(i).maxCount;
+    }
+
+    private Entry getEntry(int i) {
+        int remainder = i;
+        for (final Segment segment : segments) {
+            if (remainder < segment.entries.size()) {
+                return segment.entries.get(remainder);
+            } else {
+                remainder -= segment.entries.size();
+            }
+        }
+        throw new IndexOutOfBoundsException("Template only defines " + getNumEntries()
+                + " total entries; index " + i + " out of bounds");
     }
 
     static class Segment {

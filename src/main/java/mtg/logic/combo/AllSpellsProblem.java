@@ -4,10 +4,11 @@ import ec.util.MersenneTwisterFast;
 import mtg.logic.Deck;
 import mtg.logic.ec.MtgProblem;
 
+import java.io.IOException;
 import java.util.Map;
 
 public class AllSpellsProblem extends MtgProblem {
-    public AllSpellsProblem() {
+    public AllSpellsProblem() throws IOException {
         super();
         prolog.consultFile("mana.pl");
         prolog.consultFile("cards.pl");
@@ -16,10 +17,12 @@ public class AllSpellsProblem extends MtgProblem {
         System.out.println("Prolog files loaded.");
     }
 
+    /*
     @Override
     protected Deck createDeck(int[] counts) {
         return new AllSpellsDeck(counts);
     }
+     */
 
     private int runSimulation(String decklistFile, int nGames, int handSize, int minProtection, int greedyMullCount) {
         MersenneTwisterFast rng = new MersenneTwisterFast();
@@ -77,7 +80,7 @@ public class AllSpellsProblem extends MtgProblem {
         return foo.replace("'", "\\'");
     }
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
         if (args.length >= 2) {
             AllSpellsProblem app = new AllSpellsProblem();
             app.prolog.setShowProgress(10);

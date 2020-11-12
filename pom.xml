@@ -10,6 +10,14 @@
 
   <name>combo-logic</name>
 
+  <repositories>
+    <repository>
+      <id>jitpack.io</id>
+      <name>JitPack Repository</name>
+      <url>https://jitpack.io</url>
+    </repository>
+  </repositories>
+
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <maven.compiler.source>1.8</maven.compiler.source>
@@ -19,9 +27,9 @@
   <dependencies>
     <!-- compile-time dependencies -->
     <dependency>
-      <groupId>jpl</groupId>
-      <artifactId>jpl</artifactId>
-      <version>7.0.1</version>
+      <groupId>com.github.SWI-Prolog</groupId>
+      <artifactId>packages-jpl</artifactId>
+      <version>V8.3.10</version>
     </dependency>
     <dependency>
       <groupId>edu.gmu.cs</groupId>

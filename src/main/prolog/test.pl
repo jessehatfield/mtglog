@@ -25,23 +25,40 @@ draw(DECK, HAND_SIZE, HAND, LIBRARY) :-
     slice(SHUFFLED, HAND_SIZE, HAND, LIBRARY),
     !.
 
-play_hand(HAND, LIBRARY, SB, MIN_PROTECTION, PUT_BACK, MULL_HAND, SEQ, PROTECTION) :-
-    combination(HAND, PUT_BACK, BOTTOM, MULL_HAND),
+%play_oops_hand(HAND, LIBRARY, SB, MIN_PROTECTION, PUT_BACK, MULL_HAND, SEQ, PROTECTION) :-
+%    combination(HAND, PUT_BACK, BOTTOM, MULL_HAND),
+%    append(LIBRARY, BOTTOM, MULL_LIBRARY),
+%    protected_win(MULL_HAND, MULL_LIBRARY, SB, MIN_PROTECTION, 3, SEQ, PROTECTION),
+%    !.
+
+get_or_default(DICT, KEY, _, VAR) :-
+    is_dict(DICT), get_dict(KEY, DICT, VAR).
+get_or_default(DICT, KEY, DEFAULT, DEFAULT) :-
+    is_dict(DICT), not(get_dict(KEY, DICT, _)).
+
+play_oops_hand(HAND, LIBRARY, SB, MULLIGANS, INPUT_PARAMS, OUTPUTS) :-
+    get_or_default(INPUT_PARAMS, protection, 0, REQUIRED_PROTECTION),
+    combination(HAND, MULLIGANS, BOTTOM, MULL_HAND),
     append(LIBRARY, BOTTOM, MULL_LIBRARY),
-    protected_win(MULL_HAND, MULL_LIBRARY, SB, MIN_PROTECTION, 3, SEQ, PROTECTION),
+    protected_win(MULL_HAND, MULL_LIBRARY, SB, REQUIRED_PROTECTION, 3, SEQ, PROTECTION),
+    OUTPUTS = _{sequence:SEQ,protection:PROTECTION,keep:MULL_HAND},
     !.
 
-play_game(DECK, SB, MAX_MULLIGANS, MIN_PROTECTION, GREEDY_MULLIGANS, FINAL_HAND, SEQ, N_MULLIGANS, PROTECTION, RESULT) :-
+play_oops_game(DECK, SB, MAX_MULLIGANS, MIN_PROTECTION, GREEDY_MULLIGANS, FINAL_HAND, SEQ, N_MULLIGANS, PROTECTION, RESULT) :-
     (N_MULLIGANS < GREEDY_MULLIGANS, REQUIRED_PROTECTION is MIN_PROTECTION; N_MULLIGANS >= GREEDY_MULLIGANS, REQUIRED_PROTECTION is 0),
     draw(DECK, 7, HAND, LIBRARY),
     (
-        play_hand(HAND, LIBRARY, SB, REQUIRED_PROTECTION, N_MULLIGANS, FINAL_HAND, SEQ, PROTECTION),
+%        play_oops_hand(HAND, LIBRARY, SB, REQUIRED_PROTECTION, N_MULLIGANS, FINAL_HAND, SEQ, PROTECTION),
+        play_oops_hand(HAND, LIBRARY, SB, N_MULLIGANS, _{protection:REQUIRED_PROTECTION}, METADATA),
+        PROTECTION = METADATA.protection,
+        SEQ = METADATA.sequence,
+        FINAL_HAND = METADATA.keep,
         RESULT = 1,
         !;
 
         MAX_MULLIGANS > N_MULLIGANS,
         NEXT_MULLIGAN is N_MULLIGANS + 1,
-        play_game(DECK, SB, MAX_MULLIGANS, REQUIRED_PROTECTION, GREEDY_MULLIGANS, FINAL_HAND, SEQ2, NEXT_MULLIGAN, PROTECTION, RESULT),
+        play_oops_game(DECK, SB, MAX_MULLIGANS, REQUIRED_PROTECTION, GREEDY_MULLIGANS, FINAL_HAND, SEQ2, NEXT_MULLIGAN, PROTECTION, RESULT),
         append(['mulligan'], SEQ2, SEQ),
         !;
 
@@ -52,10 +69,10 @@ play_game(DECK, SB, MAX_MULLIGANS, MIN_PROTECTION, GREEDY_MULLIGANS, FINAL_HAND,
         PROTECTION = -1,
         !
     ), !.
-play_game(_, _, _, _, _, _, [], _, -1, 0).
+play_oops_game(_, _, _, _, _, _, [], _, -1, 0).
 
-play_game(DECK, SB, MAX_MULLIGANS, MIN_PROTECTION, GREEDY_MULLIGANS, HAND, SEQ, PROTECTION, RESULT) :-
-    play_game(DECK, SB, MAX_MULLIGANS, MIN_PROTECTION, GREEDY_MULLIGANS, HAND, SEQ, 0, PROTECTION, RESULT),
+play_oops_game(DECK, SB, MAX_MULLIGANS, MIN_PROTECTION, GREEDY_MULLIGANS, HAND, SEQ, PROTECTION, RESULT) :-
+    play_oops_game(DECK, SB, MAX_MULLIGANS, MIN_PROTECTION, GREEDY_MULLIGANS, HAND, SEQ, 0, PROTECTION, RESULT),
 %    format('\t~d : ~w\n', [RESULT, SEQ]),
     !.
 
@@ -72,7 +89,7 @@ play_games(N, DECK, HAND_SIZE, MAX_MULLIGANS, MIN_PROTECTION, GREEDY_MULLIGANS, 
     play_games(N, DECK, [], HAND_SIZE, MAX_MULLIGANS, MIN_PROTECTION, GREEDY_MULLIGANS, HANDS, SEQS, PROT_COUNTS, RESULTS).
 play_games(1, DECK, SB, HAND_SIZE, MAX_MULLIGANS, MIN_PROTECTION, GREEDY_MULLIGANS, [HAND], [SEQ], [PROTECTION], RESULT) :-
     MULLIGANS_SO_FAR is 7 - HAND_SIZE,
-    play_game(DECK, SB, MAX_MULLIGANS, MIN_PROTECTION, GREEDY_MULLIGANS, HAND, SEQ, MULLIGANS_SO_FAR, PROTECTION, RESULT).
+    play_oops_game(DECK, SB, MAX_MULLIGANS, MIN_PROTECTION, GREEDY_MULLIGANS, HAND, SEQ, MULLIGANS_SO_FAR, PROTECTION, RESULT).
 play_games(N, DECK, SB, HAND_SIZE, MAX_MULLIGANS, MIN_PROTECTION, GREEDY_MULLIGANS, [H1|HANDS2], [SEQ1|SEQS2], [P1|P2], WINS) :-
     MULLIGANS_SO_FAR is 7 - HAND_SIZE,
     N > 1,
@@ -85,7 +102,7 @@ play_games(N, DECK, SB, HAND_SIZE, MAX_MULLIGANS, MIN_PROTECTION, GREEDY_MULLIGA
             format("~w wins out of ~w\n", [WINS2, M])
         )
     ),
-    play_game(DECK, SB, MAX_MULLIGANS, MIN_PROTECTION, GREEDY_MULLIGANS, H1, SEQ1, MULLIGANS_SO_FAR, P1, RESULT),
+    play_oops_game(DECK, SB, MAX_MULLIGANS, MIN_PROTECTION, GREEDY_MULLIGANS, H1, SEQ1, MULLIGANS_SO_FAR, P1, RESULT),
     WINS is WINS2 + RESULT .
 
 playtest(DECK_NAME, N, HAND_SIZE, MAX_MULLIGANS, MIN_PROTECTION, GREEDY_MULLIGANS, WINS) :-
@@ -121,7 +138,8 @@ test :-
 %    testhand(['Balustrade Spy', 'Chrome Mox', 'Turntimber Symbiosis', 'Pact of Negation', 'Dark Ritual', 'Agadeem\'s Awakening'], LIBRARY),
     testhand(['Dark Ritual', 'Dark Ritual', 'Goblin Charbelcher', 'Dark Ritual', 'Agadeem\'s Awakening'], L3),
 %    testhand(['Dark Ritual', 'Dark Ritual', 'Goblin Charbelcher', 'Pact of Negation', 'Chancellor of the Annex', 'Dark Ritual', 'Agadeem\'s Awakening'], L3),
-%    testhand(['Dark Ritual', 'Dark Ritual', 'Goblin Charbelcher', 'Pact of Negation', 'Lion\'s Eye Diamond', 'Dark Ritual', 'Agadeem\'s Awakening'], L3),
+    testhand(['Dark Ritual', 'Dark Ritual', 'Goblin Charbelcher', 'Pact of Negation', 'Dark Ritual', 'Agadeem\'s Awakening'], L3),
+    testhand(['Dark Ritual', 'Dark Ritual', 'Goblin Charbelcher', 'Pact of Negation', 'Dark Ritual', 'Agadeem\'s Awakening'], L3, 1),
     testhand(['Cabal Therapy', 'Agadeem\'s Awakening', 'Dark Ritual', 'Dark Ritual', 'Balustrade Spy'], LIBRARY),
     testhand(['Cabal Therapy', 'Chrome Mox', 'Agadeem\'s Awakening', 'Dark Ritual', 'Elvish Spirit Guide', 'Elvish Spirit Guide', 'Balustrade Spy'], LIBRARY),
 %    HAND = ['Balustrade Spy', 'Chrome Mox', 'Manamorphose', 'Dark Ritual', 'Elvish Spirit Guide', 'Chancellor of the Tangle'],
@@ -135,11 +153,16 @@ test :-
     !, fail.
 
 testhand(HAND, LIBRARY) :-
+    testhand(HAND, LIBRARY, 0).
+testhand(HAND, LIBRARY, MULLIGANS) :-
     format('~w\n', [HAND]),
     (
-        protected_win(HAND, LIBRARY, [], 1, 3, SEQ, PROTECTION),
-        format(' -->~w (~wx protection)\n', [SEQ, PROTECTION]);
+        play_oops_hand(HAND, LIBRARY, [], MULLIGANS, _{protection:1}, OUTPUTS),
+        format(' -->~w (~wx protection)\n', [OUTPUTS.sequence, OUTPUTS.protection]);
         format(' fail.\n', [])
+%        protected_win(HAND, LIBRARY, [], 1, 3, SEQ, PROTECTION),
+%        format(' -->~w (~wx protection)\n', [SEQ, PROTECTION]);
+%        format(' fail.\n', [])
     ),
     !.
 

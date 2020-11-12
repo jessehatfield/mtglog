@@ -83,7 +83,6 @@ public class AllSpellsProblem extends MtgProblem {
     public static void main(String[] args) throws IOException {
         if (args.length >= 2) {
             AllSpellsProblem app = new AllSpellsProblem();
-            app.prolog.setShowProgress(10);
             int minProtection = 0;
             int greedyMullCount = 7;
             int handSize = 7;

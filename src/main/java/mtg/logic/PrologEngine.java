@@ -1,17 +1,11 @@
 package mtg.logic;
 
 import ec.util.MersenneTwisterFast;
-import org.jpl7.Atom;
-import org.jpl7.Compound;
-import org.jpl7.Term;
-import org.jpl7.Query;
-import org.jpl7.Util;
-import org.jpl7.Variable;
+import org.jpl7.*;
 
 import java.io.File;
-import java.util.Arrays;
-import java.util.LinkedHashMap;
-import java.util.Map;
+import java.lang.Integer;
+import java.util.*;
 
 public class PrologEngine {
     private final File prologSrcDir;
@@ -24,9 +18,12 @@ public class PrologEngine {
     public void consultFile(String localName) {
         final String sourcePath = new File(prologSrcDir, localName).getAbsolutePath();
         System.out.println("Consulting " + sourcePath + "...");
-        new Query("consult", new Term[] { new Atom(sourcePath)}).allSolutions();
+        Query consultQuery = new Query("consult", new Term[] { new Atom(sourcePath)});
+        consultQuery.allSolutions();
+        consultQuery.close();
     }
 
+    @Deprecated
     public void setShowProgress(final int interval) {
         new Query("asserta", new Term[] {
             new Compound("showProgress", new Term[] { new org.jpl7.Integer(interval) })
@@ -50,9 +47,10 @@ public class PrologEngine {
         return q;
     }
 
+    @Deprecated
     public void sim(Deck d, int n, boolean autoMull, int minProtection, int greedyMullCount, MersenneTwisterFast rng) {
         if (autoMull) {
-            int w = simulateGames(d, n, 7, true, minProtection, greedyMullCount, rng).get("wins");
+            int w = simulateGamesBatch(d, n, 7, true, minProtection, greedyMullCount, rng).get("wins");
             System.out.println("Won " + w + " out of " + n + " on the first turn.");
         }
         else {
@@ -75,6 +73,7 @@ public class PrologEngine {
         }
     }
 
+    @Deprecated
     public int[] getResults(Deck deck, int n, int handSize, boolean verbose, boolean mull,
                             boolean describe, boolean full, MersenneTwisterFast rng) {
         int w = 0;
@@ -146,80 +145,181 @@ public class PrologEngine {
         return result;
     }
 
-    public Map<String, Integer> simulateGames(Deck deck, int n, int handSize, boolean verbose, boolean mull, int minProtection, int greedyMullCount, MersenneTwisterFast rng) {
-        final Term deckTerm = Util.stringArrayToList(deck.list());
-        final Term sbTerm = Util.stringArrayToList(deck.getSideboard());
-        final Variable sequencesV = new Variable("Sequences");
-        final Variable handsV = new Variable("Hands");
-        final Variable protCountsV = new Variable("ProtectionCounts");
-        final Variable winsV = new Variable("Wins");
-        final Query experimentQuery = new Query("play_games", new Term[] {
-                new org.jpl7.Integer(n),
-                deckTerm,
-                sbTerm,
-                new org.jpl7.Integer(handSize),
-                new org.jpl7.Integer(mull ? handSize : 0),
-                new org.jpl7.Integer(mull ? minProtection : 0),
-                new org.jpl7.Integer(mull ? (greedyMullCount >= 0 ? greedyMullCount : handSize) : 0),
-                handsV,
-                sequencesV,
-                protCountsV,
-                winsV});
-        experimentQuery.open();
-        final Map<String, Term> bindings = experimentQuery.getSolution();
-        final int wins = bindings.get("Wins").intValue();
-        final Term[] protectionTerms = bindings.get("ProtectionCounts").toTermArray();
-        if (verbose) {
-            final Term[] handTerms = bindings.get("Hands").toTermArray();
-            final Term[] seqTerms = bindings.get("Sequences").toTermArray();
-            for (int i = 0; i < handTerms.length; i++) {
-                final Term[] steps = seqTerms[i].toTermArray();
-                System.out.println("Sample hand: " + Arrays.deepToString(handTerms[i].toTermArray()));
-                if (steps.length == 0) {
-                    System.out.println("       loss.");
-                } else if (steps[steps.length-1].name().equalsIgnoreCase("mulligan")) {
-                    System.out.println("       loss: " + Arrays.deepToString(steps));
-                } else {
-                    final int protectionCount = protectionTerms[i].intValue();
-                    System.out.println("        win: " + Arrays.deepToString(steps) + " (" + protectionCount + "x protection)");
+    public Map<String, Term> simulateHand(final Deck deck, final int handSize, final int putBack,
+                                          final Map<String, Integer> intParams, final boolean verbose,
+                                          final MersenneTwisterFast rng) {
+        final String[] shuffled = deck.getShuffled(rng);
+        final String[] hand = Arrays.copyOfRange(shuffled, 0, handSize);
+        final String[] library = Arrays.copyOfRange(shuffled, handSize, shuffled.length);
+        final Map<Atom, Term> params = new HashMap<>();
+        intParams.forEach((key, value) -> {
+            params.put(new Atom(key), new org.jpl7.Integer(value));
+        });
+        final Variable outputs = new Variable("Outputs");
+        Term[] queryTerms = new Term[] {
+                Term.stringArrayToList(hand),
+                Term.stringArrayToList(library),
+                Term.stringArrayToList(deck.getSideboard()),
+                new org.jpl7.Integer(putBack),
+                new Dict(new Atom("params"), params),
+                outputs};
+        final Query handQuery = new Query("play_oops_hand", queryTerms);
+        //handQuery.open();
+        final Map<String, Term> bindings = handQuery.oneSolution();
+        Map<String, Term> outputMap = null;
+        if (bindings != null) {
+            final Term outputTerm = bindings.get("Outputs");
+            if (outputTerm instanceof Dict) {
+                outputMap = new HashMap<>();
+                for (Map.Entry<Atom, Term> entry : ((Dict) outputTerm).getMap().entrySet()) {
+                    outputMap.put(entry.getKey().toString(), entry.getValue());
                 }
             }
         }
+        return outputMap;
+    }
+
+    private Results playHandAutomull(final Deck deck, final int handSize, final int maxMulligans,
+                                 final Map<String, Integer> intParams, final boolean verbose,
+                                 final MersenneTwisterFast rng) {
+        Map<String, Term> bindings = null;
+        int mulligans = 0;
+        do {
+            if (mulligans == intParams.getOrDefault("greedy", 0)) {
+                intParams.put("protection", 0);
+            }
+            bindings = simulateHand(deck, handSize, mulligans, intParams, verbose, rng);
+            mulligans++;
+        } while (bindings == null && mulligans < maxMulligans);
+        return new Results(bindings);
+    }
+
+    /**
+     * Run a number of independent random games/hands with the same deck, by repeatedly shuffling,
+     * drawing a hand, and passing it to the logic engine.
+     * @param deck The deck to experiment with
+     * @param n The number of hands to sample and test
+     * @param handSize The number of cards to draw from the deck for each sample
+     * @param verbose Whether to print debug information
+     * @param mull Whether to mulligan hands that fail
+     * @param minProtection TODO
+     * @param greedyMullCount TODO
+     * @param rng TODO
+     * @return TODO
+     */
+    public Map<String, Integer> simulateGames(Deck deck, int n, int handSize,
+                                              boolean verbose, boolean mull,
+                                              int minProtection, int greedyMullCount,
+                                              MersenneTwisterFast rng) {
+        final Map<String, Integer> params = new HashMap<>();
+        params.put("greedy", greedyMullCount);
+        Results aggregatedResults = new Results();
         int protectedWins = 0;
         final Map<Integer, Integer> protCountDistribution = new LinkedHashMap<>();
-        for (int i = 0; i < protectionTerms.length; i++) {
-            final int protectionCount = protectionTerms[i].intValue();
+        final int maxMull = mull ? handSize-1 : 0;
+        for (int i = 0; i < n; i++) {
+            params.put("protection", minProtection);
+            Results individualResult = playHandAutomull(deck, handSize, maxMull, params, verbose, rng);
+//                System.out.println("Sample hand: " + Arrays.deepToString(individualResult.listMetadata.get("hand")));
+            aggregatedResults.add(individualResult);
+            if (individualResult.nFailures > 0) {
+                if (verbose || true) {
+                    System.out.println("       loss.");
+                }
+            } else {
+                final int protection = individualResult.intMetadata.get("protection").get(0);
+                final int prevCount = protCountDistribution.getOrDefault(protection, 0);
+                protCountDistribution.put(protection, prevCount + 1);
+                if (individualResult.nSuccesses > 0 && protection >= minProtection) {
+                    protectedWins++;
+                }
+                if (verbose || true) {
+                    final List<String> sequence = individualResult.listMetadata.get("sequence").get(0);
+                    System.out.println("        win: " + sequence + " (" + protection + "x protection)");
+                }
+            }
+        }
+        if (verbose) {
+            System.out.println(protCountDistribution);
+        }
+        final Map<String, Integer> results = new LinkedHashMap<>();
+        results.put("games", aggregatedResults.nTotal);
+        results.put("wins", aggregatedResults.nSuccesses);
+        results.put("protected", protectedWins);
+        System.out.println(results);
+        return results;
+    }
+
+    @Deprecated
+    public Map<String, Integer> simulateGamesBatch(Deck deck, int n, int handSize,
+                                                   boolean verbose, boolean mull,
+                                                   int minProtection, int greedyMullCount,
+                                                   MersenneTwisterFast rng) {
+        final Term deckTerm = Util.stringArrayToList(deck.list());
+        final Term sbTerm = Util.stringArrayToList(deck.getSideboard());
+        final Variable sequenceV = new Variable("Sequence");
+        final Variable handV = new Variable("Hand");
+        final Variable protCountV = new Variable("ProtectionCount");
+        final Variable winV = new Variable("Win");
+        Term[]queryTerms = new Term[]{
+                deckTerm,
+                sbTerm,
+                new org.jpl7.Integer(mull ? handSize : 0),
+                new org.jpl7.Integer(mull ? minProtection : 0),
+                new org.jpl7.Integer(mull ? (greedyMullCount >= 0 ? greedyMullCount : handSize) : 0),
+                handV,
+                sequenceV,
+                new org.jpl7.Integer(7 - handSize),
+                protCountV,
+                winV};
+        int totalWins = 0;
+        int protectedWins = 0;
+        final Map<Integer, Integer> protCountDistribution = new LinkedHashMap<>();
+        for (int i = 0; i < n; i++) {
+            final Query gameQuery = new Query("play_oops_game", queryTerms);
+            gameQuery.open();
+            final Map<String, Term> bindings = gameQuery.getSolution();
+            final int protectionCount = bindings.get("ProtectionCount").intValue();
+            totalWins += bindings.get("Win").intValue();
             final int prevCount = protCountDistribution.getOrDefault(protectionCount, 0);
             protCountDistribution.put(protectionCount, prevCount + 1);
             if (protectionCount > 0) {
                 protectedWins++;
             }
+            if (verbose || true) {
+                final Term[] steps = bindings.get("Sequence").toTermArray();
+                System.out.println("Sample hand: " + Arrays.deepToString(bindings.get("Hand").toTermArray()));
+                if (steps.length == 0) {
+                    System.out.println("       loss.");
+                } else if (steps[steps.length - 1].name().equalsIgnoreCase("mulligan")) {
+                    System.out.println("       loss: " + Arrays.deepToString(steps));
+                } else {
+                    System.out.println("        win: " + Arrays.deepToString(steps) + " (" + protectionCount + "x protection)");
+                }
+            }
+            gameQuery.close();
         }
-        experimentQuery.close();
         if (verbose) {
             System.out.println(protCountDistribution);
         }
         final Map<String, Integer> results = new LinkedHashMap<>();
         results.put("games", n);
-        results.put("wins", wins);
+        results.put("wins", totalWins);
         results.put("protected", protectedWins);
         return results;
     }
 
-    /*
-    public Map<String, Integer>  simulateGames(Deck deck, int n, int handSize, boolean verbose, boolean mull, int greedyMullCount, MersenneTwisterFast rng) {
-        return getResults(deck, n, handSize, verbose, mull, false, false, greedyMullCount, rng)[0];
-    }
-    */
-
-    public Map<String, Integer> simulateGames(Deck deck, int n, int handSize, boolean verbose, int minProtection, int greedyMullCount, MersenneTwisterFast rng) {
-        return simulateGames(deck, n, handSize, verbose, true, minProtection, greedyMullCount, rng);
+    @Deprecated
+    public Map<String, Integer> simulateGamesBatch(Deck deck, int n, int handSize, boolean verbose, int minProtection, int greedyMullCount, MersenneTwisterFast rng) {
+        return simulateGamesBatch(deck, n, handSize, verbose, true, minProtection, greedyMullCount, rng);
     }
 
+    @Deprecated
     public int[] getResults(Deck deck, int n, int handSize, boolean verbose, MersenneTwisterFast rng) {
         return getResults(deck, n, handSize, verbose, false, true, false, rng);
     }
 
+    @Deprecated
     public void testHand(String[] hand, String[] deck) {
         Term handTerm = Util.stringArrayToList(hand);
         Term deckTerm = Util.stringArrayToList(deck);

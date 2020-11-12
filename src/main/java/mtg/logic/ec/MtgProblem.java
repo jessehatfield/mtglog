@@ -5,21 +5,21 @@ import ec.Individual;
 import ec.Problem;
 import ec.simple.SimpleFitness;
 import ec.simple.SimpleProblemForm;
+import ec.util.Log;
 import ec.util.Parameter;
 import ec.vector.IntegerVectorIndividual;
 import mtg.logic.Deck;
-import mtg.logic.DeckTemplate;
 import mtg.logic.PrologEngine;
 
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Map;
 
-public abstract class MtgProblem extends Problem implements SimpleProblemForm {
+public class MtgProblem extends Problem implements SimpleProblemForm {
 //    protected abstract Deck createDeck(int[] genome);
 
     protected final PrologEngine prolog;
-    protected final int trials;
+    protected int trials;
     protected final boolean autoMull;
     protected final int minProtection;
     protected final int greedyMullCount;
@@ -30,10 +30,18 @@ public abstract class MtgProblem extends Problem implements SimpleProblemForm {
     public static String MIN_PROTECTION_PROPERTY = "mtg.eval.protection";
     public static String GREEDY_MULL_COUNT = "mtg.eval.mull.greedy";
 
+    public static String P_N_GAMES = "games";
+    public static String P_PROLOG_FILES = "src";
+
+    @Override
+    public Parameter defaultBase() {
+        return new Parameter("mtg");
+    }
+
     public MtgProblem() throws IOException {
         String prologDir = System.getProperty(PROLOG_SRC_PROPERTY, System.getProperty("user.dir"));
         this.prolog = new PrologEngine(prologDir);
-        this.trials = Integer.parseInt(System.getProperty(N_TRIALS_PROPERTY, "1"));
+//        this.trials = Integer.parseInt(System.getProperty(N_TRIALS_PROPERTY, "1"));
         this.autoMull = Boolean.parseBoolean(System.getProperty(AUTO_MULL_PROPERTY, "true"));
         this.minProtection = Integer.parseInt(System.getProperty(MIN_PROTECTION_PROPERTY, "0"));
         this.greedyMullCount = autoMull ? Integer.parseInt(System.getProperty(GREEDY_MULL_COUNT, "0")) : 0;
@@ -50,6 +58,7 @@ public abstract class MtgProblem extends Problem implements SimpleProblemForm {
      * the absolute value of the former difference will always be greater than that of the
      * latter unless the former is actually 0.
      */
+    /*
     private double fitnessPrioritizeProtection(final IntegerVectorIndividual ind, final Deck deck, final EvolutionState state, final int threadnum) {
         final Map<String, Integer> results = prolog.simulateGames(deck, trials, 7, false, autoMull, minProtection, greedyMullCount, state.random[threadnum]);
         final int w = results.get("wins");
@@ -63,6 +72,7 @@ public abstract class MtgProblem extends Problem implements SimpleProblemForm {
                 + " ; fitness=" + f);
         return f;
     }
+    */
 
     /**
      * Fitness function that combines protected wins with overall wins, with overall wins taking
@@ -75,7 +85,7 @@ public abstract class MtgProblem extends Problem implements SimpleProblemForm {
      * the absolute value of the former difference will always be greater than that of the
      * latter unless the former is actually 0.
      */
-    private double fitnessPrioritizeWin(final IntegerVectorIndividual ind, final Deck deck, final EvolutionState state, final int threadnum) {
+    private double fitness(final IntegerVectorIndividual ind, final Deck deck, final EvolutionState state, final int threadnum) {
         final Map<String, Integer> results = prolog.simulateGames(deck, trials, 7, false, autoMull, minProtection, greedyMullCount, state.random[threadnum]);
         System.out.println(results);
         final int w = results.get("wins");
@@ -94,6 +104,7 @@ public abstract class MtgProblem extends Problem implements SimpleProblemForm {
      * Fitness function that only cares about the number of wins overall, with any number of
      * protection spells.
      */
+    /*
     private double fitnessWinOnly(final IntegerVectorIndividual ind, final Deck deck, final EvolutionState state, final int threadnum) {
         final Map<String, Integer> results = prolog.simulateGames(deck, trials, 7, false, autoMull, minProtection, greedyMullCount, state.random[threadnum]);
         final int w = results.get("wins");
@@ -104,6 +115,7 @@ public abstract class MtgProblem extends Problem implements SimpleProblemForm {
                 + " ; fitness=" + f);
         return f;
     }
+     */
 
     @Override
     public void evaluate(final EvolutionState state, final Individual ind,
@@ -115,7 +127,7 @@ public abstract class MtgProblem extends Problem implements SimpleProblemForm {
         final DecklistVectorSpecies species = (DecklistVectorSpecies) ind.species;
         final Deck deck = species.template.toDeck(ind2.genome);
         System.out.println("Evaluating " + Arrays.toString(ind2.genome) + " (" + deck.getSize() + " cards)...");
-        double f = fitnessPrioritizeWin(ind2, deck, state, threadnum);
+        double f = fitness(ind2, deck, state, threadnum);
         if (deck.getSize() > deck.getMinSize()) { // this should never happen
             // but if it does, ensure it can't beat any valid individual's fitness
             f -= (trials + 1);
@@ -124,11 +136,19 @@ public abstract class MtgProblem extends Problem implements SimpleProblemForm {
         ind2.evaluated = true;
     }
 
-    /*
     @Override
     public void setup(final EvolutionState state, final Parameter base) {
         final Parameter def = this.defaultBase();
-        this.trials = state.parameters.getInt(base.push(P_N_GAMES), def.push(P_N_GAMES));
+        this.trials = state.parameters.getIntWithDefault(
+                base.push(P_N_GAMES), def.push(P_N_GAMES), 1);
+        final String plFiles = state.parameters.getStringWithDefault(
+                base.push(P_PROLOG_FILES), def.push(P_PROLOG_FILES), "");
+        for (final String filename : plFiles.split("\\s|,|;|:|\\|")) {
+            if (!filename.trim().isEmpty()) {
+                state.output.println("Consulting " + filename.trim() + " ...", Log.D_STDOUT);
+                prolog.consultFile(filename.trim());
+            }
+            System.out.println("Prolog files loaded.");
+        }
     }
-     */
 }

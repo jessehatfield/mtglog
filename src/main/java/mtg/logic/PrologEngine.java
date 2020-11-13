@@ -48,32 +48,6 @@ public class PrologEngine {
     }
 
     @Deprecated
-    public void sim(Deck d, int n, boolean autoMull, int minProtection, int greedyMullCount, MersenneTwisterFast rng) {
-        if (autoMull) {
-            int w = simulateGamesBatch(d, n, 7, true, minProtection, greedyMullCount, rng).get("wins");
-            System.out.println("Won " + w + " out of " + n + " on the first turn.");
-        }
-        else {
-            double cantwin = 1.0;
-            for (int i = 7; i > 3; i--) {
-                System.out.println();
-                System.out.println(i + " cards, " + n + " samples:");
-                int[] result = getResults(d, n, i, false, false, true, true, rng);
-                double winp = 100.0 * result[0] / n;
-                double millp = 100.0 * result[1] / n;
-                double wcp = 100.0 * result[2] / n;
-                System.out.println(winp + "% first-turn win");
-                System.out.println(millp + "% can mill deck but not win");
-                System.out.println(wcp + "% have win condition but can't mill/win");
-                cantwin *= 1 - (winp / 100);
-            }
-            double winp_automull = 100.0 * (1 - cantwin);
-            System.out.println("\n" + winp_automull
-                    + "% first-turn win if we mull all non-winning hands");
-        }
-    }
-
-    @Deprecated
     public int[] getResults(Deck deck, int n, int handSize, boolean verbose, boolean mull,
                             boolean describe, boolean full, MersenneTwisterFast rng) {
         int w = 0;
@@ -248,70 +222,6 @@ public class PrologEngine {
         results.put("protected", protectedWins);
         System.out.println(results);
         return results;
-    }
-
-    @Deprecated
-    public Map<String, Integer> simulateGamesBatch(Deck deck, int n, int handSize,
-                                                   boolean verbose, boolean mull,
-                                                   int minProtection, int greedyMullCount,
-                                                   MersenneTwisterFast rng) {
-        final Term deckTerm = Util.stringArrayToList(deck.list());
-        final Term sbTerm = Util.stringArrayToList(deck.getSideboard());
-        final Variable sequenceV = new Variable("Sequence");
-        final Variable handV = new Variable("Hand");
-        final Variable protCountV = new Variable("ProtectionCount");
-        final Variable winV = new Variable("Win");
-        Term[]queryTerms = new Term[]{
-                deckTerm,
-                sbTerm,
-                new org.jpl7.Integer(mull ? handSize : 0),
-                new org.jpl7.Integer(mull ? minProtection : 0),
-                new org.jpl7.Integer(mull ? (greedyMullCount >= 0 ? greedyMullCount : handSize) : 0),
-                handV,
-                sequenceV,
-                new org.jpl7.Integer(7 - handSize),
-                protCountV,
-                winV};
-        int totalWins = 0;
-        int protectedWins = 0;
-        final Map<Integer, Integer> protCountDistribution = new LinkedHashMap<>();
-        for (int i = 0; i < n; i++) {
-            final Query gameQuery = new Query("play_oops_game", queryTerms);
-            gameQuery.open();
-            final Map<String, Term> bindings = gameQuery.getSolution();
-            final int protectionCount = bindings.get("ProtectionCount").intValue();
-            totalWins += bindings.get("Win").intValue();
-            final int prevCount = protCountDistribution.getOrDefault(protectionCount, 0);
-            protCountDistribution.put(protectionCount, prevCount + 1);
-            if (protectionCount > 0) {
-                protectedWins++;
-            }
-            if (verbose || true) {
-                final Term[] steps = bindings.get("Sequence").toTermArray();
-                System.out.println("Sample hand: " + Arrays.deepToString(bindings.get("Hand").toTermArray()));
-                if (steps.length == 0) {
-                    System.out.println("       loss.");
-                } else if (steps[steps.length - 1].name().equalsIgnoreCase("mulligan")) {
-                    System.out.println("       loss: " + Arrays.deepToString(steps));
-                } else {
-                    System.out.println("        win: " + Arrays.deepToString(steps) + " (" + protectionCount + "x protection)");
-                }
-            }
-            gameQuery.close();
-        }
-        if (verbose) {
-            System.out.println(protCountDistribution);
-        }
-        final Map<String, Integer> results = new LinkedHashMap<>();
-        results.put("games", n);
-        results.put("wins", totalWins);
-        results.put("protected", protectedWins);
-        return results;
-    }
-
-    @Deprecated
-    public Map<String, Integer> simulateGamesBatch(Deck deck, int n, int handSize, boolean verbose, int minProtection, int greedyMullCount, MersenneTwisterFast rng) {
-        return simulateGamesBatch(deck, n, handSize, verbose, true, minProtection, greedyMullCount, rng);
     }
 
     @Deprecated

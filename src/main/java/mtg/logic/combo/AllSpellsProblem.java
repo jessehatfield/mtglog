@@ -17,18 +17,10 @@ public class AllSpellsProblem extends MtgProblem {
         System.out.println("Prolog files loaded.");
     }
 
-    /*
-    @Override
-    protected Deck createDeck(int[] counts) {
-        return new AllSpellsDeck(counts);
-    }
-     */
-
     private int runSimulation(String decklistFile, int nGames, int handSize, int minProtection, int greedyMullCount) {
         MersenneTwisterFast rng = new MersenneTwisterFast();
         System.out.println("Loading decklist " + decklistFile + "...");
         Deck d = Deck.fromFile(AllSpellsDeck.cards, decklistFile);
-//        printQueries(d, nGames, rng);
         boolean verbose = true;
         boolean automull = true;
         Map<String, Integer> results = prolog.simulateGames(d, nGames, handSize, verbose, automull, minProtection, greedyMullCount, rng);
@@ -40,10 +32,10 @@ public class AllSpellsProblem extends MtgProblem {
         double stddevProtected = Math.sqrt(nGames * pProtected * (1-pProtected));
         System.out.println(nWins + " wins (stddev=" + stddev + " ; p=" + p + ")");
         System.out.println(nProtectedWins + " protected wins (stddev=" + stddevProtected + " ; p=" + pProtected + ")");
-//        prolog.sim(d, nGames, false, minProtection, int greedyMullCount, rng);
         return nWins;
     }
 
+    @Deprecated
     public void printQueries(Deck d, int n, MersenneTwisterFast rng) {
         System.out.println("testHands(I) :-");
         System.out.println("    consult('cards.pl'),");
@@ -69,13 +61,7 @@ public class AllSpellsProblem extends MtgProblem {
         System.out.println("    I is -1, true.");
     }
 
-    public void test() {
-        String[] hand = {"Summoners Pact", "Summoners Pact", "Undercity Informer",
-                "Simian Spirit Guide", "Simian Spirit Guide", "Summoners Pact"};
-        String[] deck = {"Wild Cantor", "Elvish Spirit Guide", "Tinder Wall"};
-        prolog.testHand(hand, deck);
-    }
-
+    @Deprecated
     public static String escape(String foo) {
         return foo.replace("'", "\\'");
     }

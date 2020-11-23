@@ -1,8 +1,11 @@
 package mtg.logic.ec;
 
-import ec.vector.*;
-import ec.*;
-import ec.util.*;
+import ec.vector.IntegerVectorIndividual;
+import ec.vector.VectorDefaults;
+import ec.BreedingPipeline;
+import ec.EvolutionState;
+import ec.Individual;
+import ec.util.Parameter;
 
 public class VectorCapPipeline extends BreedingPipeline {
     public static final String P_MUTATION = "mutate";

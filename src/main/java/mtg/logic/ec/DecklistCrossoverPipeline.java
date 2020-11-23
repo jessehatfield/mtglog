@@ -1,9 +1,13 @@
 package mtg.logic.ec;
 
-import ec.vector.*;
-import ec.*;
-import ec.util.*;
-import java.util.*;
+import ec.BreedingPipeline;
+import ec.EvolutionState;
+import ec.Individual;
+import ec.util.MersenneTwisterFast;
+import ec.util.Parameter;
+import ec.vector.IntegerVectorIndividual;
+import ec.vector.IntegerVectorSpecies;
+import ec.vector.VectorDefaults;
 
 public class DecklistCrossoverPipeline extends BreedingPipeline {
     public static final String P_CROSSOVER = "crossover";
@@ -13,7 +17,7 @@ public class DecklistCrossoverPipeline extends BreedingPipeline {
     public int total;
     public int max_copies;
 
-    IntegerVectorIndividual parents[];
+    IntegerVectorIndividual[] parents;
 
     public DecklistCrossoverPipeline() { parents = new IntegerVectorIndividual[2]; }
     public Parameter defaultBase() { return VectorDefaults.base().push(P_CROSSOVER); }
@@ -21,7 +25,7 @@ public class DecklistCrossoverPipeline extends BreedingPipeline {
 
     public Object clone() {
         DecklistCrossoverPipeline c = (DecklistCrossoverPipeline)(super.clone());
-        c.parents = (IntegerVectorIndividual[]) parents.clone();
+        c.parents = parents.clone();
         return c;
     }
 
@@ -72,35 +76,6 @@ public class DecklistCrossoverPipeline extends BreedingPipeline {
         }
         return n;
     }
-
-    /*
-    void crossover(IntegerVectorIndividual parent1,
-                   IntegerVectorIndividual parent2, MersenneTwisterFast rng) {
-        // For each card, average the counts of the two parents.
-        // If the average is fractional (e.g. 1 and 4 -> 2.5), truncate
-        // (the new count is 2) and add a copy to the extra pile.
-        // Add in the extras until they run out or the deck is full.
-        LinkedList extras = new LinkedList();
-        int length = parents[0].genomeLength();
-        int size = 0;
-        for (int j = 0; j < length; j++) {
-            int sum = parents[0].genome[j] + parents[1].genome[j];
-            if (sum % 2 > 0) {
-                extras.add(j);
-            }
-            parents[0].genome[j] = sum / 2;
-            size += parents[0].genome[j];
-        }
-        Collections.shuffle(extras);
-        for (int j = 0; j < total-size; j++) {
-            if (extras.size() == 0) {
-                break;
-            }
-            parents[0].genome[(int)(extras.pop())]++;
-        }
-        parents[0].evaluated = false;
-    }
-     */
 
     IntegerVectorIndividual crossover(IntegerVectorIndividual parent1,
                    IntegerVectorIndividual parent2, MersenneTwisterFast rng) {

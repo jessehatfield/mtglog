@@ -1,10 +1,18 @@
 package mtg.logic;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -38,6 +46,8 @@ public class DeckTemplate {
     public final static int DEFAULT_MAX_COUNT = 4;
 
     private final List<Segment> segments = new ArrayList<>();
+
+    private final Set<String> distinct = new LinkedHashSet<>();
 
     private final int numEntries;
 
@@ -100,6 +110,7 @@ public class DeckTemplate {
                             }
                         }
                         entryLists.get(entryLists.size() - 1).add(new Entry(name, minCount, maxCount));
+                        distinct.add(name);
                     }
                 }
                 line = in.readLine();
@@ -119,6 +130,10 @@ public class DeckTemplate {
 
     public int getNumEntries() {
         return numEntries;
+    }
+
+    public String[] getDistinctItems() {
+        return distinct.toArray(new String[]{});
     }
 
     /**
@@ -206,6 +221,32 @@ public class DeckTemplate {
             this.name = name;
             this.minCount = minCount;
             this.maxCount = maxCount;
+        }
+    }
+
+    public static void main(final String[] args) throws IOException {
+        if (args.length < 1) {
+            System.out.println("Usage: DeckTemplate <template file> <vector of length <= distinct cards>");
+            System.exit(1);
+        }
+        final String filename = args[0];
+        final DeckTemplate template = new DeckTemplate(filename);
+        final int maxCards = template.getNumEntries();
+        if (args.length > maxCards + 1) {
+            System.out.println("Usage: DeckTemplate <template file> <vector of length <= " + maxCards + ">");
+            System.exit(1);
+        }
+        final int[] vector = new int[args.length - 1];
+        for (int i = 0; i < vector.length; i++) {
+            vector[i] = Integer.parseInt(args[i+1]);
+        }
+        final Deck deck = template.toDeck(vector);
+        final Map<String, Integer> counts = deck.getCounts();
+        for (String card : template.getDistinctItems()) {
+            final int n = counts.getOrDefault(card, 0);
+            if (n > 0) {
+                System.out.println(n + " " + card);
+            }
         }
     }
 }

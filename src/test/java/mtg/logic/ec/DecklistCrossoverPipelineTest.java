@@ -1,10 +1,12 @@
 package mtg.logic.ec;
 
-import ec.BreedingPipeline;
 import ec.EvolutionState;
-import ec.Individual;
 import ec.simple.SimpleEvolutionState;
-import ec.util.*;
+import ec.util.Log;
+import ec.util.MersenneTwisterFast;
+import ec.util.Output;
+import ec.util.Parameter;
+import ec.util.ParameterDatabase;
 import ec.vector.IntegerVectorIndividual;
 import ec.vector.IntegerVectorSpecies;
 import org.junit.Assert;

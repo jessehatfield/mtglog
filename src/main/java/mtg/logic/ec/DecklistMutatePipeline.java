@@ -5,6 +5,7 @@ import ec.*;
 import ec.util.*;
 import java.util.*;
 
+@Deprecated
 public class DecklistMutatePipeline extends BreedingPipeline {
     public static final String P_MUTATION = "mutate";
     public static final String P_TOTAL = "size";

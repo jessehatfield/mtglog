@@ -4,11 +4,16 @@ import ec.util.MersenneTwisterFast;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
-import java.util.*;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 
 public class Deck {
-    private final List<String> maindeck = new ArrayList<String>();
-    private final List<String> sideboard = new ArrayList<String>();
+    private final List<String> maindeck = new ArrayList<>();
+    private final List<String> sideboard = new ArrayList<>();
     private final int minSize;
 
     public Deck(String[] cards, int[] counts, int[] sb, int minSize) {
@@ -68,8 +73,7 @@ public class Deck {
         String[] library = new String[minSize-n];
         maindeck.subList(0, n).toArray(hand);
         maindeck.subList(n, minSize).toArray(library);
-        String[][] parts = { hand, library };
-        return parts;
+        return new String[][] { hand, library };
     }
 
     public String[] getShuffled(MersenneTwisterFast rng) {
@@ -98,13 +102,9 @@ public class Deck {
         return counts;
     }
 
-    public String[] list() {
-        return maindeck.toArray(new String[] {});
-    }
-
     public static Deck fromFile(String[] cards, String filename) {
-        Map<String, Integer> contents = new HashMap<String, Integer>();
-        Map<String, Integer> sideboard = new HashMap<String, Integer>();
+        Map<String, Integer> contents = new HashMap<>();
+        Map<String, Integer> sideboard = new HashMap<>();
         Map<String, Integer> currentMap = contents;
         try {
             BufferedReader in = new BufferedReader(new FileReader(filename));
@@ -131,7 +131,6 @@ public class Deck {
             in.close();
             int[] counts = new int[cards.length];
             int[] sb = new int[cards.length];
-            int total = 0;
             for (int i = 0; i < cards.length; i++) {
                 String lower = cards[i].toLowerCase();
                 if (contents.containsKey(lower)) {
@@ -162,6 +161,12 @@ public class Deck {
             e.printStackTrace();
             return null;
         }
+    }
+
+    public static Deck fromFile(String filename) throws IOException {
+        final DeckTemplate template = new DeckTemplate(filename);
+        String[] cards = template.getDistinctItems();
+        return fromFile(cards, filename);
     }
 
     @Override

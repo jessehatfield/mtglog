@@ -1,0 +1,19 @@
+name: Oops All Spells -- Legacy
+
+predicate: play_oops_hand
+
+sources:
+  - mana.pl
+  - cards.pl
+  - oops.pl
+  - test.pl
+
+maxMulligans: 3
+
+params:
+  protection: 1
+  greedy_mulligans: 0
+
+outputs:
+  boolean:
+    - isProtected

@@ -16,6 +16,11 @@ public class DecklistVectorSpecies extends IntegerVectorSpecies {
     }
 
     @Override
+    public Parameter defaultBase() {
+        return new Parameter("mtg.deck");
+    }
+
+    @Override
     public void setup(EvolutionState state, Parameter base) {
         final Parameter def = this.defaultBase();
         final Parameter tempA = base.push(P_TEMPLATE_FILE);

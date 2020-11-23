@@ -1,144 +1,89 @@
 package mtg.logic;
 
 import ec.util.MersenneTwisterFast;
-import org.jpl7.*;
+import org.jpl7.Atom;
+import org.jpl7.Dict;
+import org.jpl7.Query;
+import org.jpl7.Term;
+import org.jpl7.Variable;
 
 import java.io.File;
 import java.lang.Integer;
-import java.util.*;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.function.Consumer;
 
 public class PrologEngine {
     private final File prologSrcDir;
+    private boolean verbose = false;
+    private PrologProblem problem;
+    private Consumer<String> logFunction = System.out::println;
 
     public PrologEngine(String srcPath) {
         this.prologSrcDir = new File(srcPath);
-        System.out.println("Looking for prolog files in " + prologSrcDir + "...");
+        log("Looking for prolog files in " + prologSrcDir + "...");
+    }
+
+    public void setProblem(final PrologProblem problem) {
+        this.problem = problem;
+        for (final String localName : problem.getSources()) {
+            consultFile(localName);
+        }
+    }
+
+    public void setLog(final Consumer<String> log) {
+        this.logFunction = log;
+    }
+
+    private void log(final Object message) {
+        logFunction.accept(message == null ? "null" : message.toString());
     }
 
     public void consultFile(String localName) {
         final String sourcePath = new File(prologSrcDir, localName).getAbsolutePath();
-        System.out.println("Consulting " + sourcePath + "...");
+        log("Consulting " + sourcePath + "...");
         Query consultQuery = new Query("consult", new Term[] { new Atom(sourcePath)});
         consultQuery.allSolutions();
         consultQuery.close();
     }
 
-    @Deprecated
-    public void setShowProgress(final int interval) {
-        new Query("asserta", new Term[] {
-            new Compound("showProgress", new Term[] { new org.jpl7.Integer(interval) })
-        }).allSolutions();
+    public void setVerbose(final boolean verbose) {
+        this.verbose = verbose;
     }
 
-    public Query buildQuery(String predicate, String[] hand, String[] deck, String[] sideboard) {
-        Term handTerm = Util.stringArrayToList(hand);
-        Term deckTerm = Util.stringArrayToList(deck);
-        Term sideTerm = Util.stringArrayToList(sideboard);
-        Variable sequence = new Variable("Sequence");
-        Query winQ = new Query(predicate, new Term[] { handTerm, deckTerm, sideTerm, sequence });
-        return winQ;
-    }
-
-    public Query buildQuery(String predicate, String[] hand, String[] other) {
-        Term handTerm = Util.stringArrayToList(hand);
-        Term otherTerm = Util.stringArrayToList(other);
-        Variable sequence = new Variable("Sequence");
-        Query q = new Query(predicate, new Term[] { handTerm, otherTerm, sequence });
-        return q;
-    }
-
-    @Deprecated
-    public int[] getResults(Deck deck, int n, int handSize, boolean verbose, boolean mull,
-                            boolean describe, boolean full, MersenneTwisterFast rng) {
-        int w = 0;
-        int mill = 0;
-        int wc = 0;
-        Query winQ;
-        Query millQ;
-        Query winconditionQ;
-        for (int i = 0; i < n; i++) {
-            String[] shuffled = deck.getShuffled(rng);
-            //draw hand
-            String[] hand = Arrays.copyOf(shuffled, handSize);
-            String[] library = Arrays.copyOfRange(shuffled, handSize, shuffled.length);
-            String[] side = deck.getSideboard();
-            //play
-            if (full) {
-                winQ = buildQuery("win", hand, library, side);
-            }
-            else {
-                winQ = buildQuery("win_basic", hand, library, side);
-            }
-            try {
-                if (winQ.hasSolution()) {
-                    w++;
-                    if (verbose) {
-                        System.out.print("Win with ");
-                        System.out.print(handSize);
-                        System.out.println(" cards");
-                    }
-                } else if (describe) {
-                    //Gather other statistics
-                    millQ = buildQuery("mill", hand, library, side);
-                    winconditionQ = buildQuery("win_condition", hand, side);
-
-                    if (millQ.hasSolution()) {
-                        mill++;
-                        if (verbose) {
-                            System.out.print("Mill deck, can't win (");
-                            System.out.print(handSize);
-                            System.out.println(" cards)");
-                        }
-                    }
-                    else if (winconditionQ.hasSolution()) {
-                        wc++;
-                        if (verbose) {
-                            winconditionQ.open();
-                            String all = "";
-                            Map<String, Term> bindings = winconditionQ.getSolution();
-                            while (bindings != null) {
-                                Term sTerm = (Term) bindings.get("Sequence");
-                                all += " " + sTerm.toString();
-                                bindings = winconditionQ.getSolution();
-                            }
-                            winQ.close();
-                            System.out.print("Have [" + all + " ], can't win (");
-                            System.out.print(handSize);
-                            System.out.println(" cards)");
-                        }
-                    }
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
-                System.out.println(Util.stringArrayToList(hand));
-                System.out.println(Util.stringArrayToList(library));
-                System.out.println(Util.stringArrayToList(side));
+    /**
+     * Test a specific hand, putting back cards as required.
+     * @param hand The cards in the hand to test
+     * @param library The remainder of the library
+     * @param sideboard The relevant cards in the sideboard
+     * @param putBack The number of cards to put back from the hand (i.e. mulligans)
+     * @return A Results object representing the outputs of this trial
+     */
+    public Results testHand(final String[] hand, final String[] library, final String[] sideboard, final int putBack) {
+        final Map<Atom, Term> params = new HashMap<>();
+        for (Map.Entry<String, Object> entry : problem.getParams().entrySet()) {
+            final String key = entry.getKey();
+            final Object val = entry.getValue();
+            if (val instanceof Integer) {
+                params.put(new Atom(key), new org.jpl7.Integer((Integer) val));
+            } else if (val instanceof String) {
+                params.put(new Atom(key), new Atom((String) val));
+            } else {
+                throw new IllegalArgumentException("Doesn't know how to convert parameter "
+                        + key + ": " + val + " of type " + val.getClass() + " into Prolog term");
             }
         }
-        int[] result = {w, mill, wc};
-        return result;
-    }
-
-    public Map<String, Term> simulateHand(final Deck deck, final int handSize, final int putBack,
-                                          final Map<String, Integer> intParams, final boolean verbose,
-                                          final MersenneTwisterFast rng) {
-        final String[] shuffled = deck.getShuffled(rng);
-        final String[] hand = Arrays.copyOfRange(shuffled, 0, handSize);
-        final String[] library = Arrays.copyOfRange(shuffled, handSize, shuffled.length);
-        final Map<Atom, Term> params = new HashMap<>();
-        intParams.forEach((key, value) -> {
-            params.put(new Atom(key), new org.jpl7.Integer(value));
-        });
         final Variable outputs = new Variable("Outputs");
         Term[] queryTerms = new Term[] {
                 Term.stringArrayToList(hand),
                 Term.stringArrayToList(library),
-                Term.stringArrayToList(deck.getSideboard()),
+                Term.stringArrayToList(sideboard),
                 new org.jpl7.Integer(putBack),
                 new Dict(new Atom("params"), params),
                 outputs};
-        final Query handQuery = new Query("play_oops_hand", queryTerms);
-        //handQuery.open();
+        final long startTime = System.currentTimeMillis();
+        final Query handQuery = new Query(problem.getPredicate(), queryTerms);
         final Map<String, Term> bindings = handQuery.oneSolution();
         Map<String, Term> outputMap = null;
         if (bindings != null) {
@@ -150,22 +95,48 @@ public class PrologEngine {
                 }
             }
         }
-        return outputMap;
+        long duration = System.currentTimeMillis() - startTime;
+        return new Results(outputMap, duration);
     }
 
-    private Results playHandAutomull(final Deck deck, final int handSize, final int maxMulligans,
-                                 final Map<String, Integer> intParams, final boolean verbose,
-                                 final MersenneTwisterFast rng) {
-        Map<String, Term> bindings = null;
+    /**
+     * Run a single random game/hand, including performing mulligans as
+     * required/permitted by the problem definition
+     * @param deck The deck to experiment with
+     * @param rng The random number generator to use for shuffling
+     * @return A Results object representing the outputs of a single trial
+     */
+    public Results simulateGame(final Deck deck, final MersenneTwisterFast rng) {
+        final int maxMulligans = problem.getMaxMulligans();
         int mulligans = 0;
+        Results individualResult = null;
         do {
-            if (mulligans == intParams.getOrDefault("greedy", 0)) {
-                intParams.put("protection", 0);
+            if (verbose && individualResult != null) {
+                log("        mulligan. [" + individualResult.getDuration(0) + "ms]");
             }
-            bindings = simulateHand(deck, handSize, mulligans, intParams, verbose, rng);
+            // draw a random hand
+            final int handSize = problem.getHandSize();
+            final String[] shuffled = deck.getShuffled(rng);
+            final String[] hand = Arrays.copyOfRange(shuffled, 0, handSize);
+            final String[] library = Arrays.copyOfRange(shuffled, handSize, shuffled.length);
+            if (verbose) {
+                final String extra = mulligans > 0 ? " (must put back " + mulligans + ")" : "";
+                log("Testing hand: " + Arrays.deepToString(hand) + extra);
+            }
+            individualResult = testHand(hand, library, deck.getSideboard(), mulligans);
+            if (verbose) {
+                if (individualResult.isSuccess(0)) {
+                    log("        success: " + individualResult.getListMetadata(0)
+                            + " ; " + individualResult.getIntMetadata(0)
+                            + " ; " + individualResult.getStringMetadata(0)
+                            + " [" + individualResult.getDuration(0) + " ms]");
+                } else {
+                    log("       failure. [" + individualResult.getDuration(0) + " ms]");
+                }
+            }
             mulligans++;
-        } while (bindings == null && mulligans < maxMulligans);
-        return new Results(bindings);
+        } while (!individualResult.isSuccess(0) && mulligans < maxMulligans);
+        return individualResult;
     }
 
     /**
@@ -173,77 +144,18 @@ public class PrologEngine {
      * drawing a hand, and passing it to the logic engine.
      * @param deck The deck to experiment with
      * @param n The number of hands to sample and test
-     * @param handSize The number of cards to draw from the deck for each sample
-     * @param verbose Whether to print debug information
-     * @param mull Whether to mulligan hands that fail
-     * @param minProtection TODO
-     * @param greedyMullCount TODO
-     * @param rng TODO
-     * @return TODO
+     * @param rng The random number generator to use for shuffling
+     * @return A Results object aggregating all the outputs of all the trials
      */
-    public Map<String, Integer> simulateGames(Deck deck, int n, int handSize,
-                                              boolean verbose, boolean mull,
-                                              int minProtection, int greedyMullCount,
-                                              MersenneTwisterFast rng) {
-        final Map<String, Integer> params = new HashMap<>();
-        params.put("greedy", greedyMullCount);
+    public Results simulateGames(final Deck deck, int n, MersenneTwisterFast rng) {
         Results aggregatedResults = new Results();
-        int protectedWins = 0;
-        final Map<Integer, Integer> protCountDistribution = new LinkedHashMap<>();
-        final int maxMull = mull ? handSize-1 : 0;
         for (int i = 0; i < n; i++) {
-            params.put("protection", minProtection);
-            Results individualResult = playHandAutomull(deck, handSize, maxMull, params, verbose, rng);
-//                System.out.println("Sample hand: " + Arrays.deepToString(individualResult.listMetadata.get("hand")));
+            Results individualResult = simulateGame(deck, rng);
             aggregatedResults.add(individualResult);
-            if (individualResult.nFailures > 0) {
-                if (verbose || true) {
-                    System.out.println("       loss.");
-                }
-            } else {
-                final int protection = individualResult.intMetadata.get("protection").get(0);
-                final int prevCount = protCountDistribution.getOrDefault(protection, 0);
-                protCountDistribution.put(protection, prevCount + 1);
-                if (individualResult.nSuccesses > 0 && protection >= minProtection) {
-                    protectedWins++;
-                }
-                if (verbose || true) {
-                    final List<String> sequence = individualResult.listMetadata.get("sequence").get(0);
-                    System.out.println("        win: " + sequence + " (" + protection + "x protection)");
-                }
-            }
         }
         if (verbose) {
-            System.out.println(protCountDistribution);
+            log(aggregatedResults);
         }
-        final Map<String, Integer> results = new LinkedHashMap<>();
-        results.put("games", aggregatedResults.nTotal);
-        results.put("wins", aggregatedResults.nSuccesses);
-        results.put("protected", protectedWins);
-        System.out.println(results);
-        return results;
-    }
-
-    @Deprecated
-    public int[] getResults(Deck deck, int n, int handSize, boolean verbose, MersenneTwisterFast rng) {
-        return getResults(deck, n, handSize, verbose, false, true, false, rng);
-    }
-
-    @Deprecated
-    public void testHand(String[] hand, String[] deck) {
-        Term handTerm = Util.stringArrayToList(hand);
-        Term deckTerm = Util.stringArrayToList(deck);
-        Variable sequence = new Variable("Sequence");
-        Query winQ = new Query("win", new Term[] { handTerm, deckTerm, sequence });
-        winQ.open();
-        Map<String, Term> bindings = winQ.getSolution();
-        if (bindings == null) {
-            System.out.println("fail.");
-        }
-        else {
-            Term sTerm = (Term) bindings.get("Sequence");
-            System.out.println(sTerm);
-            winQ.close();
-        }
+        return aggregatedResults;
     }
 }

@@ -1,8 +1,21 @@
 % Oops all spells logic
 
+% Main evaluation function: determine whether a hand can win
+play_oops_hand(HAND, LIBRARY, SB, MULLIGANS, INPUT_PARAMS, OUTPUTS) :-
+    get_or_default(INPUT_PARAMS, greedy_mulligans, 0, GREEDY_MULLIGANS),
+    get_or_default(INPUT_PARAMS, protection, 0, DESIRED_PROTECTION),
+    ((GREEDY_MULLIGANS > MULLIGANS, REQUIRED_PROTECTION is DESIRED_PROTECTION)
+    ; (GREEDY_MULLIGANS =< MULLIGANS, REQUIRED_PROTECTION is 0)),
+    combination(HAND, MULLIGANS, BOTTOM, MULL_HAND),
+    append(LIBRARY, BOTTOM, MULL_LIBRARY),
+    protected_win(MULL_HAND, MULL_LIBRARY, SB, REQUIRED_PROTECTION, 3, SEQ, PROTECTION),
+    ((PROTECTION >= DESIRED_PROTECTION, IS_PROTECTED = true)
+    ; PROTECTION < DESIRED_PROTECTION, IS_PROTECTED = false),
+    OUTPUTS = _{sequence:SEQ,protection:PROTECTION,keep:MULL_HAND,isProtected:IS_PROTECTED},
+    !.
+
 protected_win(HAND, DECK, SB, MIN_PROTECTION, TARGET_PROTECTION, SEQUENCE, TARGET_PROTECTION) :-
     prune_protection(TARGET_PROTECTION, HAND),
-%    format("protected_win(~w, ~w, ~w, ~w, ~w, ~w, ~w)\n", [HAND, DECK, SB, MIN_PROTECTION, TARGET_PROTECTION, SEQUENCE, TARGET_PROTECTION]),
     win(HAND, DECK, SB, SEQUENCE, TARGET_PROTECTION),
     TARGET_PROTECTION >= MIN_PROTECTION.
 protected_win(HAND, DECK, SB, MIN_PROTECTION, TARGET_PROTECTION, SEQUENCE, BEST_PROTECTION) :-
@@ -281,6 +294,9 @@ informer_win_cast(H1, B1, G1, M1, PRIOR_SEQUENCE, TOTAL_SEQUENCE, PROTECTION) :-
     append(S2, ['Oracle'], INTERMEDIATE_SEQUENCE),
     finalize([H3, B2, M3, G2, 0, D2, PROTECTION1], [_, _, _, _, _, _, PROTECTION], INTERMEDIATE_SEQUENCE, TOTAL_SEQUENCE, _).
 
+finalize(STATE, STATE, SEQ, SEQ, 0) :-
+    state_hand(STATE, HAND),
+    hand_maxprotection(HAND, 0).
 finalize(STATE1, FINAL_STATE, PRIOR_SEQUENCE, TOTAL_SEQUENCE, P_DELTA) :-
     finalize(STATE1, FINAL_STATE, PRIOR_SEQUENCE, TOTAL_SEQUENCE),
     state_protection(STATE1, P1),
@@ -288,6 +304,9 @@ finalize(STATE1, FINAL_STATE, PRIOR_SEQUENCE, TOTAL_SEQUENCE, P_DELTA) :-
     P_DELTA = P2 - P1,
     (P2 > P1; P1 > P2).
 finalize(STATE, STATE, SEQ, SEQ, 0).
+finalize(STATE, STATE, SEQ, SEQ) :-
+    state_hand(STATE, HAND),
+    hand_maxprotection(HAND, 0).
 finalize(STATE1, FINAL_STATE, PRIOR_SEQUENCE, TOTAL_SEQUENCE) :-
     makemana(STATE1, STATE2, PRIOR_SEQUENCE, [H|T]),
     append(PRIOR_SEQUENCE, [H|T], SEQ3),
@@ -359,3 +378,9 @@ flashback(HAND, GY, MANA, CREATURES, TOKENS, END_HAND, END_GY, END_MANA, END_CRE
 canpass(SEQUENCE) :-
     not(member('Pact of Negation', SEQUENCE)),
     not(member('Summoner\'s Pact', SEQUENCE)).
+
+hand_maxprotection([], 0).
+hand_maxprotection([H|T], P) :-
+    protection(H, P1),
+    hand_maxprotection(T, P2),
+    P is P1 + P2.

@@ -76,6 +76,19 @@ public class Deck {
         return new String[][] { hand, library };
     }
 
+    /**
+     * Return the portion of the deck minus a given subset (e.g. the remainder after drawing a hand)
+     * @param subset The cards to remove (may include duplicates to remove multiple copies)
+     * @return the remaining cards after setting the subset aside
+     */
+    public String[] getRemainder(final String[] subset) {
+        final List<String> remainder = new ArrayList<>(maindeck);
+        for (final String card : subset) {
+            remainder.remove(card);
+        }
+        return remainder.toArray(new String[]{});
+    }
+
     public String[] getShuffled(MersenneTwisterFast rng) {
         String[] library = new String[maindeck.size()];
         maindeck.toArray(library);

@@ -63,6 +63,7 @@ public class PrologEngineIT {
                         expectedWin, win);
                 i++;
             }
+            System.out.println();
         }
     }
 }

@@ -8,6 +8,8 @@ import mtg.logic.DeckTemplate;
 import java.io.InputStream;
 
 public class DecklistVectorSpecies extends IntegerVectorSpecies {
+    private static final long serialVersionUID = 1;
+
     public static final String P_TEMPLATE_FILE = "template";
 
     protected DeckTemplate template;

@@ -5,13 +5,16 @@ import ec.util.MersenneTwisterFast;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
-public class Deck {
+public class Deck implements Serializable {
+    private static final long serialVersionUID = 1;
+
     private final List<String> maindeck = new ArrayList<>();
     private final List<String> sideboard = new ArrayList<>();
     private final int minSize;

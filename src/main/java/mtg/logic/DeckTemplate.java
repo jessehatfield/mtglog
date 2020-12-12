@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -35,7 +36,9 @@ import java.util.regex.Pattern;
  * will yield a template that accepts distributions over [A, B, C, D] that range
  * from [4, 1, 0, 0] to [4, 4, 0, 2]
  */
-public class DeckTemplate {
+public class DeckTemplate implements Serializable {
+    private static final long serialVersionUID = 1;
+
     public final static Pattern RANGE_PATTERN = Pattern.compile(
             "^([0-9])+[xX]?\\s*-\\s*([0-9]+)[xX]?\\s+(.*)$");
     public final static Pattern EXACT_PATTERN = Pattern.compile("^([0-9])+[xX]?\\s+(.*)$");
@@ -202,7 +205,8 @@ public class DeckTemplate {
                 + " total entries; index " + i + " out of bounds");
     }
 
-    static class Segment {
+    static class Segment implements Serializable {
+        private static final long serialVersionUID = 1;
         final List<Entry> entries;
         final int minTotal;
         final int maxTotal;
@@ -213,7 +217,8 @@ public class DeckTemplate {
         }
     }
 
-    static class Entry {
+    static class Entry implements Serializable {
+        private static final long serialVersionUID = 1;
         final String name;
         final int minCount;
         final int maxCount;

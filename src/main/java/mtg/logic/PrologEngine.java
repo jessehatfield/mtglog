@@ -9,20 +9,20 @@ import org.jpl7.Variable;
 
 import java.io.File;
 import java.lang.Integer;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
-import java.util.function.Consumer;
+import java.util.function.BiConsumer;
 
 public class PrologEngine {
     private final File prologSrcDir;
-    private boolean verbose = false;
+    private final List<BiConsumer<String[], Results>> callbacks = new ArrayList<>();
     private PrologProblem problem;
-    private Consumer<String> logFunction = System.out::println;
 
     public PrologEngine(String srcPath) {
         this.prologSrcDir = new File(srcPath);
-        log("Looking for prolog files in " + prologSrcDir + "...");
     }
 
     public void setProblem(final PrologProblem problem) {
@@ -32,24 +32,15 @@ public class PrologEngine {
         }
     }
 
-    public void setLog(final Consumer<String> log) {
-        this.logFunction = log;
-    }
-
-    private void log(final Object message) {
-        logFunction.accept(message == null ? "null" : message.toString());
+    public void addCallback(final BiConsumer<String[], Results> callback) {
+        callbacks.add(callback);
     }
 
     public void consultFile(String localName) {
         final String sourcePath = new File(prologSrcDir, localName).getAbsolutePath();
-        log("Consulting " + sourcePath + "...");
         Query consultQuery = new Query("consult", new Term[] { new Atom(sourcePath)});
         consultQuery.allSolutions();
         consultQuery.close();
-    }
-
-    public void setVerbose(final boolean verbose) {
-        this.verbose = verbose;
     }
 
     /**
@@ -57,10 +48,10 @@ public class PrologEngine {
      * @param hand The cards in the hand to test
      * @param library The remainder of the library
      * @param sideboard The relevant cards in the sideboard
-     * @param putBack The number of cards to put back from the hand (i.e. mulligans)
+     * @param mulligans The number of cards to put back from the hand (i.e. mulligans so far)
      * @return A Results object representing the outputs of this trial
      */
-    public Results testHand(final String[] hand, final String[] library, final String[] sideboard, final int putBack) {
+    public Results testHand(final String[] hand, final String[] library, final String[] sideboard, final int mulligans) {
         final Map<Atom, Term> params = new HashMap<>();
         for (Map.Entry<String, Object> entry : problem.getParams().entrySet()) {
             final String key = entry.getKey();
@@ -79,7 +70,7 @@ public class PrologEngine {
                 Term.stringArrayToList(hand),
                 Term.stringArrayToList(library),
                 Term.stringArrayToList(sideboard),
-                new org.jpl7.Integer(putBack),
+                new org.jpl7.Integer(mulligans),
                 new Dict(new Atom("params"), params),
                 outputs};
         final long startTime = System.currentTimeMillis();
@@ -96,7 +87,7 @@ public class PrologEngine {
             }
         }
         long duration = System.currentTimeMillis() - startTime;
-        return new Results(outputMap, duration);
+        return new Results(outputMap, duration, mulligans);
     }
 
     /**
@@ -109,30 +100,16 @@ public class PrologEngine {
     public Results simulateGame(final Deck deck, final MersenneTwisterFast rng) {
         final int maxMulligans = problem.getMaxMulligans();
         int mulligans = 0;
-        Results individualResult = null;
+        Results individualResult;
         do {
-            if (verbose && individualResult != null) {
-                log("        mulligan. [" + individualResult.getDuration(0) + "ms]");
-            }
             // draw a random hand
             final int handSize = problem.getHandSize();
             final String[] shuffled = deck.getShuffled(rng);
             final String[] hand = Arrays.copyOfRange(shuffled, 0, handSize);
             final String[] library = Arrays.copyOfRange(shuffled, handSize, shuffled.length);
-            if (verbose) {
-                final String extra = mulligans > 0 ? " (must put back " + mulligans + ")" : "";
-                log("Testing hand: " + Arrays.deepToString(hand) + extra);
-            }
             individualResult = testHand(hand, library, deck.getSideboard(), mulligans);
-            if (verbose) {
-                if (individualResult.isSuccess(0)) {
-                    log("        success: " + individualResult.getListMetadata(0)
-                            + " ; " + individualResult.getIntMetadata(0)
-                            + " ; " + individualResult.getStringMetadata(0)
-                            + " [" + individualResult.getDuration(0) + " ms]");
-                } else {
-                    log("       failure. [" + individualResult.getDuration(0) + " ms]");
-                }
+            for (final BiConsumer<String[], Results> callback : callbacks) {
+                callback.accept(hand, individualResult);
             }
             mulligans++;
         } while (!individualResult.isSuccess(0) && mulligans < maxMulligans);
@@ -152,9 +129,6 @@ public class PrologEngine {
         for (int i = 0; i < n; i++) {
             Results individualResult = simulateGame(deck, rng);
             aggregatedResults.add(individualResult);
-        }
-        if (verbose) {
-            log(aggregatedResults);
         }
         return aggregatedResults;
     }

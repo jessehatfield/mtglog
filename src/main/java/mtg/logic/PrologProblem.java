@@ -6,6 +6,7 @@ import org.yaml.snakeyaml.constructor.Constructor;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.Serializable;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -27,7 +28,9 @@ import java.util.Objects;
  * the max number of mulligans, and any expected outputs, divided into
  * categories based on how they should be reported (count, etc).
  */
-public class PrologProblem {
+public class PrologProblem implements Serializable {
+    private static final long serialVersionUID = 1;
+
     private String name;
     private String predicate;
     private List<String> sources;

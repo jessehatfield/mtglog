@@ -14,23 +14,28 @@ import mtg.logic.PrologEngine;
 import mtg.logic.PrologProblem;
 import mtg.logic.Results;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.Serializable;
 import java.util.Arrays;
 import java.util.List;
 
-public class MtgProblem extends Problem implements SimpleProblemForm {
+public class MtgProblem extends Problem implements SimpleProblemForm, Serializable {
+    private static final long serialVersionUID = 1;
 
     private String prologSrcDir;
     private int trials;
-    private PrologEngine prolog;
+    private transient PrologEngine prolog;
     private PrologProblem problem;
+    private int handLogNum = -1;
 
-    public static String PROLOG_SRC_PROPERTY = "prolog.src.dir";
+    public static final String PROLOG_SRC_PROPERTY = "prolog.src.dir";
 
-    public static String P_PROBLEM_SPEC = "spec";
-    public static String P_PROLOG_DIR = "srcdir";
-    public static String P_N_GAMES = "games";
+    public static final String P_PROBLEM_SPEC = "spec";
+    public static final String P_PROLOG_DIR = "srcdir";
+    public static final String P_N_GAMES = "games";
+    public static final String P_HAND_LOG = "log-hands";
 
     @Override
     public Parameter defaultBase() {
@@ -129,14 +134,42 @@ public class MtgProblem extends Problem implements SimpleProblemForm {
                 + "], prolog src dir [ " + prologSrcDir
                 + " ], trials [" + trials + "]...",
                 Log.D_STDOUT);
-        init();
-        prolog.setVerbose(false);
-        prolog.setLog(str -> state.output.println(str, Log.D_STDOUT));
+        final File handLogFile = state.parameters.getFile(
+                base.push(P_HAND_LOG), def.push(P_HAND_LOG));
+        if (handLogFile == null) {
+            state.output.warning("Not logging individual hands; provide filename to record and time them all",
+                    base.push(P_HAND_LOG), def.push(P_HAND_LOG));
+        } else {
+            try {
+                handLogNum = state.output.addLog(handLogFile, true);
+                state.output.message("Logging all hands to  " + handLogFile.getAbsolutePath());
+                state.output.println("duration (ms)\thand\twin\tmulligans", handLogNum);
+            } catch (IOException e) {
+                state.output.warning("Couldn't create/append to log file for recording hands",
+                    base.push(P_HAND_LOG), def.push(P_HAND_LOG));
+            }
+        }
+        initProlog(state);
     }
 
-    private void init() {
+    private String getLogMessage(final String[] hand, final Results individualResult) {
+        return individualResult.getDuration(0)
+                + "\t" + Arrays.deepToString(hand)
+                + "\t" + individualResult.isSuccess(0)
+                + "\t" + individualResult.getMulliganCounts(0);
+    }
+
+    private void initProlog(final EvolutionState state) {
         prolog = new PrologEngine(prologSrcDir);
         prolog.setProblem(problem);
+        if (state != null && handLogNum >= 0) {
+            prolog.addCallback((h, r) -> state.output.println(getLogMessage(h, r), handLogNum));
+        }
+    }
+
+    @Override
+    public void reinitializeContacts(EvolutionState state) {
+        initProlog(state);
     }
 
     private Results evaluateDeck(final Deck deck, final MersenneTwisterFast rng) {
@@ -161,8 +194,7 @@ public class MtgProblem extends Problem implements SimpleProblemForm {
             app.problem = PrologProblem.fromYaml(args[0]);
             final String decklistFile = args[1];
             app.trials = Integer.parseInt(args[2]);
-            app.init();
-            app.prolog.setVerbose(true);
+            app.initProlog(null);
             final Deck deck = Deck.fromFile(decklistFile);
             final MersenneTwisterFast rng = new MersenneTwisterFast();
             app.printResults(app.evaluateDeck(deck, rng));

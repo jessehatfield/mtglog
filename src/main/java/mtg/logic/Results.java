@@ -22,13 +22,15 @@ public class Results {
     // Fields that apply for every simulation
     private final List<Boolean> success = new ArrayList<>();
     private final List<Long> durations = new ArrayList<>();
+    private final List<Integer> mulliganCounts = new ArrayList<>();
 
     public Results() { }
 
-    public Results(Map<String, Term> prologMetadata, long duration) {
+    public Results(Map<String, Term> prologMetadata, long duration, int mulliganCount) {
         this.nTotal = 1;
         success.add(prologMetadata != null);
         durations.add(duration);
+        mulliganCounts.add(mulliganCount);
         if (prologMetadata == null) {
             this.nSuccesses = 0;
             this.nFailures = 1;
@@ -77,7 +79,8 @@ public class Results {
                 + "," + stringMetadata
                 + "," + listMetadata
                 + "," + booleanMetadata + ";"
-                + "durations=" + durations + "}";
+                + "durations=" + durations + ";"
+                + "mulliganCounts=" + mulliganCounts + "}";
     }
 
     public void add(Results other) {
@@ -105,6 +108,7 @@ public class Results {
             booleanMetadata.put(key, mergedList);
         }
         durations.addAll(other.durations);
+        mulliganCounts.addAll(other.mulliganCounts);
     }
 
     public int getNTotal() { return nTotal; }
@@ -153,6 +157,13 @@ public class Results {
     public long getDuration(final int i) {
         return durations.get(i);
     }
+
+    public List<Integer> getMulliganCounts() { return mulliganCounts; }
+
+    public int getMulliganCounts(final int i) {
+        return mulliganCounts.get(i);
+    }
+
     public boolean isSuccess(final int i) {
         return success.get(i);
     }

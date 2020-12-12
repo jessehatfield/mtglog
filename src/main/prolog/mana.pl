@@ -42,7 +42,13 @@ nocastlast([H | T]) :-
 makemana_goal(TARGET_CARD_NAME, START_STATE, START_STATE, PRIOR_SEQUENCE, PRIOR_SEQUENCE) :-
     check_timing(TARGET_CARD_NAME, PRIOR_SEQUENCE),
     state_hand(START_STATE, HAND),
-    member(TARGET_CARD_NAME, HAND).
+    member(TARGET_CARD_NAME, HAND),
+    % Require that we have the mana to cast the card
+    card(TARGET_CARD_NAME, TARGET_CARD_DATA),
+    list_to_assoc(TARGET_CARD_DATA, TARGET_CARD),
+    get_assoc(cost, TARGET_CARD, TARGET_COST),
+    state_mana(START_STATE, START_MANA),
+    spend(TARGET_COST, START_MANA, _).
 makemana_goal(TARGET_CARD_NAME,
         [START_HAND, START_BOARD, START_MANA, START_GY, START_STORM, START_DECK, START_PROTECTION],
 	[END_HAND, END_BOARD, END_MANA, END_GY, END_STORM, END_DECK, END_PROTECTION],
@@ -61,7 +67,7 @@ makemana_goal(TARGET_CARD_NAME,
         spend(TARGET_COST, COLORED_MANA_MAX, _),
         !
     ),
-    % Attempt to do so
+    % Attempt to do so by casting one card and recursing
     member(NAME, START_HAND),
     check_timing(NAME, PRIOR_SEQUENCE),
     card(NAME, DATA),
@@ -247,14 +253,39 @@ spendAny(N, START_MANA, END_MANA) :-
     spendU(N, START_MANA, END_MANA);
     spendB(N, START_MANA, END_MANA);
     spendR(N, START_MANA, END_MANA);
-    spendG(N, START_MANA, END_MANA);
-    spendA(N, START_MANA, END_MANA).
-% Spend N of any combination of colors.
-spendGeneric(0, START_MANA, START_MANA).
-spendGeneric(N, START_MANA, END_MANA) :-
-    spendAny(1, START_MANA, ONE_LESS),
-    K is N-1,
-    spendGeneric(K, ONE_LESS, END_MANA).
+    spendG(N, START_MANA, END_MANA).
+% Only spend any-color mana as generic mana if it's the only option
+spendAny(N, [W,U,B,R,G,C,A], END_MANA) :-
+    N > W,
+    N > U,
+    N > B,
+    N > R,
+    N > G,
+    N > C,
+    spendA(N, [W,U,B,R,G,C,A], END_MANA).
+% Spend N of any combination of colors
+spendGeneric(N, [W,U,B,R,G,C,A], [W2,U2,B2,R2,G2,C2,A]) :-
+    total([W,U,B,R,G,C], TOTAL_SPECIFIC),
+    TOTAL_SPECIFIC >= N,
+    subtract_total_(N, [W,U,B,R,G,C], [W2,U2,B2,R2,G2,C2]).
+% any-color mana should only be used if the rest isn't enough
+spendGeneric(N, [W,U,B,R,G,C,A], [0,0,0,0,0,0,A2]) :-
+    total([W,U,B,R,G,C], TOTAL_SPECIFIC),
+    REMAINDER is N - TOTAL_SPECIFIC,
+    REMAINDER > 0, A >= REMAINDER,
+    A2 is A - REMAINDER.
+
+subtract_total_(0, LST, LST).
+subtract_total_(N, [H|T], [H2|T2]) :-
+    N > 0,
+    H > 0,
+    DECREMENT is H - 1,
+    N2 is N - 1,
+    subtract_total_(N2, [DECREMENT|T], [H2|T2]).
+subtract_total_(N, [H|T], [H|T2]) :-
+    N > 0,
+    subtract_total_(N, T, T2).
+
 % Don't backtrack when we choose what color to spend.
 spendArbitraryAny(N, START_MANA, END_MANA) :-
     spendC(N, START_MANA, END_MANA), !;
@@ -294,29 +325,26 @@ spendExact([H_N | T_N], [H_S | T_S], [H_E | T_E], [H_R | T_R]) :-
     spendExact(T_N, T_S, T_E, T_R).
 % Spend mana that can be used as any color.
 spendAnyColor([0, 0, 0, 0, 0 | _], X, X).
-spendAnyColor([W, U, B, R, G | TT],
+spendAnyColor([W, U, B, R, G | _],
+%spendAnyColor([W, U, B, R, G | TT],
               [SW, SU, SB, SR, SG, SC, ANY1 | ST],
               [SW, SU, SB, SR, SG, SC, ANY3 | ST]) :-
     ANY1 > 0,
-    ANY2 is ANY1-1, (
-        W > 0, RW is W - 1, REMAINING = [RW, U, B, R, G | TT];
-        U > 0, RU is U - 1, REMAINING = [W, RU, B, R, G | TT];
-        B > 0, RB is B - 1, REMAINING = [W, U, RB, R, G | TT];
-        R > 0, RR is R - 1, REMAINING = [W, U, B, RR, G | TT];
-        G > 0, RG is G - 1, REMAINING = [W, U, B, R, RG | TT]
-    ),
-    spendAnyColor(REMAINING,
-                  [SW, SU, SB, SR, SG, SC, ANY2 | ST],
-                  [SW, SU, SB, SR, SG, SC, ANY3 | ST]).
+    total([W, U, B, R, G], TOTAL_NEEDED),
+    TOTAL_NEEDED > 0,
+    ANY3 is ANY1 - TOTAL_NEEDED,
+    ANY3 >= 0.
 
 % Spend specific and/or generic mana.
 spend([W, U, B, R, G, C, GENERIC], START_MANA, END_MANA) :-
     spendExact([W,U,B,R,G,C,0], START_MANA, M2, TARGET2),
+    noColorless(TARGET2),
     spendAnyColor(TARGET2, M2, M3),
     spendGeneric(GENERIC, M3, END_MANA).
 % Hack for optional {R/G} hybrid element:
 spend([W, U, B, R, G, C, GENERIC, HYBRID], START_MANA, END_MANA) :-
     spendExact([W,U,B,R,G,C,0], START_MANA, M2, TARGET2),
+    noColorless(TARGET2),
     spendHybrid(HYBRID, M2, M3),
     spendAnyColor(TARGET2, M3, M4),
     spendGeneric(GENERIC, M4, END_MANA).
@@ -328,6 +356,7 @@ spendHybrid(N, START_MANA, END_MANA) :-
     spendG(1, START_MANA, M2),
     M is N - 1,
     spendHybrid(M, M2, END_MANA).
+noColorless([_, _, _, _, _, 0 | _]).
 
 spendArbitraryHybrid(0, START_MANA, START_MANA).
 spendArbitraryHybrid(N, START_MANA, END_MANA) :-
@@ -343,5 +372,6 @@ spendArbitrary([W, U, B, R, G, C, GENERIC, HYBRID], START_MANA, END_MANA) :-
     spendArbitraryGeneric(GENERIC, M3, END_MANA).
 spendArbitrary([W, U, B, R, G, C, GENERIC], START_MANA, END_MANA) :-
     spendExact([W,U,B,R,G,C,0], START_MANA, M2, REMAINDER),
+    noColorless(REMAINDER),
     spendAnyColor(REMAINDER, M2, M3),
     spendArbitraryGeneric(GENERIC, M3, END_MANA).

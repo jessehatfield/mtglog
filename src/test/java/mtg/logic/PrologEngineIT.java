@@ -27,12 +27,13 @@ public class PrologEngineIT {
         final PrologProblem problem = PrologProblem.fromYaml(problemURL.getPath());
         final Deck deck = new DeckTemplate(deckURL.getPath()).toDeck(new int[]{});
         final PrologEngine engine = new PrologEngine("src/main/prolog");
-        engine.setVerbose(false);
         engine.setProblem(problem);
         final String[] sideboard = new String[] {};
         try (final FileReader in = new FileReader(sampleHandURL.getPath())) {
             final Iterable<CSVRecord> records = CSVFormat.TDF.withFirstRecordAsHeader().parse(in);
             int i = 0;
+            int falseNegatives = 0;
+            int falsePositives = 0;
             for (final CSVRecord record : records) {
                 final String[] hand = new String[7];
                 final String handStr = record.get("hand");
@@ -58,12 +59,21 @@ public class PrologEngineIT {
                 }
                 final Results result = engine.testHand(hand, library, sideboard, putBack);
                 final boolean win = result.isSuccess(0);
-                Assert.assertEquals("Expected win=" + expectedWin
-                        + " for hand=[" + Arrays.deepToString(hand) + "]",
-                        expectedWin, win);
+                if (win != expectedWin) {
+                    System.err.println("\nERROR[hand " + i + "]: Expected win=" + expectedWin
+                            + " for hand=[" + Arrays.deepToString(hand) + "], was "
+                            + win + " (" + result+ ")");
+                    if (expectedWin) {
+                        falseNegatives++;
+                    } else {
+                        falsePositives++;
+                    }
+                }
                 i++;
             }
             System.out.println();
+            Assert.assertEquals(falseNegatives + " false negatives and " + falsePositives + " false positives -- ",
+                0, falseNegatives + falsePositives);
         }
     }
 }

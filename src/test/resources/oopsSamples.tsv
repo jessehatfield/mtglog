@@ -34,7 +34,7 @@ ms	hand	win	mulligans
 35173	Lotus Petal, Undercity Informer, Simian Spirit Guide, Chrome Mox, Dark Ritual, Balustrade Spy, Elvish Spirit Guide	True	0
 34609	Undercity Informer, Simian Spirit Guide, Dark Ritual, Summoner's Pact, Simian Spirit Guide, Wild Cantor, Lotus Petal	True	0
 33429	Agadeem's Awakening, Balustrade Spy, Elvish Spirit Guide, Simian Spirit Guide, Wild Cantor, Dark Ritual, Turntimber Symbiosis	True	0
-32770	Undercity Informer, Cabal Ritual, Summoner's Pact, Simian Spirit Guide, Agadeem's Awakening, Cabal Ritual, Elvish Spirit Guide	False	0
+32770	Undercity Informer, Cabal Ritual, Summoner's Pact, Simian Spirit Guide, Agadeem's Awakening, Cabal Ritual, Elvish Spirit Guide	True	0
 26850	Agadeem's Awakening, Balustrade Spy, Balustrade Spy, Lotus Petal, Elvish Spirit Guide, Dark Ritual, Elvish Spirit Guide	True	0
 25896	Cabal Ritual, Simian Spirit Guide, Turntimber Symbiosis, Dark Ritual, Lotus Petal, Undercity Informer, Turntimber Symbiosis	True	0
 25702	Dark Ritual, Cabal Ritual, Chrome Mox, Agadeem's Awakening, Summoner's Pact, Summoner's Pact, Balustrade Spy	True	0
@@ -51,11 +51,11 @@ ms	hand	win	mulligans
 16934	Narcomoeba, Agadeem's Awakening, Dark Ritual, Lotus Petal, Chrome Mox, Balustrade Spy, Dark Ritual	True	0
 15951	Elvish Spirit Guide, Summoner's Pact, Dread Return, Simian Spirit Guide, Summoner's Pact, Undercity Informer, Chrome Mox	False	1
 15342	Chrome Mox, Balustrade Spy, Summoner's Pact, Lotus Petal, Chrome Mox, Simian Spirit Guide, Chrome Mox	False	1
-15321	Bridge from Below, Turntimber Symbiosis, Simian Spirit Guide, Chrome Mox, Dark Ritual, Dark Ritual, Undercity Informer	False	0
+15321	Bridge from Below, Turntimber Symbiosis, Simian Spirit Guide, Chrome Mox, Dark Ritual, Dark Ritual, Undercity Informer	True	0
 15084	Elvish Spirit Guide, Turntimber Symbiosis, Undercity Informer, Wild Cantor, Elvish Spirit Guide, Agadeem's Awakening, Elvish Spirit Guide	True	0
 14745	Elvish Spirit Guide, Chrome Mox, Balustrade Spy, Simian Spirit Guide, Elvish Spirit Guide, Chrome Mox, Agadeem's Awakening	True	1
 14447	Chrome Mox, Chrome Mox, Narcomoeba, Dark Ritual, Lotus Petal, Balustrade Spy, Simian Spirit Guide	True	0
-14094	Elvish Spirit Guide, Elvish Spirit Guide, Summoner's Pact, Cabal Ritual, Agadeem's Awakening, Summoner's Pact, Undercity Informer	False	1
+14094	Elvish Spirit Guide, Elvish Spirit Guide, Summoner's Pact, Cabal Ritual, Agadeem's Awakening, Summoner's Pact, Undercity Informer	True	1
 13929	Chrome Mox, Summoner's Pact, Undercity Informer, Elvish Spirit Guide, Lotus Petal, Turntimber Symbiosis, Undercity Informer	True	0
 13898	Lotus Petal, Chrome Mox, Lotus Petal, Dark Ritual, Undercity Informer, Bridge from Below, Summoner's Pact	True	0
 13795	Summoner's Pact, Summoner's Pact, Cabal Ritual, Chrome Mox, Undercity Informer, Simian Spirit Guide, Cabal Ritual	True	0
@@ -65,7 +65,7 @@ ms	hand	win	mulligans
 13427	Balustrade Spy, Agadeem's Awakening, Dark Ritual, Dark Ritual, Chrome Mox, Turntimber Symbiosis, Summoner's Pact	True	0
 13114	Lotus Petal, Balustrade Spy, Agadeem's Awakening, Dark Ritual, Summoner's Pact, Balustrade Spy, Elvish Spirit Guide	True	0
 12820	Undercity Informer, Elvish Spirit Guide, Simian Spirit Guide, Dark Ritual, Balustrade Spy, Elvish Spirit Guide, Agadeem's Awakening	True	1
-12519	Turntimber Symbiosis, Undercity Informer, Simian Spirit Guide, Summoner's Pact, Summoner's Pact, Undercity Informer, Simian Spirit Guide	False	0
+12519	Turntimber Symbiosis, Undercity Informer, Simian Spirit Guide, Summoner's Pact, Summoner's Pact, Undercity Informer, Simian Spirit Guide	True	0
 12362	Elvish Spirit Guide, Turntimber Symbiosis, Undercity Informer, Dark Ritual, Summoner's Pact, Chrome Mox, Turntimber Symbiosis	True	0
 12185	Chrome Mox, Summoner's Pact, Elvish Spirit Guide, Turntimber Symbiosis, Summoner's Pact, Undercity Informer, Narcomoeba	False	1
 11951	Dark Ritual, Chrome Mox, Cabal Ritual, Cabal Ritual, Undercity Informer, Summoner's Pact, Simian Spirit Guide	True	0
@@ -74,12 +74,12 @@ ms	hand	win	mulligans
 11556	Balustrade Spy, Chrome Mox, Dark Ritual, Agadeem's Awakening, Dark Ritual, Balustrade Spy, Elvish Spirit Guide	True	0
 11358	Chrome Mox, Undercity Informer, Wild Cantor, Cabal Ritual, Dark Ritual, Simian Spirit Guide, Agadeem's Awakening	True	0
 11025	Cabal Ritual, Chrome Mox, Cabal Ritual, Agadeem's Awakening, Dark Ritual, Balustrade Spy, Dark Ritual	True	0
-10604	Balustrade Spy, Chrome Mox, Summoner's Pact, Summoner's Pact, Agadeem's Awakening, Narcomoeba, Simian Spirit Guide	False	0
-9912	Simian Spirit Guide, Summoner's Pact, Bridge from Below, Summoner's Pact, Chrome Mox, Balustrade Spy, Simian Spirit Guide	False	1
+10604	Balustrade Spy, Chrome Mox, Summoner's Pact, Summoner's Pact, Agadeem's Awakening, Narcomoeba, Simian Spirit Guide	True	0
+9912	Simian Spirit Guide, Summoner's Pact, Bridge from Below, Summoner's Pact, Chrome Mox, Balustrade Spy, Simian Spirit Guide	True	1
 9610	Chrome Mox, Turntimber Symbiosis, Chrome Mox, Balustrade Spy, Turntimber Symbiosis, Dark Ritual, Chrome Mox	False	0
 9453	Bridge from Below, Lotus Petal, Turntimber Symbiosis, Simian Spirit Guide, Summoner's Pact, Dark Ritual, Balustrade Spy	True	1
 9204	Dark Ritual, Undercity Informer, Summoner's Pact, Undercity Informer, Elvish Spirit Guide, Chrome Mox, Lotus Petal	True	0
-8942	Undercity Informer, Cabal Ritual, Turntimber Symbiosis, Dark Ritual, Elvish Spirit Guide, Elvish Spirit Guide, Agadeem's Awakening	False	0
+8942	Undercity Informer, Cabal Ritual, Turntimber Symbiosis, Dark Ritual, Elvish Spirit Guide, Elvish Spirit Guide, Agadeem's Awakening	True	0
 8909	Lotus Petal, Undercity Informer, Summoner's Pact, Chrome Mox, Summoner's Pact, Bridge from Below, Dark Ritual	True	0
 8725	Cabal Ritual, Simian Spirit Guide, Chrome Mox, Chrome Mox, Balustrade Spy, Bridge from Below, Agadeem's Awakening	True	0
 8278	Balustrade Spy, Agadeem's Awakening, Summoner's Pact, Lotus Petal, Simian Spirit Guide, Lotus Petal, Elvish Spirit Guide	True	1
@@ -90,13 +90,13 @@ ms	hand	win	mulligans
 7197	Lotus Petal, Chrome Mox, Agadeem's Awakening, Simian Spirit Guide, Agadeem's Awakening, Balustrade Spy, Balustrade Spy	True	0
 7137	Simian Spirit Guide, Balustrade Spy, Agadeem's Awakening, Dark Ritual, Chrome Mox, Chrome Mox, Undercity Informer	True	0
 7030	Simian Spirit Guide, Summoner's Pact, Simian Spirit Guide, Turntimber Symbiosis, Agadeem's Awakening, Cabal Ritual, Balustrade Spy	True	0
-6943	Balustrade Spy, Agadeem's Awakening, Elvish Spirit Guide, Cabal Therapy, Summoner's Pact, Summoner's Pact, Summoner's Pact	False	1
+6943	Balustrade Spy, Agadeem's Awakening, Elvish Spirit Guide, Cabal Therapy, Summoner's Pact, Summoner's Pact, Summoner's Pact	True	1
 6814	Dark Ritual, Cabal Ritual, Simian Spirit Guide, Balustrade Spy, Lotus Petal, Simian Spirit Guide, Undercity Informer	True	0
 6734	Undercity Informer, Cabal Ritual, Turntimber Symbiosis, Agadeem's Awakening, Dark Ritual, Lotus Petal, Summoner's Pact	True	0
 6667	Lotus Petal, Elvish Spirit Guide, Dread Return, Chrome Mox, Summoner's Pact, Simian Spirit Guide, Undercity Informer	True	1
 6663	Lotus Petal, Lotus Petal, Turntimber Symbiosis, Summoner's Pact, Simian Spirit Guide, Balustrade Spy, Narcomoeba	True	1
 6595	Bridge from Below, Summoner's Pact, Turntimber Symbiosis, Chrome Mox, Chrome Mox, Simian Spirit Guide, Undercity Informer	True	1
-6232	Summoner's Pact, Balustrade Spy, Pact of Negation, Chrome Mox, Summoner's Pact, Agadeem's Awakening, Elvish Spirit Guide	False	1
+6232	Summoner's Pact, Balustrade Spy, Pact of Negation, Chrome Mox, Summoner's Pact, Agadeem's Awakening, Elvish Spirit Guide	True	1
 6158	Balustrade Spy, Balustrade Spy, Wild Cantor, Chrome Mox, Dark Ritual, Agadeem's Awakening, Simian Spirit Guide	True	0
 5921	Balustrade Spy, Wild Cantor, Simian Spirit Guide, Dark Ritual, Agadeem's Awakening, Balustrade Spy, Chrome Mox	True	0
 5920	Simian Spirit Guide, Wild Cantor, Thassa's Oracle, Balustrade Spy, Agadeem's Awakening, Elvish Spirit Guide, Summoner's Pact	True	1
@@ -124,7 +124,7 @@ ms	hand	win	mulligans
 3858	Chrome Mox, Narcomoeba, Elvish Spirit Guide, Undercity Informer, Dark Ritual, Wild Cantor, Elvish Spirit Guide	True	0
 3794	Pact of Negation, Agadeem's Awakening, Simian Spirit Guide, Chrome Mox, Lotus Petal, Dark Ritual, Undercity Informer	True	1
 3759	Agadeem's Awakening, Balustrade Spy, Chrome Mox, Lotus Petal, Chrome Mox, Narcomoeba, Elvish Spirit Guide	True	1
-3722	Summoner's Pact, Chrome Mox, Elvish Spirit Guide, Balustrade Spy, Elvish Spirit Guide, Turntimber Symbiosis, Agadeem's Awakening	False	2
+3722	Summoner's Pact, Chrome Mox, Elvish Spirit Guide, Balustrade Spy, Elvish Spirit Guide, Turntimber Symbiosis, Agadeem's Awakening	True	2
 3717	Undercity Informer, Turntimber Symbiosis, Cabal Ritual, Summoner's Pact, Chrome Mox, Agadeem's Awakening, Cabal Ritual	True	0
 3642	Agadeem's Awakening, Summoner's Pact, Undercity Informer, Chrome Mox, Agadeem's Awakening, Chrome Mox, Undercity Informer	True	0
 3603	Simian Spirit Guide, Turntimber Symbiosis, Lotus Petal, Turntimber Symbiosis, Undercity Informer, Agadeem's Awakening, Elvish Spirit Guide	True	1
@@ -141,7 +141,7 @@ ms	hand	win	mulligans
 3088	Chrome Mox, Cabal Ritual, Dark Ritual, Balustrade Spy, Agadeem's Awakening, Undercity Informer, Summoner's Pact	True	0
 3044	Cabal Therapy, Dark Ritual, Chrome Mox, Agadeem's Awakening, Summoner's Pact, Summoner's Pact, Undercity Informer	True	1
 3043	Elvish Spirit Guide, Balustrade Spy, Elvish Spirit Guide, Cabal Ritual, Chrome Mox, Undercity Informer, Summoner's Pact	False	2
-3012	Undercity Informer, Simian Spirit Guide, Narcomoeba, Agadeem's Awakening, Summoner's Pact, Dark Ritual, Summoner's Pact	False	0
+3012	Undercity Informer, Simian Spirit Guide, Narcomoeba, Agadeem's Awakening, Summoner's Pact, Dark Ritual, Summoner's Pact	True	0
 2999	Cabal Therapy, Chrome Mox, Dark Ritual, Undercity Informer, Lotus Petal, Cabal Ritual, Elvish Spirit Guide	True	0
 2972	Undercity Informer, Turntimber Symbiosis, Cabal Ritual, Lotus Petal, Narcomoeba, Simian Spirit Guide, Simian Spirit Guide	True	0
 2910	Balustrade Spy, Summoner's Pact, Dread Return, Chrome Mox, Simian Spirit Guide, Dark Ritual, Turntimber Symbiosis	True	1
@@ -151,7 +151,7 @@ ms	hand	win	mulligans
 2768	Balustrade Spy, Wild Cantor, Undercity Informer, Summoner's Pact, Agadeem's Awakening, Turntimber Symbiosis, Chrome Mox	False	1
 2768	Balustrade Spy, Turntimber Symbiosis, Simian Spirit Guide, Turntimber Symbiosis, Chrome Mox, Pact of Negation, Chrome Mox	False	1
 2731	Undercity Informer, Summoner's Pact, Elvish Spirit Guide, Narcomoeba, Simian Spirit Guide, Pact of Negation, Chrome Mox	False	0
-2731	Cabal Ritual, Elvish Spirit Guide, Undercity Informer, Elvish Spirit Guide, Undercity Informer, Summoner's Pact, Agadeem's Awakening	False	0
+2731	Cabal Ritual, Elvish Spirit Guide, Undercity Informer, Elvish Spirit Guide, Undercity Informer, Summoner's Pact, Agadeem's Awakening	True	0
 2729	Agadeem's Awakening, Summoner's Pact, Simian Spirit Guide, Agadeem's Awakening, Balustrade Spy, Lotus Petal, Cabal Therapy	True	0
 2720	Balustrade Spy, Elvish Spirit Guide, Chrome Mox, Undercity Informer, Balustrade Spy, Agadeem's Awakening, Lotus Petal	True	0
 2697	Turntimber Symbiosis, Elvish Spirit Guide, Balustrade Spy, Simian Spirit Guide, Lotus Petal, Narcomoeba, Bridge from Below	True	0
@@ -172,14 +172,14 @@ ms	hand	win	mulligans
 2261	Balustrade Spy, Summoner's Pact, Chrome Mox, Turntimber Symbiosis, Simian Spirit Guide, Cabal Ritual, Balustrade Spy	True	1
 2251	Simian Spirit Guide, Summoner's Pact, Cabal Ritual, Agadeem's Awakening, Balustrade Spy, Balustrade Spy, Chrome Mox	True	2
 2232	Undercity Informer, Chrome Mox, Narcomoeba, Agadeem's Awakening, Wild Cantor, Summoner's Pact, Summoner's Pact	True	0
-2215	Turntimber Symbiosis, Cabal Therapy, Lotus Petal, Agadeem's Awakening, Balustrade Spy, Summoner's Pact, Summoner's Pact	False	1
+2215	Turntimber Symbiosis, Cabal Therapy, Lotus Petal, Agadeem's Awakening, Balustrade Spy, Summoner's Pact, Summoner's Pact	True	1
 2202	Simian Spirit Guide, Cabal Ritual, Summoner's Pact, Lotus Petal, Chrome Mox, Undercity Informer, Balustrade Spy	True	2
 2185	Simian Spirit Guide, Summoner's Pact, Simian Spirit Guide, Cabal Therapy, Undercity Informer, Turntimber Symbiosis, Turntimber Symbiosis	False	0
 2170	Balustrade Spy, Undercity Informer, Simian Spirit Guide, Dark Ritual, Wild Cantor, Chrome Mox, Dark Ritual	True	0
 2165	Balustrade Spy, Turntimber Symbiosis, Turntimber Symbiosis, Undercity Informer, Cabal Ritual, Summoner's Pact, Chrome Mox	True	0
 2152	Cabal Ritual, Turntimber Symbiosis, Simian Spirit Guide, Balustrade Spy, Balustrade Spy, Chrome Mox, Summoner's Pact	True	1
 2094	Turntimber Symbiosis, Undercity Informer, Thassa's Oracle, Chrome Mox, Narcomoeba, Simian Spirit Guide, Lotus Petal	True	1
-2078	Elvish Spirit Guide, Narcomoeba, Agadeem's Awakening, Cabal Ritual, Simian Spirit Guide, Elvish Spirit Guide, Undercity Informer	False	0
+2078	Elvish Spirit Guide, Narcomoeba, Agadeem's Awakening, Cabal Ritual, Simian Spirit Guide, Elvish Spirit Guide, Undercity Informer	True	0
 2034	Pact of Negation, Turntimber Symbiosis, Simian Spirit Guide, Chrome Mox, Summoner's Pact, Dread Return, Undercity Informer	False	0
 2023	Summoner's Pact, Lotus Petal, Narcomoeba, Agadeem's Awakening, Lotus Petal, Undercity Informer, Balustrade Spy	True	0
 1994	Simian Spirit Guide, Chrome Mox, Undercity Informer, Elvish Spirit Guide, Chrome Mox, Bridge from Below, Turntimber Symbiosis	True	1
@@ -190,17 +190,17 @@ ms	hand	win	mulligans
 1919	Undercity Informer, Summoner's Pact, Agadeem's Awakening, Balustrade Spy, Simian Spirit Guide, Lotus Petal, Agadeem's Awakening	True	2
 1912	Chrome Mox, Wild Cantor, Dark Ritual, Chrome Mox, Cabal Ritual, Balustrade Spy, Bridge from Below	True	0
 1911	Turntimber Symbiosis, Simian Spirit Guide, Balustrade Spy, Chrome Mox, Agadeem's Awakening, Pact of Negation, Chrome Mox	False	1
-1893	Chrome Mox, Narcomoeba, Undercity Informer, Summoner's Pact, Simian Spirit Guide, Agadeem's Awakening, Elvish Spirit Guide	False	2
+1893	Chrome Mox, Narcomoeba, Undercity Informer, Summoner's Pact, Simian Spirit Guide, Agadeem's Awakening, Elvish Spirit Guide	True	2
 1874	Balustrade Spy, Dark Ritual, Chrome Mox, Summoner's Pact, Dark Ritual, Lotus Petal, Undercity Informer	True	1
-1872	Undercity Informer, Chrome Mox, Undercity Informer, Summoner's Pact, Summoner's Pact, Lotus Petal, Thassa's Oracle	False	1
+1872	Undercity Informer, Chrome Mox, Undercity Informer, Summoner's Pact, Summoner's Pact, Lotus Petal, Thassa's Oracle	True	1
 1848	Balustrade Spy, Lotus Petal, Agadeem's Awakening, Turntimber Symbiosis, Agadeem's Awakening, Elvish Spirit Guide, Undercity Informer	False	2
-1825	Simian Spirit Guide, Chrome Mox, Balustrade Spy, Lotus Petal, Summoner's Pact, Elvish Spirit Guide, Cabal Therapy	False	2
+1825	Simian Spirit Guide, Chrome Mox, Balustrade Spy, Lotus Petal, Summoner's Pact, Elvish Spirit Guide, Cabal Therapy	True	2
 1817	Lotus Petal, Undercity Informer, Agadeem's Awakening, Lotus Petal, Summoner's Pact, Balustrade Spy, Agadeem's Awakening	True	2
 1812	Pact of Negation, Narcomoeba, Summoner's Pact, Chrome Mox, Chrome Mox, Balustrade Spy, Lotus Petal	False	1
 1806	Elvish Spirit Guide, Cabal Therapy, Cabal Ritual, Simian Spirit Guide, Chrome Mox, Undercity Informer, Simian Spirit Guide	True	1
 1786	Lotus Petal, Balustrade Spy, Summoner's Pact, Turntimber Symbiosis, Agadeem's Awakening, Lotus Petal, Simian Spirit Guide	True	1
 1773	Agadeem's Awakening, Balustrade Spy, Lotus Petal, Dark Ritual, Simian Spirit Guide, Narcomoeba, Narcomoeba	True	1
-1762	Balustrade Spy, Turntimber Symbiosis, Summoner's Pact, Cabal Therapy, Lotus Petal, Agadeem's Awakening, Summoner's Pact	False	2
+1762	Balustrade Spy, Turntimber Symbiosis, Summoner's Pact, Cabal Therapy, Lotus Petal, Agadeem's Awakening, Summoner's Pact	True	2
 1755	Balustrade Spy, Turntimber Symbiosis, Pact of Negation, Lotus Petal, Chrome Mox, Agadeem's Awakening, Undercity Informer	False	1
 1738	Balustrade Spy, Elvish Spirit Guide, Narcomoeba, Agadeem's Awakening, Cabal Ritual, Simian Spirit Guide, Agadeem's Awakening	True	1
 1733	Simian Spirit Guide, Balustrade Spy, Elvish Spirit Guide, Turntimber Symbiosis, Undercity Informer, Cabal Ritual, Agadeem's Awakening	True	0
@@ -208,7 +208,7 @@ ms	hand	win	mulligans
 1710	Summoner's Pact, Elvish Spirit Guide, Pact of Negation, Chrome Mox, Turntimber Symbiosis, Elvish Spirit Guide, Balustrade Spy	False	2
 1695	Cabal Therapy, Cabal Ritual, Summoner's Pact, Summoner's Pact, Chrome Mox, Bridge from Below, Balustrade Spy	True	0
 1694	Agadeem's Awakening, Undercity Informer, Agadeem's Awakening, Elvish Spirit Guide, Elvish Spirit Guide, Agadeem's Awakening, Chrome Mox	False	2
-1694	Pact of Negation, Simian Spirit Guide, Turntimber Symbiosis, Undercity Informer, Simian Spirit Guide, Summoner's Pact, Agadeem's Awakening	False	1
+1694	Pact of Negation, Simian Spirit Guide, Turntimber Symbiosis, Undercity Informer, Simian Spirit Guide, Summoner's Pact, Agadeem's Awakening	True	1
 1687	Cabal Therapy, Chrome Mox, Simian Spirit Guide, Dark Ritual, Dark Ritual, Balustrade Spy, Dark Ritual	True	1
 1622	Undercity Informer, Pact of Negation, Lotus Petal, Wild Cantor, Summoner's Pact, Simian Spirit Guide, Lotus Petal	True	1
 1616	Wild Cantor, Undercity Informer, Elvish Spirit Guide, Turntimber Symbiosis, Cabal Ritual, Summoner's Pact, Agadeem's Awakening	True	0
@@ -226,7 +226,7 @@ ms	hand	win	mulligans
 1416	Cabal Ritual, Chrome Mox, Balustrade Spy, Balustrade Spy, Lotus Petal, Lotus Petal, Chrome Mox	False	2
 1379	Turntimber Symbiosis, Agadeem's Awakening, Balustrade Spy, Lotus Petal, Dread Return, Chrome Mox, Chrome Mox	False	1
 1377	Undercity Informer, Balustrade Spy, Agadeem's Awakening, Lotus Petal, Undercity Informer, Chrome Mox, Summoner's Pact	True	0
-1374	Turntimber Symbiosis, Dark Ritual, Agadeem's Awakening, Undercity Informer, Cabal Ritual, Summoner's Pact, Summoner's Pact	False	1
+1374	Turntimber Symbiosis, Dark Ritual, Agadeem's Awakening, Undercity Informer, Cabal Ritual, Summoner's Pact, Summoner's Pact	True	1
 1370	Agadeem's Awakening, Dark Ritual, Simian Spirit Guide, Narcomoeba, Lotus Petal, Chrome Mox, Balustrade Spy	True	1
 1351	Cabal Ritual, Balustrade Spy, Summoner's Pact, Summoner's Pact, Turntimber Symbiosis, Balustrade Spy, Simian Spirit Guide	True	1
 1346	Turntimber Symbiosis, Lotus Petal, Cabal Ritual, Summoner's Pact, Turntimber Symbiosis, Elvish Spirit Guide, Undercity Informer	True	1
@@ -252,7 +252,7 @@ ms	hand	win	mulligans
 1120	Turntimber Symbiosis, Balustrade Spy, Narcomoeba, Lotus Petal, Agadeem's Awakening, Cabal Ritual, Dark Ritual	True	0
 1120	Summoner's Pact, Chrome Mox, Undercity Informer, Simian Spirit Guide, Narcomoeba, Lotus Petal, Elvish Spirit Guide	True	2
 1117	Undercity Informer, Chrome Mox, Narcomoeba, Simian Spirit Guide, Wild Cantor, Simian Spirit Guide, Cabal Ritual	False	1
-1116	Undercity Informer, Cabal Ritual, Elvish Spirit Guide, Simian Spirit Guide, Undercity Informer, Turntimber Symbiosis, Agadeem's Awakening	False	0
+1116	Undercity Informer, Cabal Ritual, Elvish Spirit Guide, Simian Spirit Guide, Undercity Informer, Turntimber Symbiosis, Agadeem's Awakening	True	0
 1112	Cabal Ritual, Undercity Informer, Chrome Mox, Balustrade Spy, Balustrade Spy, Turntimber Symbiosis, Summoner's Pact	True	0
 1103	Agadeem's Awakening, Cabal Ritual, Bridge from Below, Lotus Petal, Balustrade Spy, Chrome Mox, Simian Spirit Guide	True	2
 1096	Narcomoeba, Lotus Petal, Chrome Mox, Balustrade Spy, Wild Cantor, Cabal Ritual, Turntimber Symbiosis	True	1
@@ -265,7 +265,7 @@ ms	hand	win	mulligans
 1047	Undercity Informer, Narcomoeba, Simian Spirit Guide, Lotus Petal, Balustrade Spy, Turntimber Symbiosis, Simian Spirit Guide	True	1
 1040	Narcomoeba, Cabal Ritual, Elvish Spirit Guide, Balustrade Spy, Balustrade Spy, Lotus Petal, Lotus Petal	True	0
 1039	Narcomoeba, Agadeem's Awakening, Turntimber Symbiosis, Lotus Petal, Balustrade Spy, Cabal Therapy, Chrome Mox	False	1
-1017	Balustrade Spy, Balustrade Spy, Lotus Petal, Agadeem's Awakening, Summoner's Pact, Lotus Petal, Pact of Negation	False	2
+1017	Balustrade Spy, Balustrade Spy, Lotus Petal, Agadeem's Awakening, Summoner's Pact, Lotus Petal, Pact of Negation	True	2
 1002	Balustrade Spy, Chrome Mox, Cabal Ritual, Undercity Informer, Undercity Informer, Elvish Spirit Guide, Agadeem's Awakening	True	0
 994	Turntimber Symbiosis, Simian Spirit Guide, Cabal Ritual, Balustrade Spy, Summoner's Pact, Chrome Mox, Narcomoeba	False	2
 985	Summoner's Pact, Undercity Informer, Chrome Mox, Balustrade Spy, Pact of Negation, Cabal Ritual, Turntimber Symbiosis	True	1
@@ -279,7 +279,7 @@ ms	hand	win	mulligans
 929	Undercity Informer, Agadeem's Awakening, Chrome Mox, Lotus Petal, Undercity Informer, Dark Ritual, Balustrade Spy	True	1
 926	Narcomoeba, Balustrade Spy, Dark Ritual, Balustrade Spy, Agadeem's Awakening, Simian Spirit Guide, Elvish Spirit Guide	True	0
 905	Pact of Negation, Undercity Informer, Simian Spirit Guide, Lotus Petal, Chrome Mox, Balustrade Spy, Summoner's Pact	False	2
-895	Cabal Ritual, Chrome Mox, Turntimber Symbiosis, Undercity Informer, Chrome Mox, Dark Ritual, Undercity Informer	False	2
+895	Cabal Ritual, Chrome Mox, Turntimber Symbiosis, Undercity Informer, Chrome Mox, Dark Ritual, Undercity Informer	True	2
 889	Narcomoeba, Lotus Petal, Chrome Mox, Balustrade Spy, Undercity Informer, Summoner's Pact, Turntimber Symbiosis	True	1
 880	Wild Cantor, Turntimber Symbiosis, Undercity Informer, Chrome Mox, Cabal Ritual, Turntimber Symbiosis, Turntimber Symbiosis	False	0
 867	Pact of Negation, Chrome Mox, Lotus Petal, Undercity Informer, Agadeem's Awakening, Dark Ritual, Simian Spirit Guide	True	0
@@ -311,8 +311,8 @@ ms	hand	win	mulligans
 733	Bridge from Below, Lotus Petal, Dark Ritual, Dark Ritual, Balustrade Spy, Agadeem's Awakening, Balustrade Spy	True	0
 728	Simian Spirit Guide, Balustrade Spy, Undercity Informer, Summoner's Pact, Turntimber Symbiosis, Cabal Ritual, Simian Spirit Guide	True	1
 718	Lotus Petal, Turntimber Symbiosis, Agadeem's Awakening, Elvish Spirit Guide, Undercity Informer, Elvish Spirit Guide, Agadeem's Awakening	True	2
-713	Cabal Therapy, Chrome Mox, Elvish Spirit Guide, Balustrade Spy, Summoner's Pact, Balustrade Spy, Simian Spirit Guide	False	0
-712	Summoner's Pact, Cabal Ritual, Elvish Spirit Guide, Undercity Informer, Agadeem's Awakening, Narcomoeba, Cabal Ritual	False	1
+713	Cabal Therapy, Chrome Mox, Elvish Spirit Guide, Balustrade Spy, Summoner's Pact, Balustrade Spy, Simian Spirit Guide	True	0
+712	Summoner's Pact, Cabal Ritual, Elvish Spirit Guide, Undercity Informer, Agadeem's Awakening, Narcomoeba, Cabal Ritual	True	1
 712	Simian Spirit Guide, Narcomoeba, Narcomoeba, Lotus Petal, Undercity Informer, Chrome Mox, Summoner's Pact	False	2
 711	Thassa's Oracle, Turntimber Symbiosis, Undercity Informer, Chrome Mox, Simian Spirit Guide, Elvish Spirit Guide, Pact of Negation	False	0
 708	Chrome Mox, Balustrade Spy, Bridge from Below, Chrome Mox, Summoner's Pact, Summoner's Pact, Thassa's Oracle	False	0
@@ -320,42 +320,42 @@ ms	hand	win	mulligans
 697	Dark Ritual, Agadeem's Awakening, Elvish Spirit Guide, Undercity Informer, Bridge from Below, Summoner's Pact, Balustrade Spy	True	1
 689	Agadeem's Awakening, Bridge from Below, Undercity Informer, Chrome Mox, Balustrade Spy, Cabal Ritual, Summoner's Pact	False	2
 686	Undercity Informer, Undercity Informer, Narcomoeba, Chrome Mox, Elvish Spirit Guide, Elvish Spirit Guide, Lotus Petal	False	2
-682	Cabal Ritual, Undercity Informer, Elvish Spirit Guide, Undercity Informer, Narcomoeba, Chrome Mox, Simian Spirit Guide	False	1
+682	Cabal Ritual, Undercity Informer, Elvish Spirit Guide, Undercity Informer, Narcomoeba, Chrome Mox, Simian Spirit Guide	True	1
 677	Agadeem's Awakening, Pact of Negation, Simian Spirit Guide, Chrome Mox, Lotus Petal, Cabal Ritual, Balustrade Spy	True	2
 673	Elvish Spirit Guide, Thassa's Oracle, Lotus Petal, Wild Cantor, Agadeem's Awakening, Cabal Ritual, Undercity Informer	True	1
 673	Balustrade Spy, Dark Ritual, Simian Spirit Guide, Lotus Petal, Summoner's Pact, Summoner's Pact, Undercity Informer	True	2
-667	Elvish Spirit Guide, Undercity Informer, Dark Ritual, Simian Spirit Guide, Narcomoeba, Summoner's Pact, Turntimber Symbiosis	False	1
-661	Agadeem's Awakening, Dark Ritual, Dark Ritual, Undercity Informer, Turntimber Symbiosis, Bridge from Below, Elvish Spirit Guide	False	1
+667	Elvish Spirit Guide, Undercity Informer, Dark Ritual, Simian Spirit Guide, Narcomoeba, Summoner's Pact, Turntimber Symbiosis	True	1
+661	Agadeem's Awakening, Dark Ritual, Dark Ritual, Undercity Informer, Turntimber Symbiosis, Bridge from Below, Elvish Spirit Guide	True	1
 661	Cabal Therapy, Balustrade Spy, Undercity Informer, Lotus Petal, Chrome Mox, Lotus Petal, Lotus Petal	True	0
-655	Cabal Ritual, Chrome Mox, Undercity Informer, Elvish Spirit Guide, Dread Return, Summoner's Pact, Bridge from Below	False	1
+655	Cabal Ritual, Chrome Mox, Undercity Informer, Elvish Spirit Guide, Dread Return, Summoner's Pact, Bridge from Below	True	1
 652	Bridge from Below, Summoner's Pact, Agadeem's Awakening, Simian Spirit Guide, Lotus Petal, Undercity Informer, Balustrade Spy	True	1
 648	Elvish Spirit Guide, Cabal Therapy, Chrome Mox, Undercity Informer, Chrome Mox, Simian Spirit Guide, Cabal Ritual	True	0
 647	Lotus Petal, Undercity Informer, Elvish Spirit Guide, Lotus Petal, Undercity Informer, Elvish Spirit Guide, Agadeem's Awakening	True	1
-627	Undercity Informer, Simian Spirit Guide, Cabal Therapy, Dark Ritual, Simian Spirit Guide, Bridge from Below, Chrome Mox	False	1
+627	Undercity Informer, Simian Spirit Guide, Cabal Therapy, Dark Ritual, Simian Spirit Guide, Bridge from Below, Chrome Mox	True	1
 626	Agadeem's Awakening, Agadeem's Awakening, Lotus Petal, Pact of Negation, Balustrade Spy, Agadeem's Awakening, Summoner's Pact	False	0
 626	Narcomoeba, Lotus Petal, Lotus Petal, Balustrade Spy, Undercity Informer, Simian Spirit Guide, Agadeem's Awakening	True	2
 624	Elvish Spirit Guide, Lotus Petal, Lotus Petal, Simian Spirit Guide, Balustrade Spy, Balustrade Spy, Agadeem's Awakening	True	2
-621	Cabal Ritual, Undercity Informer, Dark Ritual, Cabal Ritual, Pact of Negation, Chrome Mox, Turntimber Symbiosis	False	1
+621	Cabal Ritual, Undercity Informer, Dark Ritual, Cabal Ritual, Pact of Negation, Chrome Mox, Turntimber Symbiosis	True	1
 612	Summoner's Pact, Simian Spirit Guide, Balustrade Spy, Cabal Ritual, Chrome Mox, Narcomoeba, Narcomoeba	False	1
 607	Narcomoeba, Turntimber Symbiosis, Lotus Petal, Undercity Informer, Chrome Mox, Cabal Ritual, Narcomoeba	True	1
 606	Elvish Spirit Guide, Agadeem's Awakening, Undercity Informer, Turntimber Symbiosis, Narcomoeba, Balustrade Spy, Lotus Petal	False	2
 605	Lotus Petal, Turntimber Symbiosis, Undercity Informer, Elvish Spirit Guide, Pact of Negation, Summoner's Pact, Elvish Spirit Guide	True	2
 605	Turntimber Symbiosis, Undercity Informer, Agadeem's Awakening, Balustrade Spy, Undercity Informer, Summoner's Pact, Lotus Petal	False	2
 605	Elvish Spirit Guide, Wild Cantor, Cabal Ritual, Balustrade Spy, Balustrade Spy, Cabal Ritual, Turntimber Symbiosis	True	0
-604	Narcomoeba, Elvish Spirit Guide, Simian Spirit Guide, Summoner's Pact, Lotus Petal, Wild Cantor, Balustrade Spy	False	2
+604	Narcomoeba, Elvish Spirit Guide, Simian Spirit Guide, Summoner's Pact, Lotus Petal, Wild Cantor, Balustrade Spy	True	2
 596	Balustrade Spy, Pact of Negation, Undercity Informer, Summoner's Pact, Lotus Petal, Chrome Mox, Turntimber Symbiosis	True	1
 590	Balustrade Spy, Dread Return, Cabal Ritual, Elvish Spirit Guide, Lotus Petal, Agadeem's Awakening, Narcomoeba	True	1
 590	Dark Ritual, Undercity Informer, Undercity Informer, Undercity Informer, Turntimber Symbiosis, Lotus Petal, Chrome Mox	True	1
 586	Balustrade Spy, Chrome Mox, Turntimber Symbiosis, Chrome Mox, Narcomoeba, Chrome Mox, Agadeem's Awakening	False	2
-580	Simian Spirit Guide, Undercity Informer, Wild Cantor, Simian Spirit Guide, Cabal Ritual, Agadeem's Awakening, Elvish Spirit Guide	False	2
+580	Simian Spirit Guide, Undercity Informer, Wild Cantor, Simian Spirit Guide, Cabal Ritual, Agadeem's Awakening, Elvish Spirit Guide	True	2
 576	Cabal Therapy, Summoner's Pact, Lotus Petal, Lotus Petal, Agadeem's Awakening, Balustrade Spy, Undercity Informer	True	1
 575	Agadeem's Awakening, Cabal Therapy, Lotus Petal, Undercity Informer, Agadeem's Awakening, Agadeem's Awakening, Lotus Petal	False	2
 575	Undercity Informer, Agadeem's Awakening, Cabal Therapy, Lotus Petal, Cabal Ritual, Undercity Informer, Chrome Mox	True	0
 572	Chrome Mox, Pact of Negation, Chrome Mox, Balustrade Spy, Cabal Ritual, Bridge from Below, Turntimber Symbiosis	False	1
-564	Balustrade Spy, Summoner's Pact, Summoner's Pact, Chrome Mox, Dark Ritual, Pact of Negation, Narcomoeba	False	1
+564	Balustrade Spy, Summoner's Pact, Summoner's Pact, Chrome Mox, Dark Ritual, Pact of Negation, Narcomoeba	True	1
 559	Dark Ritual, Undercity Informer, Elvish Spirit Guide, Balustrade Spy, Narcomoeba, Simian Spirit Guide, Lotus Petal	True	0
 555	Balustrade Spy, Cabal Ritual, Summoner's Pact, Cabal Therapy, Simian Spirit Guide, Pact of Negation, Elvish Spirit Guide	False	1
-553	Undercity Informer, Agadeem's Awakening, Simian Spirit Guide, Cabal Ritual, Cabal Therapy, Bridge from Below, Simian Spirit Guide	False	1
+553	Undercity Informer, Agadeem's Awakening, Simian Spirit Guide, Cabal Ritual, Cabal Therapy, Bridge from Below, Simian Spirit Guide	True	1
 550	Narcomoeba, Simian Spirit Guide, Cabal Ritual, Elvish Spirit Guide, Pact of Negation, Lotus Petal, Balustrade Spy	True	2
 542	Cabal Ritual, Turntimber Symbiosis, Elvish Spirit Guide, Balustrade Spy, Simian Spirit Guide, Agadeem's Awakening, Narcomoeba	True	2
 537	Summoner's Pact, Undercity Informer, Balustrade Spy, Lotus Petal, Cabal Ritual, Agadeem's Awakening, Turntimber Symbiosis	True	1
@@ -364,21 +364,21 @@ ms	hand	win	mulligans
 525	Pact of Negation, Narcomoeba, Summoner's Pact, Summoner's Pact, Undercity Informer, Summoner's Pact, Elvish Spirit Guide	False	1
 522	Agadeem's Awakening, Agadeem's Awakening, Narcomoeba, Lotus Petal, Undercity Informer, Cabal Therapy, Elvish Spirit Guide	False	1
 519	Lotus Petal, Undercity Informer, Elvish Spirit Guide, Undercity Informer, Balustrade Spy, Summoner's Pact, Elvish Spirit Guide	True	0
-519	Undercity Informer, Cabal Therapy, Agadeem's Awakening, Dark Ritual, Cabal Ritual, Cabal Ritual, Elvish Spirit Guide	False	1
+519	Undercity Informer, Cabal Therapy, Agadeem's Awakening, Dark Ritual, Cabal Ritual, Cabal Ritual, Elvish Spirit Guide	True	1
 518	Lotus Petal, Turntimber Symbiosis, Undercity Informer, Turntimber Symbiosis, Dark Ritual, Dark Ritual, Undercity Informer	True	0
-508	Elvish Spirit Guide, Pact of Negation, Agadeem's Awakening, Simian Spirit Guide, Turntimber Symbiosis, Undercity Informer, Cabal Ritual	False	2
+508	Elvish Spirit Guide, Pact of Negation, Agadeem's Awakening, Simian Spirit Guide, Turntimber Symbiosis, Undercity Informer, Cabal Ritual	True	2
 507	Cabal Ritual, Summoner's Pact, Elvish Spirit Guide, Summoner's Pact, Undercity Informer, Wild Cantor, Pact of Negation	True	1
 503	Cabal Therapy, Cabal Ritual, Chrome Mox, Balustrade Spy, Undercity Informer, Undercity Informer, Elvish Spirit Guide	False	1
 498	Balustrade Spy, Agadeem's Awakening, Cabal Ritual, Turntimber Symbiosis, Undercity Informer, Wild Cantor, Lotus Petal	False	1
 496	Simian Spirit Guide, Balustrade Spy, Summoner's Pact, Turntimber Symbiosis, Summoner's Pact, Balustrade Spy, Cabal Ritual	True	0
 492	Turntimber Symbiosis, Undercity Informer, Simian Spirit Guide, Chrome Mox, Cabal Ritual, Turntimber Symbiosis, Narcomoeba	False	2
 490	Chrome Mox, Agadeem's Awakening, Narcomoeba, Cabal Therapy, Agadeem's Awakening, Undercity Informer, Summoner's Pact	False	0
-480	Summoner's Pact, Narcomoeba, Summoner's Pact, Balustrade Spy, Narcomoeba, Simian Spirit Guide, Lotus Petal	False	2
-479	Summoner's Pact, Lotus Petal, Pact of Negation, Pact of Negation, Undercity Informer, Agadeem's Awakening, Summoner's Pact	False	2
+480	Summoner's Pact, Narcomoeba, Summoner's Pact, Balustrade Spy, Narcomoeba, Simian Spirit Guide, Lotus Petal	True	2
+479	Summoner's Pact, Lotus Petal, Pact of Negation, Pact of Negation, Undercity Informer, Agadeem's Awakening, Summoner's Pact	True	2
 471	Balustrade Spy, Balustrade Spy, Lotus Petal, Dark Ritual, Simian Spirit Guide, Balustrade Spy, Cabal Ritual	True	0
 469	Cabal Therapy, Cabal Therapy, Elvish Spirit Guide, Balustrade Spy, Summoner's Pact, Dark Ritual, Chrome Mox	True	1
 468	Narcomoeba, Turntimber Symbiosis, Summoner's Pact, Balustrade Spy, Elvish Spirit Guide, Dark Ritual, Simian Spirit Guide	True	0
-466	Cabal Therapy, Undercity Informer, Simian Spirit Guide, Chrome Mox, Cabal Ritual, Elvish Spirit Guide, Undercity Informer	False	1
+466	Cabal Therapy, Undercity Informer, Simian Spirit Guide, Chrome Mox, Cabal Ritual, Elvish Spirit Guide, Undercity Informer	True	1
 466	Balustrade Spy, Summoner's Pact, Elvish Spirit Guide, Simian Spirit Guide, Summoner's Pact, Narcomoeba, Cabal Ritual	True	0
 462	Lotus Petal, Undercity Informer, Pact of Negation, Agadeem's Awakening, Simian Spirit Guide, Dread Return, Summoner's Pact	True	2
 461	Chrome Mox, Lotus Petal, Balustrade Spy, Cabal Ritual, Dread Return, Balustrade Spy, Elvish Spirit Guide	False	2
@@ -386,11 +386,11 @@ ms	hand	win	mulligans
 460	Pact of Negation, Dark Ritual, Balustrade Spy, Wild Cantor, Lotus Petal, Agadeem's Awakening, Lotus Petal	True	1
 460	Elvish Spirit Guide, Elvish Spirit Guide, Summoner's Pact, Simian Spirit Guide, Undercity Informer, Cabal Ritual, Cabal Therapy	False	2
 457	Chrome Mox, Undercity Informer, Chrome Mox, Pact of Negation, Cabal Ritual, Cabal Ritual, Lotus Petal	True	0
-457	Turntimber Symbiosis, Undercity Informer, Undercity Informer, Simian Spirit Guide, Cabal Therapy, Cabal Ritual, Chrome Mox	False	1
+457	Turntimber Symbiosis, Undercity Informer, Undercity Informer, Simian Spirit Guide, Cabal Therapy, Cabal Ritual, Chrome Mox	True	1
 455	Pact of Negation, Agadeem's Awakening, Lotus Petal, Wild Cantor, Simian Spirit Guide, Undercity Informer, Simian Spirit Guide	True	2
 453	Pact of Negation, Chrome Mox, Balustrade Spy, Turntimber Symbiosis, Lotus Petal, Cabal Therapy, Simian Spirit Guide	True	0
 449	Turntimber Symbiosis, Cabal Therapy, Chrome Mox, Cabal Therapy, Balustrade Spy, Chrome Mox, Elvish Spirit Guide	True	0
-449	Undercity Informer, Simian Spirit Guide, Elvish Spirit Guide, Chrome Mox, Undercity Informer, Cabal Ritual, Pact of Negation	False	1
+449	Undercity Informer, Simian Spirit Guide, Elvish Spirit Guide, Chrome Mox, Undercity Informer, Cabal Ritual, Pact of Negation	True	1
 444	Undercity Informer, Chrome Mox, Cabal Therapy, Lotus Petal, Cabal Ritual, Lotus Petal, Balustrade Spy	True	0
 441	Undercity Informer, Turntimber Symbiosis, Lotus Petal, Elvish Spirit Guide, Wild Cantor, Elvish Spirit Guide, Balustrade Spy	True	2
 436	Lotus Petal, Dark Ritual, Chrome Mox, Undercity Informer, Cabal Ritual, Pact of Negation, Summoner's Pact	True	2
@@ -398,7 +398,7 @@ ms	hand	win	mulligans
 428	Narcomoeba, Cabal Therapy, Undercity Informer, Simian Spirit Guide, Summoner's Pact, Turntimber Symbiosis, Summoner's Pact	False	2
 422	Dark Ritual, Balustrade Spy, Simian Spirit Guide, Agadeem's Awakening, Narcomoeba, Cabal Ritual, Lotus Petal	True	2
 422	Undercity Informer, Agadeem's Awakening, Lotus Petal, Chrome Mox, Lotus Petal, Chrome Mox, Cabal Therapy	True	1
-421	Dark Ritual, Pact of Negation, Agadeem's Awakening, Elvish Spirit Guide, Dark Ritual, Summoner's Pact, Undercity Informer	False	2
+421	Dark Ritual, Pact of Negation, Agadeem's Awakening, Elvish Spirit Guide, Dark Ritual, Summoner's Pact, Undercity Informer	True	2
 420	Elvish Spirit Guide, Simian Spirit Guide, Dark Ritual, Elvish Spirit Guide, Simian Spirit Guide, Dark Ritual, Balustrade Spy	False	2
 419	Agadeem's Awakening, Simian Spirit Guide, Undercity Informer, Balustrade Spy, Summoner's Pact, Cabal Ritual, Undercity Informer	True	1
 418	Agadeem's Awakening, Wild Cantor, Balustrade Spy, Narcomoeba, Balustrade Spy, Cabal Ritual, Chrome Mox	False	1
@@ -409,7 +409,7 @@ ms	hand	win	mulligans
 407	Summoner's Pact, Chrome Mox, Pact of Negation, Undercity Informer, Elvish Spirit Guide, Pact of Negation, Elvish Spirit Guide	False	2
 407	Dark Ritual, Balustrade Spy, Undercity Informer, Turntimber Symbiosis, Simian Spirit Guide, Cabal Therapy, Summoner's Pact	True	0
 406	Turntimber Symbiosis, Lotus Petal, Narcomoeba, Elvish Spirit Guide, Elvish Spirit Guide, Balustrade Spy, Thassa's Oracle	True	2
-406	Lotus Petal, Balustrade Spy, Elvish Spirit Guide, Lotus Petal, Pact of Negation, Cabal Therapy, Summoner's Pact	False	2
+406	Lotus Petal, Balustrade Spy, Elvish Spirit Guide, Lotus Petal, Pact of Negation, Cabal Therapy, Summoner's Pact	True	2
 406	Dread Return, Agadeem's Awakening, Balustrade Spy, Elvish Spirit Guide, Undercity Informer, Chrome Mox, Cabal Ritual	True	0
 402	Summoner's Pact, Pact of Negation, Turntimber Symbiosis, Simian Spirit Guide, Cabal Ritual, Cabal Therapy, Balustrade Spy	False	0
 397	Undercity Informer, Lotus Petal, Elvish Spirit Guide, Summoner's Pact, Pact of Negation, Undercity Informer, Agadeem's Awakening	True	2
@@ -423,15 +423,15 @@ ms	hand	win	mulligans
 381	Simian Spirit Guide, Elvish Spirit Guide, Undercity Informer, Lotus Petal, Turntimber Symbiosis, Lotus Petal, Pact of Negation	True	2
 380	Balustrade Spy, Cabal Therapy, Agadeem's Awakening, Lotus Petal, Lotus Petal, Cabal Ritual, Narcomoeba	True	2
 379	Balustrade Spy, Lotus Petal, Dread Return, Chrome Mox, Balustrade Spy, Agadeem's Awakening, Agadeem's Awakening	False	0
-377	Simian Spirit Guide, Summoner's Pact, Undercity Informer, Undercity Informer, Dark Ritual, Pact of Negation, Agadeem's Awakening	False	2
+377	Simian Spirit Guide, Summoner's Pact, Undercity Informer, Undercity Informer, Dark Ritual, Pact of Negation, Agadeem's Awakening	True	2
 374	Pact of Negation, Elvish Spirit Guide, Undercity Informer, Chrome Mox, Turntimber Symbiosis, Elvish Spirit Guide, Balustrade Spy	False	2
 368	Summoner's Pact, Narcomoeba, Undercity Informer, Chrome Mox, Chrome Mox, Simian Spirit Guide, Cabal Therapy	False	2
 364	Chrome Mox, Summoner's Pact, Lotus Petal, Pact of Negation, Agadeem's Awakening, Balustrade Spy, Cabal Therapy	False	2
 364	Simian Spirit Guide, Summoner's Pact, Undercity Informer, Cabal Ritual, Lotus Petal, Narcomoeba, Bridge from Below	True	1
 360	Lotus Petal, Balustrade Spy, Agadeem's Awakening, Undercity Informer, Undercity Informer, Cabal Ritual, Balustrade Spy	False	2
 358	Thassa's Oracle, Elvish Spirit Guide, Lotus Petal, Pact of Negation, Lotus Petal, Balustrade Spy, Chrome Mox	True	0
-350	Undercity Informer, Summoner's Pact, Thassa's Oracle, Balustrade Spy, Balustrade Spy, Dark Ritual, Chrome Mox	False	2
-346	Turntimber Symbiosis, Dark Ritual, Undercity Informer, Simian Spirit Guide, Undercity Informer, Agadeem's Awakening, Turntimber Symbiosis	False	1
+350	Undercity Informer, Summoner's Pact, Thassa's Oracle, Balustrade Spy, Balustrade Spy, Dark Ritual, Chrome Mox	True	2
+346	Turntimber Symbiosis, Dark Ritual, Undercity Informer, Simian Spirit Guide, Undercity Informer, Agadeem's Awakening, Turntimber Symbiosis	True	1
 345	Agadeem's Awakening, Elvish Spirit Guide, Balustrade Spy, Balustrade Spy, Simian Spirit Guide, Narcomoeba, Turntimber Symbiosis	False	0
 345	Chrome Mox, Cabal Ritual, Bridge from Below, Agadeem's Awakening, Dark Ritual, Elvish Spirit Guide, Balustrade Spy	True	1
 342	Lotus Petal, Cabal Therapy, Pact of Negation, Cabal Ritual, Balustrade Spy, Summoner's Pact, Simian Spirit Guide	True	2
@@ -450,21 +450,21 @@ ms	hand	win	mulligans
 320	Agadeem's Awakening, Lotus Petal, Chrome Mox, Elvish Spirit Guide, Dread Return, Undercity Informer, Lotus Petal	True	1
 319	Turntimber Symbiosis, Chrome Mox, Balustrade Spy, Cabal Therapy, Balustrade Spy, Dark Ritual, Turntimber Symbiosis	True	0
 317	Turntimber Symbiosis, Cabal Ritual, Elvish Spirit Guide, Pact of Negation, Lotus Petal, Cabal Therapy, Balustrade Spy	True	2
-314	Agadeem's Awakening, Cabal Ritual, Pact of Negation, Turntimber Symbiosis, Summoner's Pact, Elvish Spirit Guide, Undercity Informer	False	2
+314	Agadeem's Awakening, Cabal Ritual, Pact of Negation, Turntimber Symbiosis, Summoner's Pact, Elvish Spirit Guide, Undercity Informer	True	2
 312	Elvish Spirit Guide, Cabal Ritual, Dread Return, Undercity Informer, Lotus Petal, Pact of Negation, Chrome Mox	True	0
-310	Undercity Informer, Cabal Therapy, Cabal Ritual, Agadeem's Awakening, Simian Spirit Guide, Dark Ritual, Elvish Spirit Guide	False	2
-310	Simian Spirit Guide, Turntimber Symbiosis, Undercity Informer, Narcomoeba, Chrome Mox, Undercity Informer, Dark Ritual	False	2
-309	Agadeem's Awakening, Turntimber Symbiosis, Simian Spirit Guide, Simian Spirit Guide, Cabal Ritual, Undercity Informer, Narcomoeba	False	2
+310	Undercity Informer, Cabal Therapy, Cabal Ritual, Agadeem's Awakening, Simian Spirit Guide, Dark Ritual, Elvish Spirit Guide	True	2
+310	Simian Spirit Guide, Turntimber Symbiosis, Undercity Informer, Narcomoeba, Chrome Mox, Undercity Informer, Dark Ritual	True	2
+309	Agadeem's Awakening, Turntimber Symbiosis, Simian Spirit Guide, Simian Spirit Guide, Cabal Ritual, Undercity Informer, Narcomoeba	True	2
 307	Undercity Informer, Pact of Negation, Agadeem's Awakening, Chrome Mox, Dark Ritual, Cabal Ritual, Elvish Spirit Guide	True	2
 307	Turntimber Symbiosis, Thassa's Oracle, Lotus Petal, Balustrade Spy, Dark Ritual, Dark Ritual, Lotus Petal	True	0
-305	Undercity Informer, Undercity Informer, Chrome Mox, Narcomoeba, Dark Ritual, Simian Spirit Guide, Dark Ritual	False	2
+305	Undercity Informer, Undercity Informer, Chrome Mox, Narcomoeba, Dark Ritual, Simian Spirit Guide, Dark Ritual	True	2
 304	Chrome Mox, Wild Cantor, Cabal Ritual, Balustrade Spy, Undercity Informer, Turntimber Symbiosis, Cabal Therapy	False	1
 304	Lotus Petal, Elvish Spirit Guide, Turntimber Symbiosis, Cabal Ritual, Balustrade Spy, Undercity Informer, Elvish Spirit Guide	True	1
 304	Pact of Negation, Dread Return, Balustrade Spy, Summoner's Pact, Simian Spirit Guide, Turntimber Symbiosis, Agadeem's Awakening	False	0
-298	Undercity Informer, Elvish Spirit Guide, Simian Spirit Guide, Simian Spirit Guide, Dread Return, Dark Ritual, Summoner's Pact	False	1
+298	Undercity Informer, Elvish Spirit Guide, Simian Spirit Guide, Simian Spirit Guide, Dread Return, Dark Ritual, Summoner's Pact	True	1
 298	Pact of Negation, Cabal Ritual, Chrome Mox, Thassa's Oracle, Balustrade Spy, Lotus Petal, Summoner's Pact	False	2
 297	Thassa's Oracle, Cabal Therapy, Balustrade Spy, Chrome Mox, Dark Ritual, Agadeem's Awakening, Turntimber Symbiosis	True	1
-297	Undercity Informer, Elvish Spirit Guide, Simian Spirit Guide, Summoner's Pact, Agadeem's Awakening, Pact of Negation, Narcomoeba	False	1
+297	Undercity Informer, Elvish Spirit Guide, Simian Spirit Guide, Summoner's Pact, Agadeem's Awakening, Pact of Negation, Narcomoeba	True	1
 296	Chrome Mox, Elvish Spirit Guide, Elvish Spirit Guide, Bridge from Below, Cabal Therapy, Balustrade Spy, Lotus Petal	True	0
 295	Balustrade Spy, Lotus Petal, Elvish Spirit Guide, Turntimber Symbiosis, Chrome Mox, Cabal Therapy, Turntimber Symbiosis	True	1
 295	Cabal Ritual, Balustrade Spy, Chrome Mox, Turntimber Symbiosis, Agadeem's Awakening, Narcomoeba, Turntimber Symbiosis	False	0
@@ -475,14 +475,14 @@ ms	hand	win	mulligans
 291	Balustrade Spy, Undercity Informer, Turntimber Symbiosis, Elvish Spirit Guide, Narcomoeba, Agadeem's Awakening, Simian Spirit Guide	False	2
 288	Undercity Informer, Agadeem's Awakening, Summoner's Pact, Turntimber Symbiosis, Dark Ritual, Chrome Mox, Thassa's Oracle	True	2
 284	Simian Spirit Guide, Agadeem's Awakening, Balustrade Spy, Pact of Negation, Summoner's Pact, Narcomoeba, Dark Ritual	True	1
-283	Dark Ritual, Thassa's Oracle, Summoner's Pact, Undercity Informer, Undercity Informer, Pact of Negation, Chrome Mox	False	1
+283	Dark Ritual, Thassa's Oracle, Summoner's Pact, Undercity Informer, Undercity Informer, Pact of Negation, Chrome Mox	True	1
 280	Chrome Mox, Summoner's Pact, Narcomoeba, Turntimber Symbiosis, Undercity Informer, Dark Ritual, Dread Return	False	2
 277	Undercity Informer, Summoner's Pact, Balustrade Spy, Thassa's Oracle, Dark Ritual, Chrome Mox, Simian Spirit Guide	True	2
 277	Balustrade Spy, Summoner's Pact, Elvish Spirit Guide, Undercity Informer, Dark Ritual, Cabal Therapy, Simian Spirit Guide	True	2
 275	Chrome Mox, Dark Ritual, Narcomoeba, Balustrade Spy, Turntimber Symbiosis, Pact of Negation, Summoner's Pact	False	2
-275	Undercity Informer, Simian Spirit Guide, Cabal Ritual, Dark Ritual, Undercity Informer, Elvish Spirit Guide, Summoner's Pact	False	2
-272	Cabal Therapy, Summoner's Pact, Summoner's Pact, Narcomoeba, Dark Ritual, Turntimber Symbiosis, Balustrade Spy	False	1
-270	Narcomoeba, Cabal Therapy, Dark Ritual, Chrome Mox, Elvish Spirit Guide, Undercity Informer, Simian Spirit Guide	False	1
+275	Undercity Informer, Simian Spirit Guide, Cabal Ritual, Dark Ritual, Undercity Informer, Elvish Spirit Guide, Summoner's Pact	True	2
+272	Cabal Therapy, Summoner's Pact, Summoner's Pact, Narcomoeba, Dark Ritual, Turntimber Symbiosis, Balustrade Spy	True	1
+270	Narcomoeba, Cabal Therapy, Dark Ritual, Chrome Mox, Elvish Spirit Guide, Undercity Informer, Simian Spirit Guide	True	1
 267	Balustrade Spy, Thassa's Oracle, Lotus Petal, Bridge from Below, Summoner's Pact, Turntimber Symbiosis, Elvish Spirit Guide	False	0
 264	Turntimber Symbiosis, Cabal Therapy, Balustrade Spy, Chrome Mox, Cabal Ritual, Cabal Therapy, Cabal Therapy	False	1
 259	Cabal Therapy, Simian Spirit Guide, Lotus Petal, Bridge from Below, Summoner's Pact, Undercity Informer, Cabal Ritual	True	1
@@ -495,7 +495,7 @@ ms	hand	win	mulligans
 253	Dark Ritual, Balustrade Spy, Simian Spirit Guide, Elvish Spirit Guide, Simian Spirit Guide, Narcomoeba, Turntimber Symbiosis	False	0
 253	Undercity Informer, Simian Spirit Guide, Balustrade Spy, Cabal Ritual, Undercity Informer, Narcomoeba, Chrome Mox	False	1
 252	Agadeem's Awakening, Balustrade Spy, Thassa's Oracle, Pact of Negation, Elvish Spirit Guide, Cabal Ritual, Balustrade Spy	False	2
-250	Undercity Informer, Narcomoeba, Elvish Spirit Guide, Cabal Ritual, Chrome Mox, Summoner's Pact, Cabal Therapy	False	0
+250	Undercity Informer, Narcomoeba, Elvish Spirit Guide, Cabal Ritual, Chrome Mox, Summoner's Pact, Cabal Therapy	True	0
 249	Agadeem's Awakening, Chrome Mox, Agadeem's Awakening, Simian Spirit Guide, Lotus Petal, Undercity Informer, Pact of Negation	True	1
 248	Simian Spirit Guide, Undercity Informer, Chrome Mox, Dread Return, Pact of Negation, Chrome Mox, Elvish Spirit Guide	False	1
 248	Undercity Informer, Bridge from Below, Chrome Mox, Cabal Therapy, Elvish Spirit Guide, Agadeem's Awakening, Chrome Mox	True	0
@@ -523,13 +523,13 @@ ms	hand	win	mulligans
 228	Lotus Petal, Cabal Ritual, Summoner's Pact, Pact of Negation, Balustrade Spy, Narcomoeba, Pact of Negation	False	2
 227	Undercity Informer, Narcomoeba, Balustrade Spy, Lotus Petal, Elvish Spirit Guide, Wild Cantor, Dark Ritual	True	0
 227	Cabal Ritual, Balustrade Spy, Narcomoeba, Narcomoeba, Simian Spirit Guide, Cabal Ritual, Chrome Mox	False	1
-226	Undercity Informer, Pact of Negation, Cabal Ritual, Chrome Mox, Cabal Ritual, Summoner's Pact, Turntimber Symbiosis	False	0
+226	Undercity Informer, Pact of Negation, Cabal Ritual, Chrome Mox, Cabal Ritual, Summoner's Pact, Turntimber Symbiosis	True	0
 224	Balustrade Spy, Agadeem's Awakening, Cabal Ritual, Lotus Petal, Elvish Spirit Guide, Summoner's Pact, Cabal Therapy	True	2
 222	Dread Return, Chrome Mox, Dark Ritual, Turntimber Symbiosis, Summoner's Pact, Undercity Informer, Narcomoeba	True	0
 221	Cabal Ritual, Simian Spirit Guide, Balustrade Spy, Cabal Therapy, Balustrade Spy, Agadeem's Awakening, Turntimber Symbiosis	False	2
 220	Chrome Mox, Dark Ritual, Chrome Mox, Summoner's Pact, Narcomoeba, Turntimber Symbiosis, Undercity Informer	True	1
 219	Balustrade Spy, Lotus Petal, Chrome Mox, Cabal Therapy, Lotus Petal, Narcomoeba, Chrome Mox	True	0
-218	Chrome Mox, Undercity Informer, Cabal Therapy, Simian Spirit Guide, Cabal Ritual, Cabal Ritual, Wild Cantor	False	1
+218	Chrome Mox, Undercity Informer, Cabal Therapy, Simian Spirit Guide, Cabal Ritual, Cabal Ritual, Wild Cantor	True	1
 217	Thassa's Oracle, Bridge from Below, Turntimber Symbiosis, Lotus Petal, Cabal Ritual, Summoner's Pact, Balustrade Spy	True	1
 216	Agadeem's Awakening, Dread Return, Pact of Negation, Undercity Informer, Lotus Petal, Turntimber Symbiosis, Elvish Spirit Guide	False	1
 214	Elvish Spirit Guide, Simian Spirit Guide, Summoner's Pact, Pact of Negation, Dark Ritual, Balustrade Spy, Cabal Therapy	True	2
@@ -541,7 +541,7 @@ ms	hand	win	mulligans
 206	Elvish Spirit Guide, Chrome Mox, Pact of Negation, Lotus Petal, Wild Cantor, Balustrade Spy, Elvish Spirit Guide	True	0
 204	Pact of Negation, Balustrade Spy, Agadeem's Awakening, Dark Ritual, Agadeem's Awakening, Summoner's Pact, Cabal Therapy	True	0
 202	Pact of Negation, Cabal Therapy, Lotus Petal, Simian Spirit Guide, Undercity Informer, Turntimber Symbiosis, Turntimber Symbiosis	False	2
-198	Undercity Informer, Simian Spirit Guide, Undercity Informer, Agadeem's Awakening, Cabal Ritual, Simian Spirit Guide, Pact of Negation	False	1
+198	Undercity Informer, Simian Spirit Guide, Undercity Informer, Agadeem's Awakening, Cabal Ritual, Simian Spirit Guide, Pact of Negation	True	1
 198	Balustrade Spy, Undercity Informer, Cabal Ritual, Thassa's Oracle, Summoner's Pact, Narcomoeba, Chrome Mox	False	1
 196	Undercity Informer, Cabal Ritual, Dark Ritual, Balustrade Spy, Turntimber Symbiosis, Simian Spirit Guide, Simian Spirit Guide	False	0
 196	Summoner's Pact, Narcomoeba, Agadeem's Awakening, Cabal Ritual, Balustrade Spy, Undercity Informer, Agadeem's Awakening	False	1
@@ -553,7 +553,7 @@ ms	hand	win	mulligans
 191	Turntimber Symbiosis, Pact of Negation, Balustrade Spy, Balustrade Spy, Chrome Mox, Cabal Therapy, Cabal Ritual	False	0
 191	Chrome Mox, Balustrade Spy, Balustrade Spy, Chrome Mox, Narcomoeba, Cabal Ritual, Cabal Therapy	False	0
 191	Wild Cantor, Elvish Spirit Guide, Chrome Mox, Lotus Petal, Cabal Ritual, Undercity Informer, Turntimber Symbiosis	True	2
-190	Elvish Spirit Guide, Agadeem's Awakening, Dark Ritual, Undercity Informer, Thassa's Oracle, Cabal Therapy, Simian Spirit Guide	False	2
+190	Elvish Spirit Guide, Agadeem's Awakening, Dark Ritual, Undercity Informer, Thassa's Oracle, Cabal Therapy, Simian Spirit Guide	True	2
 189	Narcomoeba, Balustrade Spy, Cabal Ritual, Pact of Negation, Summoner's Pact, Turntimber Symbiosis, Turntimber Symbiosis	False	2
 189	Turntimber Symbiosis, Lotus Petal, Dark Ritual, Cabal Ritual, Balustrade Spy, Narcomoeba, Turntimber Symbiosis	True	1
 188	Agadeem's Awakening, Balustrade Spy, Cabal Therapy, Wild Cantor, Agadeem's Awakening, Summoner's Pact, Cabal Ritual	False	0
@@ -563,13 +563,13 @@ ms	hand	win	mulligans
 180	Narcomoeba, Lotus Petal, Balustrade Spy, Turntimber Symbiosis, Agadeem's Awakening, Chrome Mox, Narcomoeba	False	2
 180	Simian Spirit Guide, Simian Spirit Guide, Turntimber Symbiosis, Agadeem's Awakening, Narcomoeba, Undercity Informer, Undercity Informer	False	0
 179	Cabal Ritual, Lotus Petal, Balustrade Spy, Agadeem's Awakening, Dark Ritual, Narcomoeba, Agadeem's Awakening	True	1
-179	Undercity Informer, Narcomoeba, Chrome Mox, Turntimber Symbiosis, Turntimber Symbiosis, Dark Ritual, Bridge from Below	False	2
+179	Undercity Informer, Narcomoeba, Chrome Mox, Turntimber Symbiosis, Turntimber Symbiosis, Dark Ritual, Bridge from Below	True	2
 179	Elvish Spirit Guide, Elvish Spirit Guide, Balustrade Spy, Undercity Informer, Cabal Therapy, Dark Ritual, Turntimber Symbiosis	False	1
 177	Undercity Informer, Narcomoeba, Simian Spirit Guide, Summoner's Pact, Cabal Therapy, Cabal Ritual, Balustrade Spy	False	1
 175	Cabal Ritual, Undercity Informer, Narcomoeba, Elvish Spirit Guide, Balustrade Spy, Agadeem's Awakening, Narcomoeba	False	1
 174	Narcomoeba, Cabal Ritual, Balustrade Spy, Lotus Petal, Chrome Mox, Cabal Therapy, Undercity Informer	False	2
-174	Cabal Ritual, Cabal Therapy, Undercity Informer, Narcomoeba, Simian Spirit Guide, Summoner's Pact, Chrome Mox	False	0
-170	Cabal Therapy, Cabal Ritual, Summoner's Pact, Undercity Informer, Simian Spirit Guide, Elvish Spirit Guide, Dark Ritual	False	2
+174	Cabal Ritual, Cabal Therapy, Undercity Informer, Narcomoeba, Simian Spirit Guide, Summoner's Pact, Chrome Mox	True	0
+170	Cabal Therapy, Cabal Ritual, Summoner's Pact, Undercity Informer, Simian Spirit Guide, Elvish Spirit Guide, Dark Ritual	True	2
 169	Wild Cantor, Balustrade Spy, Narcomoeba, Elvish Spirit Guide, Chrome Mox, Chrome Mox, Elvish Spirit Guide	False	2
 168	Elvish Spirit Guide, Turntimber Symbiosis, Chrome Mox, Balustrade Spy, Summoner's Pact, Cabal Therapy, Undercity Informer	True	1
 168	Turntimber Symbiosis, Undercity Informer, Balustrade Spy, Elvish Spirit Guide, Cabal Therapy, Simian Spirit Guide, Cabal Ritual	False	2
@@ -583,7 +583,7 @@ ms	hand	win	mulligans
 163	Agadeem's Awakening, Balustrade Spy, Elvish Spirit Guide, Dark Ritual, Turntimber Symbiosis, Undercity Informer, Undercity Informer	True	1
 160	Summoner's Pact, Summoner's Pact, Cabal Ritual, Simian Spirit Guide, Lotus Petal, Cabal Therapy, Undercity Informer	True	1
 158	Cabal Therapy, Cabal Ritual, Turntimber Symbiosis, Balustrade Spy, Bridge from Below, Dark Ritual, Summoner's Pact	True	0
-157	Chrome Mox, Bridge from Below, Dark Ritual, Cabal Ritual, Cabal Therapy, Undercity Informer, Elvish Spirit Guide	False	2
+157	Chrome Mox, Bridge from Below, Dark Ritual, Cabal Ritual, Cabal Therapy, Undercity Informer, Elvish Spirit Guide	True	2
 157	Balustrade Spy, Turntimber Symbiosis, Narcomoeba, Elvish Spirit Guide, Pact of Negation, Agadeem's Awakening, Chrome Mox	False	2
 156	Thassa's Oracle, Balustrade Spy, Cabal Ritual, Elvish Spirit Guide, Agadeem's Awakening, Chrome Mox, Pact of Negation	True	0
 156	Lotus Petal, Cabal Ritual, Pact of Negation, Lotus Petal, Undercity Informer, Lotus Petal, Wild Cantor	True	1
@@ -599,16 +599,16 @@ ms	hand	win	mulligans
 147	Undercity Informer, Cabal Ritual, Pact of Negation, Balustrade Spy, Elvish Spirit Guide, Balustrade Spy, Agadeem's Awakening	False	1
 142	Simian Spirit Guide, Narcomoeba, Agadeem's Awakening, Pact of Negation, Undercity Informer, Elvish Spirit Guide, Turntimber Symbiosis	False	1
 142	Simian Spirit Guide, Cabal Ritual, Narcomoeba, Cabal Ritual, Summoner's Pact, Undercity Informer, Balustrade Spy	False	1
-142	Turntimber Symbiosis, Pact of Negation, Simian Spirit Guide, Summoner's Pact, Dark Ritual, Undercity Informer, Undercity Informer	False	1
-141	Chrome Mox, Pact of Negation, Elvish Spirit Guide, Undercity Informer, Pact of Negation, Bridge from Below, Dark Ritual	False	1
+142	Turntimber Symbiosis, Pact of Negation, Simian Spirit Guide, Summoner's Pact, Dark Ritual, Undercity Informer, Undercity Informer	True	1
+141	Chrome Mox, Pact of Negation, Elvish Spirit Guide, Undercity Informer, Pact of Negation, Bridge from Below, Dark Ritual	True	1
 141	Cabal Therapy, Dark Ritual, Cabal Ritual, Lotus Petal, Chrome Mox, Pact of Negation, Balustrade Spy	True	0
 139	Balustrade Spy, Summoner's Pact, Lotus Petal, Cabal Therapy, Agadeem's Awakening, Elvish Spirit Guide, Elvish Spirit Guide	True	1
-139	Undercity Informer, Dark Ritual, Undercity Informer, Chrome Mox, Cabal Ritual, Pact of Negation, Cabal Ritual	False	1
+139	Undercity Informer, Dark Ritual, Undercity Informer, Chrome Mox, Cabal Ritual, Pact of Negation, Cabal Ritual	True	1
 138	Narcomoeba, Lotus Petal, Narcomoeba, Pact of Negation, Balustrade Spy, Cabal Ritual, Summoner's Pact	False	2
 137	Lotus Petal, Turntimber Symbiosis, Cabal Ritual, Narcomoeba, Wild Cantor, Undercity Informer, Elvish Spirit Guide	True	2
 136	Chrome Mox, Undercity Informer, Agadeem's Awakening, Summoner's Pact, Undercity Informer, Narcomoeba, Dark Ritual	True	2
 136	Cabal Therapy, Cabal Ritual, Narcomoeba, Narcomoeba, Summoner's Pact, Simian Spirit Guide, Undercity Informer	False	1
-135	Undercity Informer, Narcomoeba, Narcomoeba, Summoner's Pact, Simian Spirit Guide, Simian Spirit Guide, Dark Ritual	False	1
+135	Undercity Informer, Narcomoeba, Narcomoeba, Summoner's Pact, Simian Spirit Guide, Simian Spirit Guide, Dark Ritual	True	1
 135	Balustrade Spy, Pact of Negation, Pact of Negation, Agadeem's Awakening, Chrome Mox, Simian Spirit Guide, Elvish Spirit Guide	True	1
 134	Dread Return, Summoner's Pact, Undercity Informer, Cabal Therapy, Cabal Ritual, Wild Cantor, Elvish Spirit Guide	False	1
 134	Balustrade Spy, Agadeem's Awakening, Agadeem's Awakening, Bridge from Below, Turntimber Symbiosis, Lotus Petal, Cabal Ritual	False	0
@@ -643,9 +643,9 @@ ms	hand	win	mulligans
 110	Balustrade Spy, Narcomoeba, Narcomoeba, Cabal Ritual, Balustrade Spy, Dread Return, Lotus Petal	False	0
 109	Lotus Petal, Undercity Informer, Cabal Therapy, Undercity Informer, Elvish Spirit Guide, Cabal Therapy, Dark Ritual	True	0
 109	Turntimber Symbiosis, Cabal Therapy, Pact of Negation, Turntimber Symbiosis, Cabal Ritual, Simian Spirit Guide, Balustrade Spy	False	2
-108	Summoner's Pact, Chrome Mox, Cabal Therapy, Dark Ritual, Pact of Negation, Undercity Informer, Cabal Therapy	False	0
+108	Summoner's Pact, Chrome Mox, Cabal Therapy, Dark Ritual, Pact of Negation, Undercity Informer, Cabal Therapy	True	0
 107	Simian Spirit Guide, Dread Return, Simian Spirit Guide, Wild Cantor, Lotus Petal, Dark Ritual, Balustrade Spy	True	0
-106	Turntimber Symbiosis, Narcomoeba, Dark Ritual, Cabal Ritual, Summoner's Pact, Simian Spirit Guide, Undercity Informer	False	0
+106	Turntimber Symbiosis, Narcomoeba, Dark Ritual, Cabal Ritual, Summoner's Pact, Simian Spirit Guide, Undercity Informer	True	0
 106	Cabal Ritual, Cabal Ritual, Agadeem's Awakening, Pact of Negation, Undercity Informer, Thassa's Oracle, Chrome Mox	False	2
 106	Simian Spirit Guide, Undercity Informer, Cabal Ritual, Balustrade Spy, Pact of Negation, Balustrade Spy, Pact of Negation	False	1
 106	Elvish Spirit Guide, Dark Ritual, Narcomoeba, Bridge from Below, Turntimber Symbiosis, Balustrade Spy, Thassa's Oracle	False	1
@@ -653,21 +653,21 @@ ms	hand	win	mulligans
 104	Narcomoeba, Turntimber Symbiosis, Cabal Ritual, Agadeem's Awakening, Balustrade Spy, Pact of Negation, Elvish Spirit Guide	False	2
 103	Balustrade Spy, Turntimber Symbiosis, Lotus Petal, Thassa's Oracle, Cabal Ritual, Dark Ritual, Undercity Informer	True	2
 102	Cabal Therapy, Lotus Petal, Chrome Mox, Cabal Ritual, Simian Spirit Guide, Cabal Ritual, Balustrade Spy	True	2
-100	Summoner's Pact, Undercity Informer, Undercity Informer, Simian Spirit Guide, Dark Ritual, Cabal Ritual, Simian Spirit Guide	False	0
+100	Summoner's Pact, Undercity Informer, Undercity Informer, Simian Spirit Guide, Dark Ritual, Cabal Ritual, Simian Spirit Guide	True	0
 100	Balustrade Spy, Undercity Informer, Cabal Therapy, Cabal Ritual, Simian Spirit Guide, Agadeem's Awakening, Undercity Informer	False	1
 100	Simian Spirit Guide, Elvish Spirit Guide, Cabal Ritual, Pact of Negation, Cabal Ritual, Balustrade Spy, Undercity Informer	False	2
 99	Cabal Ritual, Narcomoeba, Summoner's Pact, Agadeem's Awakening, Dread Return, Undercity Informer, Balustrade Spy	False	2
 98	Turntimber Symbiosis, Dark Ritual, Cabal Therapy, Lotus Petal, Elvish Spirit Guide, Undercity Informer, Cabal Therapy	True	0
 98	Agadeem's Awakening, Lotus Petal, Agadeem's Awakening, Cabal Therapy, Turntimber Symbiosis, Balustrade Spy, Turntimber Symbiosis	False	0
 98	Lotus Petal, Dark Ritual, Agadeem's Awakening, Undercity Informer, Agadeem's Awakening, Turntimber Symbiosis, Narcomoeba	True	2
-98	Undercity Informer, Dark Ritual, Turntimber Symbiosis, Dark Ritual, Elvish Spirit Guide, Summoner's Pact, Pact of Negation	False	1
+98	Undercity Informer, Dark Ritual, Turntimber Symbiosis, Dark Ritual, Elvish Spirit Guide, Summoner's Pact, Pact of Negation	True	1
 97	Narcomoeba, Cabal Therapy, Chrome Mox, Undercity Informer, Pact of Negation, Cabal Ritual, Agadeem's Awakening	False	1
 97	Summoner's Pact, Pact of Negation, Balustrade Spy, Turntimber Symbiosis, Cabal Therapy, Dark Ritual, Simian Spirit Guide	True	2
 96	Simian Spirit Guide, Pact of Negation, Undercity Informer, Elvish Spirit Guide, Cabal Ritual, Cabal Therapy, Balustrade Spy	False	1
 96	Balustrade Spy, Pact of Negation, Turntimber Symbiosis, Summoner's Pact, Narcomoeba, Chrome Mox, Dark Ritual	True	0
 95	Summoner's Pact, Undercity Informer, Simian Spirit Guide, Bridge from Below, Cabal Ritual, Undercity Informer, Pact of Negation	False	2
 95	Summoner's Pact, Pact of Negation, Undercity Informer, Dark Ritual, Elvish Spirit Guide, Chrome Mox, Cabal Therapy	True	1
-94	Bridge from Below, Dark Ritual, Cabal Ritual, Undercity Informer, Summoner's Pact, Turntimber Symbiosis, Cabal Ritual	False	2
+94	Bridge from Below, Dark Ritual, Cabal Ritual, Undercity Informer, Summoner's Pact, Turntimber Symbiosis, Cabal Ritual	True	2
 94	Cabal Therapy, Dark Ritual, Wild Cantor, Thassa's Oracle, Chrome Mox, Balustrade Spy, Simian Spirit Guide	True	2
 94	Elvish Spirit Guide, Cabal Therapy, Agadeem's Awakening, Narcomoeba, Balustrade Spy, Agadeem's Awakening, Simian Spirit Guide	False	0
 93	Narcomoeba, Lotus Petal, Cabal Therapy, Pact of Negation, Elvish Spirit Guide, Balustrade Spy, Cabal Ritual	False	2
@@ -676,8 +676,8 @@ ms	hand	win	mulligans
 91	Cabal Ritual, Simian Spirit Guide, Narcomoeba, Lotus Petal, Pact of Negation, Cabal Therapy, Undercity Informer	False	1
 91	Elvish Spirit Guide, Elvish Spirit Guide, Pact of Negation, Dark Ritual, Pact of Negation, Balustrade Spy, Cabal Therapy	False	1
 91	Pact of Negation, Pact of Negation, Chrome Mox, Balustrade Spy, Dark Ritual, Cabal Ritual, Cabal Therapy	True	0
-91	Elvish Spirit Guide, Undercity Informer, Agadeem's Awakening, Cabal Ritual, Pact of Negation, Turntimber Symbiosis, Cabal Ritual	False	2
-91	Turntimber Symbiosis, Pact of Negation, Bridge from Below, Summoner's Pact, Undercity Informer, Agadeem's Awakening, Dark Ritual	False	2
+91	Elvish Spirit Guide, Undercity Informer, Agadeem's Awakening, Cabal Ritual, Pact of Negation, Turntimber Symbiosis, Cabal Ritual	True	2
+91	Turntimber Symbiosis, Pact of Negation, Bridge from Below, Summoner's Pact, Undercity Informer, Agadeem's Awakening, Dark Ritual	True	2
 89	Summoner's Pact, Summoner's Pact, Lotus Petal, Dark Ritual, Undercity Informer, Elvish Spirit Guide, Simian Spirit Guide	True	2
 89	Dark Ritual, Cabal Ritual, Balustrade Spy, Wild Cantor, Simian Spirit Guide, Agadeem's Awakening, Pact of Negation	True	2
 89	Narcomoeba, Wild Cantor, Balustrade Spy, Bridge from Below, Elvish Spirit Guide, Turntimber Symbiosis, Dark Ritual	True	2
@@ -686,16 +686,16 @@ ms	hand	win	mulligans
 89	Chrome Mox, Undercity Informer, Narcomoeba, Wild Cantor, Cabal Ritual, Summoner's Pact, Pact of Negation	False	0
 88	Balustrade Spy, Turntimber Symbiosis, Pact of Negation, Cabal Therapy, Thassa's Oracle, Cabal Ritual, Lotus Petal	False	2
 88	Narcomoeba, Pact of Negation, Balustrade Spy, Cabal Ritual, Narcomoeba, Thassa's Oracle, Chrome Mox	False	2
-87	Pact of Negation, Undercity Informer, Simian Spirit Guide, Pact of Negation, Dark Ritual, Cabal Therapy, Chrome Mox	False	1
-86	Narcomoeba, Undercity Informer, Agadeem's Awakening, Simian Spirit Guide, Cabal Therapy, Simian Spirit Guide, Cabal Ritual	False	2
+87	Pact of Negation, Undercity Informer, Simian Spirit Guide, Pact of Negation, Dark Ritual, Cabal Therapy, Chrome Mox	True	1
+86	Narcomoeba, Undercity Informer, Agadeem's Awakening, Simian Spirit Guide, Cabal Therapy, Simian Spirit Guide, Cabal Ritual	True	2
 86	Simian Spirit Guide, Dark Ritual, Cabal Ritual, Narcomoeba, Balustrade Spy, Lotus Petal, Turntimber Symbiosis	True	2
-86	Simian Spirit Guide, Cabal Therapy, Undercity Informer, Elvish Spirit Guide, Dark Ritual, Narcomoeba, Summoner's Pact	False	0
+86	Simian Spirit Guide, Cabal Therapy, Undercity Informer, Elvish Spirit Guide, Dark Ritual, Narcomoeba, Summoner's Pact	True	0
 85	Turntimber Symbiosis, Turntimber Symbiosis, Undercity Informer, Lotus Petal, Cabal Ritual, Balustrade Spy, Cabal Therapy	False	0
 85	Balustrade Spy, Pact of Negation, Undercity Informer, Summoner's Pact, Cabal Ritual, Agadeem's Awakening, Turntimber Symbiosis	False	0
 83	Narcomoeba, Balustrade Spy, Wild Cantor, Summoner's Pact, Dark Ritual, Turntimber Symbiosis, Bridge from Below	True	1
 83	Narcomoeba, Cabal Therapy, Cabal Ritual, Elvish Spirit Guide, Undercity Informer, Balustrade Spy, Agadeem's Awakening	False	1
-83	Summoner's Pact, Cabal Therapy, Balustrade Spy, Chrome Mox, Chrome Mox, Balustrade Spy, Turntimber Symbiosis	False	0
-79	Cabal Therapy, Cabal Ritual, Pact of Negation, Dark Ritual, Undercity Informer, Lotus Petal, Dark Ritual	False	2
+83	Summoner's Pact, Cabal Therapy, Balustrade Spy, Chrome Mox, Chrome Mox, Balustrade Spy, Turntimber Symbiosis	True	0
+79	Cabal Therapy, Cabal Ritual, Pact of Negation, Dark Ritual, Undercity Informer, Lotus Petal, Dark Ritual	True	2
 78	Summoner's Pact, Balustrade Spy, Pact of Negation, Simian Spirit Guide, Pact of Negation, Dark Ritual, Simian Spirit Guide	True	0
 78	Chrome Mox, Chrome Mox, Undercity Informer, Simian Spirit Guide, Dark Ritual, Thassa's Oracle, Narcomoeba	False	0
 78	Turntimber Symbiosis, Summoner's Pact, Undercity Informer, Cabal Ritual, Narcomoeba, Undercity Informer, Simian Spirit Guide	False	0
@@ -724,7 +724,7 @@ ms	hand	win	mulligans
 69	Agadeem's Awakening, Turntimber Symbiosis, Simian Spirit Guide, Dark Ritual, Balustrade Spy, Turntimber Symbiosis, Cabal Therapy	True	1
 69	Cabal Therapy, Cabal Ritual, Thassa's Oracle, Narcomoeba, Narcomoeba, Simian Spirit Guide, Balustrade Spy	False	0
 67	Cabal Ritual, Cabal Therapy, Balustrade Spy, Chrome Mox, Turntimber Symbiosis, Thassa's Oracle, Elvish Spirit Guide	True	0
-66	Pact of Negation, Dark Ritual, Bridge from Below, Agadeem's Awakening, Summoner's Pact, Undercity Informer, Undercity Informer	False	1
+66	Pact of Negation, Dark Ritual, Bridge from Below, Agadeem's Awakening, Summoner's Pact, Undercity Informer, Undercity Informer	True	1
 66	Chrome Mox, Pact of Negation, Cabal Therapy, Lotus Petal, Balustrade Spy, Narcomoeba, Dark Ritual	True	0
 66	Elvish Spirit Guide, Turntimber Symbiosis, Dark Ritual, Chrome Mox, Cabal Therapy, Balustrade Spy, Dark Ritual	True	1
 65	Cabal Ritual, Elvish Spirit Guide, Cabal Therapy, Pact of Negation, Undercity Informer, Lotus Petal, Narcomoeba	False	1
@@ -741,7 +741,7 @@ ms	hand	win	mulligans
 62	Cabal Ritual, Undercity Informer, Simian Spirit Guide, Balustrade Spy, Agadeem's Awakening, Turntimber Symbiosis, Dark Ritual	True	2
 62	Balustrade Spy, Turntimber Symbiosis, Narcomoeba, Agadeem's Awakening, Pact of Negation, Cabal Ritual, Turntimber Symbiosis	False	2
 62	Dread Return, Balustrade Spy, Narcomoeba, Pact of Negation, Summoner's Pact, Cabal Ritual, Dark Ritual	False	2
-61	Undercity Informer, Dark Ritual, Narcomoeba, Turntimber Symbiosis, Chrome Mox, Simian Spirit Guide, Cabal Therapy	False	0
+61	Undercity Informer, Dark Ritual, Narcomoeba, Turntimber Symbiosis, Chrome Mox, Simian Spirit Guide, Cabal Therapy	True	0
 61	Dread Return, Balustrade Spy, Undercity Informer, Pact of Negation, Balustrade Spy, Elvish Spirit Guide, Cabal Ritual	False	0
 60	Narcomoeba, Dread Return, Dark Ritual, Balustrade Spy, Cabal Ritual, Elvish Spirit Guide, Elvish Spirit Guide	False	2
 60	Elvish Spirit Guide, Undercity Informer, Turntimber Symbiosis, Chrome Mox, Lotus Petal, Pact of Negation, Summoner's Pact	True	0
@@ -759,7 +759,7 @@ ms	hand	win	mulligans
 56	Cabal Ritual, Balustrade Spy, Balustrade Spy, Elvish Spirit Guide, Cabal Ritual, Turntimber Symbiosis, Narcomoeba	False	1
 56	Pact of Negation, Turntimber Symbiosis, Wild Cantor, Dark Ritual, Elvish Spirit Guide, Cabal Therapy, Balustrade Spy	True	0
 56	Pact of Negation, Simian Spirit Guide, Balustrade Spy, Pact of Negation, Chrome Mox, Dark Ritual, Cabal Therapy	True	0
-56	Cabal Therapy, Dread Return, Cabal Ritual, Simian Spirit Guide, Cabal Ritual, Undercity Informer, Agadeem's Awakening	False	1
+56	Cabal Therapy, Dread Return, Cabal Ritual, Simian Spirit Guide, Cabal Ritual, Undercity Informer, Agadeem's Awakening	True	1
 55	Pact of Negation, Bridge from Below, Summoner's Pact, Balustrade Spy, Narcomoeba, Cabal Ritual, Cabal Ritual	False	1
 55	Agadeem's Awakening, Elvish Spirit Guide, Cabal Ritual, Narcomoeba, Narcomoeba, Undercity Informer, Cabal Therapy	False	2
 55	Simian Spirit Guide, Undercity Informer, Agadeem's Awakening, Narcomoeba, Agadeem's Awakening, Turntimber Symbiosis, Cabal Ritual	False	0
@@ -782,7 +782,7 @@ ms	hand	win	mulligans
 51	Chrome Mox, Dread Return, Cabal Ritual, Simian Spirit Guide, Undercity Informer, Agadeem's Awakening, Narcomoeba	True	0
 51	Elvish Spirit Guide, Balustrade Spy, Cabal Ritual, Turntimber Symbiosis, Cabal Therapy, Dark Ritual, Chrome Mox	True	1
 51	Narcomoeba, Cabal Ritual, Undercity Informer, Thassa's Oracle, Narcomoeba, Dark Ritual, Pact of Negation	False	0
-50	Dark Ritual, Simian Spirit Guide, Cabal Therapy, Undercity Informer, Wild Cantor, Cabal Ritual, Dark Ritual	False	2
+50	Dark Ritual, Simian Spirit Guide, Cabal Therapy, Undercity Informer, Wild Cantor, Cabal Ritual, Dark Ritual	True	2
 50	Dark Ritual, Chrome Mox, Narcomoeba, Lotus Petal, Undercity Informer, Narcomoeba, Undercity Informer	False	0
 50	Elvish Spirit Guide, Balustrade Spy, Thassa's Oracle, Elvish Spirit Guide, Agadeem's Awakening, Dark Ritual, Turntimber Symbiosis	True	2
 50	Balustrade Spy, Undercity Informer, Cabal Ritual, Narcomoeba, Lotus Petal, Dark Ritual, Cabal Ritual	True	1
@@ -823,7 +823,7 @@ ms	hand	win	mulligans
 40	Elvish Spirit Guide, Balustrade Spy, Dark Ritual, Simian Spirit Guide, Dread Return, Turntimber Symbiosis, Summoner's Pact	True	0
 40	Pact of Negation, Undercity Informer, Undercity Informer, Agadeem's Awakening, Summoner's Pact, Cabal Ritual, Cabal Therapy	False	1
 40	Thassa's Oracle, Balustrade Spy, Pact of Negation, Balustrade Spy, Narcomoeba, Cabal Ritual, Turntimber Symbiosis	False	1
-40	Undercity Informer, Summoner's Pact, Pact of Negation, Turntimber Symbiosis, Thassa's Oracle, Cabal Ritual, Dark Ritual	False	2
+40	Undercity Informer, Summoner's Pact, Pact of Negation, Turntimber Symbiosis, Thassa's Oracle, Cabal Ritual, Dark Ritual	True	2
 40	Cabal Therapy, Dark Ritual, Bridge from Below, Undercity Informer, Cabal Ritual, Simian Spirit Guide, Simian Spirit Guide	False	1
 39	Turntimber Symbiosis, Cabal Ritual, Balustrade Spy, Narcomoeba, Dread Return, Undercity Informer, Cabal Therapy	False	1
 39	Narcomoeba, Balustrade Spy, Lotus Petal, Summoner's Pact, Cabal Ritual, Undercity Informer, Cabal Ritual	True	1
@@ -831,9 +831,9 @@ ms	hand	win	mulligans
 39	Chrome Mox, Undercity Informer, Agadeem's Awakening, Cabal Ritual, Dark Ritual, Thassa's Oracle, Undercity Informer	True	0
 39	Dark Ritual, Narcomoeba, Elvish Spirit Guide, Balustrade Spy, Elvish Spirit Guide, Bridge from Below, Pact of Negation	False	1
 39	Cabal Ritual, Balustrade Spy, Pact of Negation, Balustrade Spy, Narcomoeba, Simian Spirit Guide, Agadeem's Awakening	False	0
-39	Undercity Informer, Turntimber Symbiosis, Elvish Spirit Guide, Cabal Ritual, Summoner's Pact, Dark Ritual, Narcomoeba	False	0
+39	Undercity Informer, Turntimber Symbiosis, Elvish Spirit Guide, Cabal Ritual, Summoner's Pact, Dark Ritual, Narcomoeba	True	0
 39	Balustrade Spy, Cabal Ritual, Cabal Ritual, Cabal Therapy, Pact of Negation, Narcomoeba, Turntimber Symbiosis	False	1
-38	Cabal Therapy, Dark Ritual, Undercity Informer, Pact of Negation, Turntimber Symbiosis, Chrome Mox, Turntimber Symbiosis	False	0
+38	Cabal Therapy, Dark Ritual, Undercity Informer, Pact of Negation, Turntimber Symbiosis, Chrome Mox, Turntimber Symbiosis	True	0
 38	Undercity Informer, Chrome Mox, Dark Ritual, Pact of Negation, Thassa's Oracle, Narcomoeba, Lotus Petal	True	2
 38	Dark Ritual, Chrome Mox, Undercity Informer, Simian Spirit Guide, Dark Ritual, Turntimber Symbiosis, Wild Cantor	True	2
 38	Undercity Informer, Dark Ritual, Undercity Informer, Pact of Negation, Narcomoeba, Summoner's Pact, Summoner's Pact	False	1
@@ -846,7 +846,7 @@ ms	hand	win	mulligans
 36	Dark Ritual, Chrome Mox, Chrome Mox, Balustrade Spy, Wild Cantor, Agadeem's Awakening, Cabal Therapy	True	1
 36	Lotus Petal, Narcomoeba, Balustrade Spy, Dark Ritual, Simian Spirit Guide, Pact of Negation, Turntimber Symbiosis	True	2
 36	Narcomoeba, Dark Ritual, Pact of Negation, Summoner's Pact, Wild Cantor, Balustrade Spy, Chrome Mox	True	1
-36	Undercity Informer, Agadeem's Awakening, Summoner's Pact, Dark Ritual, Pact of Negation, Agadeem's Awakening, Cabal Therapy	False	1
+36	Undercity Informer, Agadeem's Awakening, Summoner's Pact, Dark Ritual, Pact of Negation, Agadeem's Awakening, Cabal Therapy	True	1
 36	Pact of Negation, Agadeem's Awakening, Cabal Ritual, Cabal Therapy, Dread Return, Undercity Informer, Wild Cantor	False	1
 36	Narcomoeba, Pact of Negation, Cabal Ritual, Cabal Ritual, Balustrade Spy, Dark Ritual, Agadeem's Awakening	True	2
 36	Dark Ritual, Turntimber Symbiosis, Elvish Spirit Guide, Turntimber Symbiosis, Undercity Informer, Undercity Informer, Cabal Therapy	False	0
@@ -875,12 +875,12 @@ ms	hand	win	mulligans
 33	Agadeem's Awakening, Balustrade Spy, Pact of Negation, Narcomoeba, Narcomoeba, Dark Ritual, Elvish Spirit Guide	True	2
 33	Summoner's Pact, Cabal Therapy, Narcomoeba, Narcomoeba, Pact of Negation, Undercity Informer, Balustrade Spy	False	2
 33	Cabal Therapy, Thassa's Oracle, Narcomoeba, Dark Ritual, Chrome Mox, Lotus Petal, Undercity Informer	True	1
-33	Summoner's Pact, Turntimber Symbiosis, Thassa's Oracle, Summoner's Pact, Simian Spirit Guide, Undercity Informer, Agadeem's Awakening	False	0
+33	Summoner's Pact, Turntimber Symbiosis, Thassa's Oracle, Summoner's Pact, Simian Spirit Guide, Undercity Informer, Agadeem's Awakening	True	0
 32	Cabal Ritual, Pact of Negation, Lotus Petal, Cabal Therapy, Dark Ritual, Undercity Informer, Agadeem's Awakening	True	0
 32	Cabal Therapy, Dark Ritual, Undercity Informer, Chrome Mox, Agadeem's Awakening, Cabal Therapy, Undercity Informer	True	1
 32	Dark Ritual, Undercity Informer, Balustrade Spy, Dark Ritual, Turntimber Symbiosis, Undercity Informer, Cabal Therapy	False	1
 32	Pact of Negation, Narcomoeba, Chrome Mox, Undercity Informer, Cabal Therapy, Elvish Spirit Guide, Cabal Ritual	False	0
-31	Narcomoeba, Thassa's Oracle, Lotus Petal, Lotus Petal, Undercity Informer, Cabal Ritual, Cabal Ritual	False	0
+31	Narcomoeba, Thassa's Oracle, Lotus Petal, Lotus Petal, Undercity Informer, Cabal Ritual, Cabal Ritual	True	0
 31	Lotus Petal, Undercity Informer, Chrome Mox, Narcomoeba, Cabal Ritual, Cabal Ritual, Narcomoeba	False	0
 31	Undercity Informer, Dread Return, Elvish Spirit Guide, Dark Ritual, Narcomoeba, Balustrade Spy, Lotus Petal	True	2
 31	Balustrade Spy, Pact of Negation, Undercity Informer, Cabal Therapy, Cabal Ritual, Pact of Negation, Agadeem's Awakening	False	0
@@ -914,7 +914,7 @@ ms	hand	win	mulligans
 26	Cabal Ritual, Dark Ritual, Balustrade Spy, Undercity Informer, Chrome Mox, Turntimber Symbiosis, Cabal Therapy	True	0
 26	Elvish Spirit Guide, Turntimber Symbiosis, Agadeem's Awakening, Cabal Therapy, Summoner's Pact, Agadeem's Awakening, Undercity Informer	False	0
 26	Narcomoeba, Dark Ritual, Chrome Mox, Balustrade Spy, Cabal Therapy, Bridge from Below, Cabal Ritual	True	0
-25	Dark Ritual, Chrome Mox, Cabal Therapy, Turntimber Symbiosis, Pact of Negation, Undercity Informer, Dread Return	False	0
+25	Dark Ritual, Chrome Mox, Cabal Therapy, Turntimber Symbiosis, Pact of Negation, Undercity Informer, Dread Return	True	0
 25	Cabal Therapy, Cabal Ritual, Dark Ritual, Lotus Petal, Summoner's Pact, Cabal Ritual, Narcomoeba	False	1
 25	Dark Ritual, Summoner's Pact, Pact of Negation, Cabal Ritual, Balustrade Spy, Cabal Therapy, Cabal Ritual	False	0
 25	Chrome Mox, Narcomoeba, Turntimber Symbiosis, Balustrade Spy, Simian Spirit Guide, Narcomoeba, Dark Ritual	False	0
@@ -954,7 +954,7 @@ ms	hand	win	mulligans
 21	Cabal Therapy, Balustrade Spy, Agadeem's Awakening, Dread Return, Agadeem's Awakening, Cabal Ritual, Agadeem's Awakening	False	0
 21	Dread Return, Simian Spirit Guide, Pact of Negation, Cabal Ritual, Turntimber Symbiosis, Balustrade Spy, Cabal Ritual	False	0
 21	Pact of Negation, Undercity Informer, Narcomoeba, Narcomoeba, Lotus Petal, Dark Ritual, Turntimber Symbiosis	True	1
-21	Summoner's Pact, Balustrade Spy, Cabal Therapy, Chrome Mox, Pact of Negation, Summoner's Pact, Simian Spirit Guide	False	1
+21	Summoner's Pact, Balustrade Spy, Cabal Therapy, Chrome Mox, Pact of Negation, Summoner's Pact, Simian Spirit Guide	True	1
 20	Undercity Informer, Simian Spirit Guide, Agadeem's Awakening, Balustrade Spy, Undercity Informer, Lotus Petal, Cabal Therapy	False	2
 20	Cabal Ritual, Turntimber Symbiosis, Balustrade Spy, Balustrade Spy, Pact of Negation, Undercity Informer, Agadeem's Awakening	False	0
 20	Cabal Ritual, Cabal Ritual, Thassa's Oracle, Turntimber Symbiosis, Dark Ritual, Balustrade Spy, Lotus Petal	True	1
@@ -964,7 +964,7 @@ ms	hand	win	mulligans
 20	Simian Spirit Guide, Dark Ritual, Turntimber Symbiosis, Pact of Negation, Balustrade Spy, Dark Ritual, Cabal Therapy	False	0
 20	Undercity Informer, Dark Ritual, Cabal Therapy, Turntimber Symbiosis, Agadeem's Awakening, Pact of Negation, Narcomoeba	False	2
 20	Lotus Petal, Simian Spirit Guide, Thassa's Oracle, Summoner's Pact, Undercity Informer, Cabal Ritual, Turntimber Symbiosis	True	1
-19	Dread Return, Chrome Mox, Pact of Negation, Cabal Therapy, Balustrade Spy, Dark Ritual, Summoner's Pact	False	0
+19	Dread Return, Chrome Mox, Pact of Negation, Cabal Therapy, Balustrade Spy, Dark Ritual, Summoner's Pact	True	0
 19	Cabal Ritual, Chrome Mox, Lotus Petal, Lotus Petal, Simian Spirit Guide, Dark Ritual, Summoner's Pact	False	2
 19	Cabal Ritual, Undercity Informer, Turntimber Symbiosis, Cabal Ritual, Cabal Ritual, Cabal Ritual, Dark Ritual	False	2
 19	Pact of Negation, Undercity Informer, Lotus Petal, Thassa's Oracle, Cabal Therapy, Chrome Mox, Cabal Therapy	False	2
@@ -987,9 +987,9 @@ ms	hand	win	mulligans
 17	Dark Ritual, Cabal Ritual, Undercity Informer, Dark Ritual, Elvish Spirit Guide, Cabal Therapy, Lotus Petal	True	1
 17	Elvish Spirit Guide, Cabal Therapy, Lotus Petal, Cabal Therapy, Narcomoeba, Bridge from Below, Undercity Informer	False	2
 17	Turntimber Symbiosis, Cabal Ritual, Balustrade Spy, Undercity Informer, Narcomoeba, Balustrade Spy, Simian Spirit Guide	False	0
-17	Undercity Informer, Cabal Ritual, Chrome Mox, Turntimber Symbiosis, Dread Return, Cabal Ritual, Simian Spirit Guide	False	0
+17	Undercity Informer, Cabal Ritual, Chrome Mox, Turntimber Symbiosis, Dread Return, Cabal Ritual, Simian Spirit Guide	True	0
 17	Cabal Ritual, Undercity Informer, Balustrade Spy, Chrome Mox, Cabal Ritual, Pact of Negation, Simian Spirit Guide	True	0
-17	Summoner's Pact, Cabal Therapy, Cabal Therapy, Balustrade Spy, Summoner's Pact, Lotus Petal, Turntimber Symbiosis	False	0
+17	Summoner's Pact, Cabal Therapy, Cabal Therapy, Balustrade Spy, Summoner's Pact, Lotus Petal, Turntimber Symbiosis	True	0
 17	Dark Ritual, Agadeem's Awakening, Pact of Negation, Narcomoeba, Balustrade Spy, Cabal Therapy, Undercity Informer	False	2
 16	Turntimber Symbiosis, Dark Ritual, Pact of Negation, Cabal Ritual, Narcomoeba, Dark Ritual, Elvish Spirit Guide	False	2
 16	Lotus Petal, Lotus Petal, Narcomoeba, Chrome Mox, Narcomoeba, Undercity Informer, Pact of Negation	False	1
@@ -999,7 +999,7 @@ ms	hand	win	mulligans
 16	Pact of Negation, Simian Spirit Guide, Dark Ritual, Cabal Therapy, Pact of Negation, Turntimber Symbiosis, Undercity Informer	False	2
 16	Narcomoeba, Simian Spirit Guide, Turntimber Symbiosis, Undercity Informer, Elvish Spirit Guide, Cabal Therapy, Undercity Informer	False	2
 16	Agadeem's Awakening, Simian Spirit Guide, Simian Spirit Guide, Chrome Mox, Thassa's Oracle, Dark Ritual, Balustrade Spy	True	0
-15	Pact of Negation, Lotus Petal, Balustrade Spy, Summoner's Pact, Chrome Mox, Cabal Therapy, Turntimber Symbiosis	False	1
+15	Pact of Negation, Lotus Petal, Balustrade Spy, Summoner's Pact, Chrome Mox, Cabal Therapy, Turntimber Symbiosis	True	1
 15	Balustrade Spy, Lotus Petal, Pact of Negation, Pact of Negation, Elvish Spirit Guide, Dark Ritual, Pact of Negation	True	0
 15	Narcomoeba, Dread Return, Dark Ritual, Agadeem's Awakening, Balustrade Spy, Turntimber Symbiosis, Cabal Ritual	True	1
 15	Summoner's Pact, Balustrade Spy, Pact of Negation, Turntimber Symbiosis, Cabal Ritual, Pact of Negation, Lotus Petal	True	0
@@ -1027,7 +1027,7 @@ ms	hand	win	mulligans
 13	Chrome Mox, Undercity Informer, Pact of Negation, Agadeem's Awakening, Undercity Informer, Undercity Informer, Turntimber Symbiosis	False	2
 13	Lotus Petal, Simian Spirit Guide, Undercity Informer, Dread Return, Simian Spirit Guide, Agadeem's Awakening, Agadeem's Awakening	True	0
 13	Pact of Negation, Agadeem's Awakening, Simian Spirit Guide, Balustrade Spy, Cabal Therapy, Undercity Informer, Wild Cantor	False	2
-13	Dread Return, Summoner's Pact, Agadeem's Awakening, Thassa's Oracle, Dark Ritual, Cabal Therapy, Balustrade Spy	False	1
+13	Dread Return, Summoner's Pact, Agadeem's Awakening, Thassa's Oracle, Dark Ritual, Cabal Therapy, Balustrade Spy	True	1
 13	Wild Cantor, Agadeem's Awakening, Cabal Ritual, Narcomoeba, Bridge from Below, Turntimber Symbiosis, Dark Ritual	False	1
 13	Cabal Ritual, Dark Ritual, Narcomoeba, Pact of Negation, Pact of Negation, Cabal Therapy, Balustrade Spy	False	0
 13	Balustrade Spy, Agadeem's Awakening, Summoner's Pact, Simian Spirit Guide, Dark Ritual, Dread Return, Narcomoeba	True	0
@@ -1053,7 +1053,7 @@ ms	hand	win	mulligans
 12	Narcomoeba, Cabal Therapy, Undercity Informer, Undercity Informer, Dark Ritual, Agadeem's Awakening, Cabal Therapy	False	2
 12	Elvish Spirit Guide, Agadeem's Awakening, Turntimber Symbiosis, Turntimber Symbiosis, Lotus Petal, Agadeem's Awakening, Cabal Therapy	False	0
 12	Balustrade Spy, Cabal Ritual, Simian Spirit Guide, Undercity Informer, Lotus Petal, Cabal Ritual, Dread Return	True	0
-12	Summoner's Pact, Summoner's Pact, Balustrade Spy, Simian Spirit Guide, Narcomoeba, Lotus Petal, Cabal Therapy	False	0
+12	Summoner's Pact, Summoner's Pact, Balustrade Spy, Simian Spirit Guide, Narcomoeba, Lotus Petal, Cabal Therapy	True	0
 12	Undercity Informer, Cabal Therapy, Summoner's Pact, Summoner's Pact, Agadeem's Awakening, Thassa's Oracle, Balustrade Spy	False	2
 12	Balustrade Spy, Pact of Negation, Elvish Spirit Guide, Pact of Negation, Elvish Spirit Guide, Turntimber Symbiosis, Thassa's Oracle	False	2
 12	Balustrade Spy, Dark Ritual, Cabal Therapy, Thassa's Oracle, Narcomoeba, Simian Spirit Guide, Undercity Informer	False	2
@@ -1091,14 +1091,14 @@ ms	hand	win	mulligans
 10	Cabal Therapy, Simian Spirit Guide, Balustrade Spy, Lotus Petal, Turntimber Symbiosis, Dark Ritual, Cabal Therapy	True	1
 10	Bridge from Below, Lotus Petal, Pact of Negation, Balustrade Spy, Dark Ritual, Undercity Informer, Dark Ritual	True	0
 10	Agadeem's Awakening, Dread Return, Cabal Therapy, Pact of Negation, Elvish Spirit Guide, Undercity Informer, Simian Spirit Guide	False	2
-10	Lotus Petal, Dread Return, Summoner's Pact, Cabal Therapy, Pact of Negation, Dark Ritual, Balustrade Spy	False	0
+10	Lotus Petal, Dread Return, Summoner's Pact, Cabal Therapy, Pact of Negation, Dark Ritual, Balustrade Spy	True	0
 10	Balustrade Spy, Pact of Negation, Simian Spirit Guide, Wild Cantor, Dark Ritual, Bridge from Below, Chrome Mox	True	0
-10	Cabal Ritual, Chrome Mox, Cabal Ritual, Turntimber Symbiosis, Undercity Informer, Agadeem's Awakening, Dread Return	False	0
+10	Cabal Ritual, Chrome Mox, Cabal Ritual, Turntimber Symbiosis, Undercity Informer, Agadeem's Awakening, Dread Return	True	0
 10	Dark Ritual, Narcomoeba, Cabal Ritual, Lotus Petal, Dark Ritual, Elvish Spirit Guide, Turntimber Symbiosis	False	2
 10	Thassa's Oracle, Balustrade Spy, Undercity Informer, Pact of Negation, Cabal Therapy, Balustrade Spy, Pact of Negation	False	1
 10	Wild Cantor, Undercity Informer, Summoner's Pact, Summoner's Pact, Agadeem's Awakening, Pact of Negation, Simian Spirit Guide	True	0
 10	Undercity Informer, Pact of Negation, Agadeem's Awakening, Simian Spirit Guide, Simian Spirit Guide, Pact of Negation, Narcomoeba	False	2
-10	Undercity Informer, Summoner's Pact, Summoner's Pact, Agadeem's Awakening, Elvish Spirit Guide, Pact of Negation, Narcomoeba	False	0
+10	Undercity Informer, Summoner's Pact, Summoner's Pact, Agadeem's Awakening, Elvish Spirit Guide, Pact of Negation, Narcomoeba	True	0
 10	Elvish Spirit Guide, Undercity Informer, Simian Spirit Guide, Lotus Petal, Turntimber Symbiosis, Dread Return, Summoner's Pact	True	1
 10	Undercity Informer, Dread Return, Elvish Spirit Guide, Balustrade Spy, Narcomoeba, Lotus Petal, Bridge from Below	False	2
 10	Simian Spirit Guide, Dark Ritual, Turntimber Symbiosis, Balustrade Spy, Narcomoeba, Cabal Ritual, Undercity Informer	False	0
@@ -1132,7 +1132,7 @@ ms	hand	win	mulligans
 9	Summoner's Pact, Dread Return, Pact of Negation, Elvish Spirit Guide, Narcomoeba, Chrome Mox, Turntimber Symbiosis	False	0
 9	Undercity Informer, Turntimber Symbiosis, Bridge from Below, Thassa's Oracle, Balustrade Spy, Summoner's Pact, Chrome Mox	False	2
 9	Narcomoeba, Elvish Spirit Guide, Turntimber Symbiosis, Cabal Therapy, Lotus Petal, Summoner's Pact, Summoner's Pact	False	2
-9	Summoner's Pact, Dark Ritual, Cabal Ritual, Undercity Informer, Dark Ritual, Elvish Spirit Guide, Narcomoeba	False	0
+9	Summoner's Pact, Dark Ritual, Cabal Ritual, Undercity Informer, Dark Ritual, Elvish Spirit Guide, Narcomoeba	True	0
 9	Balustrade Spy, Dread Return, Agadeem's Awakening, Narcomoeba, Lotus Petal, Turntimber Symbiosis, Pact of Negation	False	2
 9	Cabal Therapy, Elvish Spirit Guide, Chrome Mox, Simian Spirit Guide, Lotus Petal, Pact of Negation, Narcomoeba	False	2
 9	Balustrade Spy, Summoner's Pact, Balustrade Spy, Elvish Spirit Guide, Agadeem's Awakening, Cabal Ritual, Thassa's Oracle	True	0
@@ -1146,7 +1146,7 @@ ms	hand	win	mulligans
 9	Narcomoeba, Pact of Negation, Bridge from Below, Elvish Spirit Guide, Narcomoeba, Undercity Informer, Turntimber Symbiosis	False	2
 9	Elvish Spirit Guide, Cabal Therapy, Simian Spirit Guide, Summoner's Pact, Turntimber Symbiosis, Wild Cantor, Cabal Therapy	False	2
 9	Balustrade Spy, Narcomoeba, Simian Spirit Guide, Dark Ritual, Undercity Informer, Wild Cantor, Narcomoeba	False	2
-9	Cabal Ritual, Agadeem's Awakening, Cabal Therapy, Undercity Informer, Summoner's Pact, Pact of Negation, Summoner's Pact	False	0
+9	Cabal Ritual, Agadeem's Awakening, Cabal Therapy, Undercity Informer, Summoner's Pact, Pact of Negation, Summoner's Pact	True	0
 9	Dark Ritual, Turntimber Symbiosis, Elvish Spirit Guide, Bridge from Below, Balustrade Spy, Dark Ritual, Cabal Ritual	False	0
 9	Balustrade Spy, Pact of Negation, Summoner's Pact, Elvish Spirit Guide, Lotus Petal, Agadeem's Awakening, Chrome Mox	True	0
 9	Pact of Negation, Bridge from Below, Balustrade Spy, Simian Spirit Guide, Dark Ritual, Agadeem's Awakening, Cabal Ritual	True	0
@@ -1163,7 +1163,7 @@ ms	hand	win	mulligans
 8	Chrome Mox, Cabal Ritual, Wild Cantor, Simian Spirit Guide, Lotus Petal, Narcomoeba, Thassa's Oracle	False	2
 8	Narcomoeba, Simian Spirit Guide, Narcomoeba, Pact of Negation, Pact of Negation, Dark Ritual, Agadeem's Awakening	False	2
 8	Narcomoeba, Cabal Ritual, Agadeem's Awakening, Dark Ritual, Lotus Petal, Cabal Ritual, Cabal Ritual	False	2
-8	Simian Spirit Guide, Elvish Spirit Guide, Undercity Informer, Agadeem's Awakening, Dark Ritual, Turntimber Symbiosis, Pact of Negation	False	0
+8	Simian Spirit Guide, Elvish Spirit Guide, Undercity Informer, Agadeem's Awakening, Dark Ritual, Turntimber Symbiosis, Pact of Negation	True	0
 8	Dark Ritual, Lotus Petal, Summoner's Pact, Chrome Mox, Narcomoeba, Elvish Spirit Guide, Lotus Petal	False	2
 8	Simian Spirit Guide, Elvish Spirit Guide, Pact of Negation, Simian Spirit Guide, Cabal Ritual, Agadeem's Awakening, Balustrade Spy	True	1
 8	Undercity Informer, Cabal Therapy, Cabal Ritual, Undercity Informer, Narcomoeba, Cabal Ritual, Balustrade Spy	False	0
@@ -1184,7 +1184,7 @@ ms	hand	win	mulligans
 8	Turntimber Symbiosis, Narcomoeba, Cabal Therapy, Pact of Negation, Narcomoeba, Chrome Mox, Agadeem's Awakening	False	2
 8	Wild Cantor, Summoner's Pact, Dark Ritual, Turntimber Symbiosis, Lotus Petal, Balustrade Spy, Dread Return	True	0
 8	Narcomoeba, Dark Ritual, Summoner's Pact, Cabal Therapy, Narcomoeba, Turntimber Symbiosis, Summoner's Pact	False	2
-8	Simian Spirit Guide, Dark Ritual, Agadeem's Awakening, Undercity Informer, Pact of Negation, Turntimber Symbiosis, Undercity Informer	False	0
+8	Simian Spirit Guide, Dark Ritual, Agadeem's Awakening, Undercity Informer, Pact of Negation, Turntimber Symbiosis, Undercity Informer	True	0
 8	Elvish Spirit Guide, Turntimber Symbiosis, Lotus Petal, Elvish Spirit Guide, Summoner's Pact, Narcomoeba, Cabal Ritual	False	2
 8	Pact of Negation, Elvish Spirit Guide, Pact of Negation, Dread Return, Elvish Spirit Guide, Elvish Spirit Guide, Cabal Ritual	False	2
 8	Summoner's Pact, Simian Spirit Guide, Chrome Mox, Cabal Therapy, Cabal Ritual, Turntimber Symbiosis, Agadeem's Awakening	False	2
@@ -1215,7 +1215,7 @@ ms	hand	win	mulligans
 7	Summoner's Pact, Cabal Therapy, Elvish Spirit Guide, Elvish Spirit Guide, Cabal Ritual, Lotus Petal, Dark Ritual	False	2
 7	Elvish Spirit Guide, Dark Ritual, Pact of Negation, Agadeem's Awakening, Balustrade Spy, Cabal Therapy, Dark Ritual	True	0
 7	Turntimber Symbiosis, Turntimber Symbiosis, Elvish Spirit Guide, Cabal Ritual, Lotus Petal, Cabal Ritual, Cabal Therapy	False	2
-7	Chrome Mox, Elvish Spirit Guide, Balustrade Spy, Summoner's Pact, Pact of Negation, Narcomoeba, Agadeem's Awakening	False	0
+7	Chrome Mox, Elvish Spirit Guide, Balustrade Spy, Summoner's Pact, Pact of Negation, Narcomoeba, Agadeem's Awakening	True	0
 7	Agadeem's Awakening, Cabal Ritual, Pact of Negation, Lotus Petal, Simian Spirit Guide, Lotus Petal, Wild Cantor	False	2
 7	Chrome Mox, Elvish Spirit Guide, Cabal Therapy, Narcomoeba, Cabal Therapy, Chrome Mox, Dark Ritual	False	2
 7	Cabal Ritual, Narcomoeba, Narcomoeba, Dark Ritual, Lotus Petal, Dread Return, Cabal Therapy	False	2
@@ -1229,7 +1229,7 @@ ms	hand	win	mulligans
 7	Pact of Negation, Simian Spirit Guide, Chrome Mox, Turntimber Symbiosis, Dark Ritual, Pact of Negation, Wild Cantor	False	2
 7	Lotus Petal, Lotus Petal, Pact of Negation, Turntimber Symbiosis, Cabal Therapy, Summoner's Pact, Agadeem's Awakening	False	2
 7	Simian Spirit Guide, Turntimber Symbiosis, Narcomoeba, Cabal Therapy, Pact of Negation, Narcomoeba, Agadeem's Awakening	False	2
-7	Elvish Spirit Guide, Summoner's Pact, Balustrade Spy, Narcomoeba, Chrome Mox, Agadeem's Awakening, Pact of Negation	False	0
+7	Elvish Spirit Guide, Summoner's Pact, Balustrade Spy, Narcomoeba, Chrome Mox, Agadeem's Awakening, Pact of Negation	True	0
 7	Pact of Negation, Narcomoeba, Cabal Ritual, Dread Return, Elvish Spirit Guide, Agadeem's Awakening, Simian Spirit Guide	False	2
 7	Narcomoeba, Cabal Therapy, Lotus Petal, Simian Spirit Guide, Lotus Petal, Cabal Ritual, Dread Return	False	2
 7	Dread Return, Chrome Mox, Agadeem's Awakening, Summoner's Pact, Wild Cantor, Narcomoeba, Chrome Mox	False	2
@@ -1245,7 +1245,7 @@ ms	hand	win	mulligans
 7	Cabal Ritual, Agadeem's Awakening, Agadeem's Awakening, Summoner's Pact, Dread Return, Cabal Therapy, Undercity Informer	False	0
 7	Elvish Spirit Guide, Pact of Negation, Narcomoeba, Chrome Mox, Agadeem's Awakening, Cabal Therapy, Cabal Ritual	False	2
 7	Cabal Therapy, Pact of Negation, Lotus Petal, Chrome Mox, Turntimber Symbiosis, Simian Spirit Guide, Elvish Spirit Guide	False	2
-7	Simian Spirit Guide, Dark Ritual, Agadeem's Awakening, Turntimber Symbiosis, Cabal Therapy, Undercity Informer, Turntimber Symbiosis	False	0
+7	Simian Spirit Guide, Dark Ritual, Agadeem's Awakening, Turntimber Symbiosis, Cabal Therapy, Undercity Informer, Turntimber Symbiosis	True	0
 7	Simian Spirit Guide, Dark Ritual, Agadeem's Awakening, Pact of Negation, Agadeem's Awakening, Wild Cantor, Narcomoeba	False	2
 7	Wild Cantor, Chrome Mox, Chrome Mox, Narcomoeba, Agadeem's Awakening, Dark Ritual, Narcomoeba	False	2
 7	Dark Ritual, Chrome Mox, Elvish Spirit Guide, Narcomoeba, Cabal Ritual, Narcomoeba, Chrome Mox	False	2
@@ -1346,10 +1346,10 @@ ms	hand	win	mulligans
 6	Pact of Negation, Undercity Informer, Undercity Informer, Lotus Petal, Agadeem's Awakening, Cabal Therapy, Elvish Spirit Guide	False	1
 6	Narcomoeba, Pact of Negation, Dark Ritual, Cabal Therapy, Simian Spirit Guide, Narcomoeba, Cabal Ritual	False	2
 6	Undercity Informer, Undercity Informer, Pact of Negation, Pact of Negation, Agadeem's Awakening, Simian Spirit Guide, Lotus Petal	False	1
-6	Agadeem's Awakening, Pact of Negation, Simian Spirit Guide, Simian Spirit Guide, Dread Return, Undercity Informer, Simian Spirit Guide	False	0
+6	Agadeem's Awakening, Pact of Negation, Simian Spirit Guide, Simian Spirit Guide, Dread Return, Undercity Informer, Simian Spirit Guide	True	0
 6	Dark Ritual, Elvish Spirit Guide, Undercity Informer, Pact of Negation, Cabal Ritual, Undercity Informer, Narcomoeba	False	0
 6	Agadeem's Awakening, Narcomoeba, Undercity Informer, Cabal Therapy, Lotus Petal, Balustrade Spy, Cabal Therapy	False	1
-6	Dark Ritual, Simian Spirit Guide, Cabal Therapy, Agadeem's Awakening, Simian Spirit Guide, Pact of Negation, Undercity Informer	False	0
+6	Dark Ritual, Simian Spirit Guide, Cabal Therapy, Agadeem's Awakening, Simian Spirit Guide, Pact of Negation, Undercity Informer	True	0
 6	Cabal Therapy, Simian Spirit Guide, Narcomoeba, Thassa's Oracle, Cabal Ritual, Undercity Informer, Summoner's Pact	False	0
 6	Pact of Negation, Summoner's Pact, Agadeem's Awakening, Narcomoeba, Elvish Spirit Guide, Wild Cantor, Agadeem's Awakening	False	2
 6	Pact of Negation, Balustrade Spy, Cabal Ritual, Chrome Mox, Cabal Ritual, Dark Ritual, Elvish Spirit Guide	True	0
@@ -1405,7 +1405,7 @@ ms	hand	win	mulligans
 5	Undercity Informer, Turntimber Symbiosis, Narcomoeba, Cabal Therapy, Narcomoeba, Pact of Negation, Cabal Therapy	False	1
 5	Balustrade Spy, Bridge from Below, Undercity Informer, Cabal Therapy, Agadeem's Awakening, Elvish Spirit Guide, Summoner's Pact	False	1
 5	Chrome Mox, Wild Cantor, Undercity Informer, Narcomoeba, Pact of Negation, Chrome Mox, Undercity Informer	False	1
-5	Pact of Negation, Summoner's Pact, Balustrade Spy, Agadeem's Awakening, Elvish Spirit Guide, Elvish Spirit Guide, Undercity Informer	False	0
+5	Pact of Negation, Summoner's Pact, Balustrade Spy, Agadeem's Awakening, Elvish Spirit Guide, Elvish Spirit Guide, Undercity Informer	True	0
 5	Narcomoeba, Summoner's Pact, Chrome Mox, Cabal Therapy, Undercity Informer, Undercity Informer, Chrome Mox	False	1
 5	Undercity Informer, Cabal Therapy, Chrome Mox, Balustrade Spy, Bridge from Below, Narcomoeba, Summoner's Pact	False	1
 4	Thassa's Oracle, Undercity Informer, Dread Return, Wild Cantor, Undercity Informer, Dark Ritual, Agadeem's Awakening	False	1
@@ -1441,7 +1441,7 @@ ms	hand	win	mulligans
 4	Elvish Spirit Guide, Turntimber Symbiosis, Lotus Petal, Summoner's Pact, Cabal Therapy, Cabal Ritual, Dark Ritual	False	1
 4	Agadeem's Awakening, Chrome Mox, Thassa's Oracle, Narcomoeba, Balustrade Spy, Undercity Informer, Balustrade Spy	False	1
 4	Simian Spirit Guide, Undercity Informer, Wild Cantor, Agadeem's Awakening, Bridge from Below, Cabal Therapy, Narcomoeba	False	1
-4	Cabal Therapy, Dark Ritual, Turntimber Symbiosis, Cabal Ritual, Agadeem's Awakening, Dread Return, Undercity Informer	False	0
+4	Cabal Therapy, Dark Ritual, Turntimber Symbiosis, Cabal Ritual, Agadeem's Awakening, Dread Return, Undercity Informer	True	0
 4	Elvish Spirit Guide, Cabal Therapy, Bridge from Below, Narcomoeba, Simian Spirit Guide, Summoner's Pact, Cabal Ritual	False	1
 4	Turntimber Symbiosis, Turntimber Symbiosis, Cabal Therapy, Pact of Negation, Undercity Informer, Elvish Spirit Guide, Dark Ritual	False	0
 4	Summoner's Pact, Dark Ritual, Cabal Therapy, Cabal Therapy, Cabal Therapy, Pact of Negation, Dark Ritual	False	1
@@ -1523,7 +1523,7 @@ ms	hand	win	mulligans
 3	Chrome Mox, Wild Cantor, Chrome Mox, Bridge from Below, Turntimber Symbiosis, Lotus Petal, Agadeem's Awakening	False	1
 3	Elvish Spirit Guide, Pact of Negation, Dread Return, Elvish Spirit Guide, Simian Spirit Guide, Dark Ritual, Cabal Therapy	False	1
 3	Cabal Therapy, Narcomoeba, Dread Return, Narcomoeba, Wild Cantor, Bridge from Below, Cabal Therapy	False	1
-3	Agadeem's Awakening, Simian Spirit Guide, Simian Spirit Guide, Elvish Spirit Guide, Undercity Informer, Cabal Ritual, Cabal Therapy	False	0
+3	Agadeem's Awakening, Simian Spirit Guide, Simian Spirit Guide, Elvish Spirit Guide, Undercity Informer, Cabal Ritual, Cabal Therapy	True	0
 3	Narcomoeba, Simian Spirit Guide, Cabal Ritual, Dark Ritual, Elvish Spirit Guide, Thassa's Oracle, Narcomoeba	False	1
 3	Summoner's Pact, Wild Cantor, Dread Return, Cabal Therapy, Simian Spirit Guide, Lotus Petal, Agadeem's Awakening	False	1
 3	Cabal Ritual, Cabal Ritual, Agadeem's Awakening, Lotus Petal, Turntimber Symbiosis, Dark Ritual, Chrome Mox	False	1
@@ -1533,7 +1533,7 @@ ms	hand	win	mulligans
 3	Cabal Therapy, Cabal Ritual, Pact of Negation, Chrome Mox, Elvish Spirit Guide, Cabal Ritual, Dark Ritual	False	1
 3	Cabal Ritual, Lotus Petal, Bridge from Below, Wild Cantor, Pact of Negation, Agadeem's Awakening, Cabal Ritual	False	1
 3	Narcomoeba, Chrome Mox, Elvish Spirit Guide, Balustrade Spy, Chrome Mox, Dread Return, Wild Cantor	False	1
-3	Summoner's Pact, Lotus Petal, Lotus Petal, Undercity Informer, Pact of Negation, Dread Return, Summoner's Pact	False	0
+3	Summoner's Pact, Lotus Petal, Lotus Petal, Undercity Informer, Pact of Negation, Dread Return, Summoner's Pact	True	0
 3	Agadeem's Awakening, Pact of Negation, Summoner's Pact, Undercity Informer, Cabal Ritual, Narcomoeba, Agadeem's Awakening	False	0
 3	Elvish Spirit Guide, Simian Spirit Guide, Dark Ritual, Narcomoeba, Simian Spirit Guide, Cabal Ritual, Wild Cantor	False	1
 3	Cabal Ritual, Narcomoeba, Dark Ritual, Pact of Negation, Turntimber Symbiosis, Cabal Therapy, Simian Spirit Guide	False	1
@@ -1564,9 +1564,9 @@ ms	hand	win	mulligans
 3	Chrome Mox, Pact of Negation, Bridge from Below, Dark Ritual, Lotus Petal, Cabal Ritual, Thassa's Oracle	False	1
 3	Agadeem's Awakening, Elvish Spirit Guide, Summoner's Pact, Pact of Negation, Elvish Spirit Guide, Chrome Mox, Agadeem's Awakening	False	1
 3	Summoner's Pact, Chrome Mox, Narcomoeba, Thassa's Oracle, Balustrade Spy, Summoner's Pact, Narcomoeba	False	1
-3	Dark Ritual, Undercity Informer, Thassa's Oracle, Cabal Ritual, Agadeem's Awakening, Cabal Ritual, Pact of Negation	False	0
+3	Dark Ritual, Undercity Informer, Thassa's Oracle, Cabal Ritual, Agadeem's Awakening, Cabal Ritual, Pact of Negation	True	0
 3	Chrome Mox, Agadeem's Awakening, Chrome Mox, Simian Spirit Guide, Narcomoeba, Summoner's Pact, Pact of Negation	False	1
-3	Dark Ritual, Turntimber Symbiosis, Pact of Negation, Simian Spirit Guide, Elvish Spirit Guide, Undercity Informer, Agadeem's Awakening	False	0
+3	Dark Ritual, Turntimber Symbiosis, Pact of Negation, Simian Spirit Guide, Elvish Spirit Guide, Undercity Informer, Agadeem's Awakening	True	0
 3	Summoner's Pact, Narcomoeba, Summoner's Pact, Simian Spirit Guide, Cabal Therapy, Turntimber Symbiosis, Simian Spirit Guide	False	1
 3	Elvish Spirit Guide, Cabal Ritual, Agadeem's Awakening, Lotus Petal, Cabal Therapy, Agadeem's Awakening, Dark Ritual	False	1
 3	Agadeem's Awakening, Chrome Mox, Turntimber Symbiosis, Narcomoeba, Narcomoeba, Summoner's Pact, Agadeem's Awakening	False	1
@@ -1598,7 +1598,7 @@ ms	hand	win	mulligans
 3	Elvish Spirit Guide, Turntimber Symbiosis, Chrome Mox, Pact of Negation, Narcomoeba, Simian Spirit Guide, Summoner's Pact	False	1
 3	Cabal Ritual, Agadeem's Awakening, Lotus Petal, Chrome Mox, Narcomoeba, Elvish Spirit Guide, Lotus Petal	False	1
 3	Cabal Therapy, Turntimber Symbiosis, Narcomoeba, Turntimber Symbiosis, Pact of Negation, Wild Cantor, Elvish Spirit Guide	False	1
-3	Agadeem's Awakening, Undercity Informer, Cabal Ritual, Pact of Negation, Summoner's Pact, Narcomoeba, Elvish Spirit Guide	False	0
+3	Agadeem's Awakening, Undercity Informer, Cabal Ritual, Pact of Negation, Summoner's Pact, Narcomoeba, Elvish Spirit Guide	True	0
 3	Summoner's Pact, Summoner's Pact, Agadeem's Awakening, Simian Spirit Guide, Cabal Ritual, Narcomoeba, Narcomoeba	False	1
 3	Cabal Therapy, Wild Cantor, Lotus Petal, Summoner's Pact, Cabal Therapy, Narcomoeba, Dread Return	False	1
 3	Summoner's Pact, Pact of Negation, Cabal Therapy, Turntimber Symbiosis, Simian Spirit Guide, Thassa's Oracle, Lotus Petal	False	1
@@ -1666,7 +1666,7 @@ ms	hand	win	mulligans
 3	Summoner's Pact, Turntimber Symbiosis, Summoner's Pact, Turntimber Symbiosis, Narcomoeba, Lotus Petal, Narcomoeba	False	1
 3	Summoner's Pact, Chrome Mox, Cabal Therapy, Bridge from Below, Chrome Mox, Cabal Therapy, Cabal Ritual	False	1
 3	Elvish Spirit Guide, Pact of Negation, Pact of Negation, Elvish Spirit Guide, Cabal Therapy, Agadeem's Awakening, Narcomoeba	False	1
-2	Pact of Negation, Turntimber Symbiosis, Summoner's Pact, Turntimber Symbiosis, Undercity Informer, Simian Spirit Guide, Dark Ritual	False	0
+2	Pact of Negation, Turntimber Symbiosis, Summoner's Pact, Turntimber Symbiosis, Undercity Informer, Simian Spirit Guide, Dark Ritual	True	0
 2	Pact of Negation, Narcomoeba, Turntimber Symbiosis, Summoner's Pact, Undercity Informer, Simian Spirit Guide, Summoner's Pact	False	0
 2	Cabal Therapy, Chrome Mox, Chrome Mox, Turntimber Symbiosis, Cabal Ritual, Dread Return, Elvish Spirit Guide	False	0
 2	Agadeem's Awakening, Turntimber Symbiosis, Lotus Petal, Turntimber Symbiosis, Chrome Mox, Elvish Spirit Guide, Dark Ritual	False	1
@@ -1702,7 +1702,7 @@ ms	hand	win	mulligans
 2	Narcomoeba, Agadeem's Awakening, Lotus Petal, Simian Spirit Guide, Pact of Negation, Balustrade Spy, Cabal Therapy	False	0
 2	Balustrade Spy, Agadeem's Awakening, Dread Return, Pact of Negation, Summoner's Pact, Narcomoeba, Cabal Therapy	False	0
 2	Summoner's Pact, Turntimber Symbiosis, Simian Spirit Guide, Dark Ritual, Narcomoeba, Agadeem's Awakening, Turntimber Symbiosis	False	1
-2	Simian Spirit Guide, Simian Spirit Guide, Cabal Ritual, Agadeem's Awakening, Narcomoeba, Undercity Informer, Dread Return	False	0
+2	Simian Spirit Guide, Simian Spirit Guide, Cabal Ritual, Agadeem's Awakening, Narcomoeba, Undercity Informer, Dread Return	True	0
 2	Pact of Negation, Wild Cantor, Turntimber Symbiosis, Narcomoeba, Narcomoeba, Lotus Petal, Summoner's Pact	False	1
 2	Pact of Negation, Simian Spirit Guide, Undercity Informer, Turntimber Symbiosis, Dark Ritual, Narcomoeba, Elvish Spirit Guide	False	0
 2	Cabal Ritual, Simian Spirit Guide, Dark Ritual, Undercity Informer, Lotus Petal, Pact of Negation, Cabal Ritual	True	1

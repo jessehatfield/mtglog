@@ -244,7 +244,9 @@ card('Summoner\'s Pact', [
     types  - [],
     spell  - 1,
     board  - 0,
-    gy     - 1
+    gy     - 1,
+    % Best-case scenario is optimistic -- Wild Cantor can produce any color if given spare {R/G}
+    best   - [0, 0, 0, 0, 0, 0, 1]
 ]).
 
 % Generic land/spell pattern
@@ -281,7 +283,7 @@ card(NAME, [
 % Win conditions
 
 card('Undercity Informer', [
-    cost   - [0, 1, 0, 0, 0, 0, 2],
+    cost   - [0, 0, 1, 0, 0, 0, 2],
     yield  - [0, 0, 0, 0, 0, 0, 0],
     net    - 0,
     colors - [b],

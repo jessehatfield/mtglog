@@ -11,7 +11,7 @@ makemana([START_HAND, START_BOARD, START_MANA, START_GY, START_STORM, START_DECK
     card(NAME, DATA),
     list_to_assoc(DATA, CARD),
     get_assoc(cost, CARD, COST),
-    remove(NAME, START_HAND, NEXT_HAND),
+    remove_first(NAME, START_HAND, NEXT_HAND),
     append(PRIOR_SEQUENCE, [NAME], CAST_SEQUENCE),
     spend(COST, START_MANA, NEXT_MANA),
     cast(NAME, YIELD,
@@ -68,13 +68,12 @@ makemana_goal(TARGET_CARD_NAME,
         !
     ),
     % Attempt to do so by casting one card and recursing
-    member(NAME, START_HAND),
+    remove_first(NAME, START_HAND, NEXT_HAND),
     check_timing(NAME, PRIOR_SEQUENCE),
     card(NAME, DATA),
     list_to_assoc(DATA, CARD),
     get_assoc(cost, CARD, COST),
     spend(COST, START_MANA, NEXT_MANA),
-    remove(NAME, START_HAND, NEXT_HAND),
     append(PRIOR_SEQUENCE, [NAME], INTERMEDIATE_SEQUENCE),
     cast(NAME, YIELD,
     	[NEXT_HAND, START_BOARD, NEXT_MANA, START_GY, START_STORM, START_DECK, START_PROTECTION],
@@ -158,17 +157,11 @@ total([H | T], SUM) :-
     SUM is H + PARTIAL.
 % Require that the total possible protection is at least a certain number
 prune_protection(MIN_PROTECTION, []) :-
-    MIN_PROTECTION < 1.
+   MIN_PROTECTION < 1.
 prune_protection(MIN_PROTECTION, [H|T]) :-
-    card(H, DATA),
-    list_to_assoc(DATA, CARD),
-    (
-        get_assoc(protection, CARD, P),
-        REMAINDER is MIN_PROTECTION - P,
-        prune_protection(REMAINDER, T);
-        not(get_assoc(protection, CARD, _)),
-        prune_protection(MIN_PROTECTION, T)
-    ).
+    card_key_value_default(H, protection, PROTECTION, 0),
+    MIN_REMAINING is MIN_PROTECTION - PROTECTION,
+    prune_protection(MIN_REMAINING, T).
 
 color_gain(NAME, GAIN) :-
     max_yield(NAME, [YW, YU, YB, YR, YG, YC | Y_REST]),

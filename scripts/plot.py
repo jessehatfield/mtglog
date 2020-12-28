@@ -9,6 +9,9 @@ import re
 import sys
 
 if __name__ == "__main__":
+    if len(sys.argv) != 2:
+        print(f"Usage: {sys.argv[0]} <filename>")
+        sys.exit(1)
     filename = sys.argv[1]
     re_gen = re.compile('^Generation (\d+)$')
     re_fitness = re.compile('^.* ([0-9]+) successes out of ([0-9]+) ; fitness=([0-9.]+)$')

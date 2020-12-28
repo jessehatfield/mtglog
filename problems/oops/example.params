@@ -1,5 +1,6 @@
 # Output file
 stat.file = $problems/oops/test.stat
+mtg.problem.log-hands = $problems/oops/hands.txt
 
 # Input files
 mtg.problem.spec = $problems/oops/oopsProblem.yaml

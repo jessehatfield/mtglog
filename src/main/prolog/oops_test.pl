@@ -7,11 +7,14 @@ load_oops :-
 run_oops_tests :-
     load_oops,
     test_spend,
-    test_makemana_goal(_, _),
     test_hand_1,
     test_hand_2,
     test_hand_3,
-    test_hand_4.
+    test_hand_4,
+    test_hand_5,
+    test_hand_6,
+    test_hand_7,
+    test_makemana_goal(_, _).
 
 % Should be a simple win, but can take up to 5 minutes to process because of trivial choices
 test_hand_1 :-
@@ -41,6 +44,31 @@ test_hand_4 :-
     hand_wins_(HAND, ['Narcomoeba', 'Narcomoeba', 'Narcomoeba', 'Dread Return', 'Elvish Spirit Guide', 'Thassa\'s Oracle'], [], 0, 0),
     hand_wins_(HAND, ['Narcomoeba', 'Narcomoeba', 'Narcomoeba', 'Dread Return', 'Elvish Spirit Guide'], [], 1, 0),
     hand_wins_(HAND, ['Narcomoeba', 'Narcomoeba', 'Narcomoeba', 'Dread Return', 'Elvish Spirit Guide', 'Bridge from Below', 'Cabal Therapy'], [], 0, 0).
+
+% Hand is a loss, but can take time because of multiple pacts, which could generate the proper CMC
+% AND the proper colors but not both
+test_hand_5 :-
+    HAND = ['Lion\'s Eye Diamond', 'Balustrade Spy', 'Summoner\'s Pact', 'Summoner\'s Pact', 'Dread Return', 'Elvish Spirit Guide', 'Summoner\'s Pact'],
+    LIBRARY = ['Narcomoeba', 'Narcomoeba', 'Narcomoeba', 'Cabal Therapy', 'Thassa\'s Oracle',
+        'Elvish Spirit Guide', 'Wild Cantor', 'Wild Cantor', 'Elvish Spirit Guide', 'Elvish Spirit Guide', 'Elvish Spirit Guide', 'Chancellor of the Tangle'],
+    not(hand_wins_(HAND, LIBRARY, [], 1, 0)).
+
+% Should be a loss (after 1 mulligan), but some optimizations resulted in incorrectly labeling it a win
+test_hand_6 :-
+    HAND = ['Elvish Spirit Guide', 'Summoner\'s Pact', 'Dread Return', 'Simian Spirit Guide', 'Summoner\'s Pact', 'Undercity Informer', 'Chrome Mox'],
+    LIBRARY = ['Narcomoeba', 'Narcomoeba', 'Narcomoeba', 'Narcomoeba', 'Elvish Spirit Guide', 'Thassa\'s Oracle', 'Cabal Therapy'],
+    % Could only be a win if there were a second Dread Return
+    hand_wins_(HAND, ['Dread Return'|LIBRARY], [], 1, 0),
+    not(hand_wins_(HAND, LIBRARY, [], 1, 0)).
+
+% Should be a win, but was originally flagged as a loss
+test_hand_7 :-
+    HAND = ['Lotus Petal', 'Narcomoeba', 'Dark Ritual', 'Chrome Mox', 'Balustrade Spy', 'Lotus Petal', 'Narcomoeba'],
+    LIBRARY = ['Narcomoeba', 'Thassa\'s Oracle', 'Dread Return', 'Narcomoeba'],
+    hand_wins_(HAND, LIBRARY, [], 0, 0),
+    % relies on Spy being a sacrificeable creature, so shouldn't work with Informer:
+    H2 = ['Lotus Petal', 'Narcomoeba', 'Dark Ritual', 'Chrome Mox', 'Undercity Informer', 'Lotus Petal', 'Narcomoeba'],
+    not(hand_wins_(H2, LIBRARY, [], 0, 0)).
 
 hand_wins_(HAND, LIBRARY, SB, MULLIGANS, PROTECTION) :-
     format('~w\n', [HAND]),

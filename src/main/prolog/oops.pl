@@ -258,7 +258,8 @@ wish_informer_mill(START_HAND, START_DECK, SB, SEQUENCE) :-
     !.
 
 informerCombo(HAND, BOARD, LIBRARY, START_GY, MANA, PRIOR_SEQUENCE, TOTAL_SEQUENCE, PROTECTION) :-
-    informerCombo(HAND, BOARD, LIBRARY, START_GY, MANA, 0, PRIOR_SEQUENCE, TOTAL_SEQUENCE, PROTECTION).
+    zone_type_count(BOARD, creature, START_CREATURES),
+    informerCombo(HAND, BOARD, LIBRARY, START_GY, MANA, START_CREATURES, PRIOR_SEQUENCE, TOTAL_SEQUENCE, PROTECTION).
 informerCombo(HAND, BOARD, LIBRARY, START_GY, MANA, START_CREATURES, PRIOR_SEQUENCE, TOTAL_SEQUENCE, PROTECTION) :-
     % Mill the deck and make Narcomoebas
     count('Narcomoeba', LIBRARY, MOEBAS),
@@ -340,8 +341,9 @@ flashback(HAND, GY, MANA, CREATURES, TOKENS, END_HAND, END_GY, END_MANA, END_CRE
     CREATURES > 0,
     CREATURES > TOKENS,
     NEXT_TOKENS is TOKENS + 1,
-    take(CARD, HAND, NEXT_HAND),
-    flashback(NEXT_HAND, [CARD|NEXT_GY], MANA, CREATURES, NEXT_TOKENS,
+    remove_all(_, HAND, NEXT_HAND, REMOVED),
+    append(NEXT_GY, REMOVED, FINAL_GY),
+    flashback(NEXT_HAND, FINAL_GY, MANA, CREATURES, NEXT_TOKENS,
         END_HAND, END_GY, END_MANA, END_CREATURES, END_TOKENS, S2),
     SEQUENCE = ['Cabal Therapy' | S2];
 
@@ -350,9 +352,11 @@ flashback(HAND, GY, MANA, CREATURES, TOKENS, END_HAND, END_GY, END_MANA, END_CRE
     CREATURES > 0,
     CREATURES > TOKENS,
     NEXT_CREATURES is CREATURES - 1,
-    take(CARD, HAND, NEXT_HAND),
-    flashback(NEXT_HAND, [CARD|NEXT_GY], MANA, NEXT_CREATURES, TOKENS,
+    remove_all(_, HAND, NEXT_HAND, REMOVED),
+    append(NEXT_GY, REMOVED, FINAL_GY),
+    flashback(NEXT_HAND, FINAL_GY, MANA, NEXT_CREATURES, TOKENS,
         END_HAND, END_GY, END_MANA, END_CREATURES, END_TOKENS, S2),
+    SEQUENCE = ['Cabal Therapy' | S2];
 
     % Flashback a Cabal Therapy with a token
     remove('Cabal Therapy', GY, NEXT_GY),
@@ -360,8 +364,9 @@ flashback(HAND, GY, MANA, CREATURES, TOKENS, END_HAND, END_GY, END_MANA, END_CRE
     TOKENS > 0,
     NEXT_CREATURES is CREATURES - 1,
     NEXT_TOKENS is TOKENS - 1,
-    take(CARD, HAND, NEXT_HAND),
-    flashback(NEXT_HAND, [CARD|NEXT_GY], MANA, NEXT_CREATURES, NEXT_TOKENS,
+    remove_all(_, HAND, NEXT_HAND, REMOVED),
+    append(NEXT_GY, REMOVED, FINAL_GY),
+    flashback(NEXT_HAND, FINAL_GY, MANA, NEXT_CREATURES, NEXT_TOKENS,
         END_HAND, END_GY, END_MANA, END_CREATURES, END_TOKENS, S2),
     SEQUENCE = ['Cabal Therapy' | S2];
 
@@ -374,6 +379,13 @@ flashback(HAND, GY, MANA, CREATURES, TOKENS, END_HAND, END_GY, END_MANA, END_CRE
     flashback(HAND, NEXT_GY, NEXT_MANA, NEXT_CREATURES, NEXT_TOKENS,
         END_HAND, END_GY, END_MANA, END_CREATURES, END_TOKENS, S2),
     SEQUENCE = ['Lingering Souls' | S2].
+
+remove_all(_, [], [], []).
+remove_all(H, [H|T], NEXT, [H|R2]) :-
+    remove_all(H, T, NEXT, R2).
+remove_all(ITEM, [H|T], [H|T2], REMOVED) :-
+    dif(ITEM, H),
+    remove_all(ITEM, T, T2, REMOVED).
 
 canpass(SEQUENCE) :-
     not(member('Pact of Negation', SEQUENCE)),

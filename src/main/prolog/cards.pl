@@ -53,7 +53,7 @@ card('Lotus Petal', [
     net    - 1,
     colors - [],
     types  - [artifact],
-    spell  - 1, 
+    spell  - 1,
     board  - 0,
     gy     - 1
 ]).
@@ -605,6 +605,15 @@ card('Chancellor of the Annex_used', [
     gy     - 0
 ]).
 
+card_key_value_default(CARDNAME, KEY, VALUE, DEFAULT) :-
+    card(CARDNAME, DATA),
+    carddata_key_value_default(DATA, KEY, VALUE, DEFAULT).
+carddata_key_value_default([KEY - VALUE | _], KEY, VALUE, _).
+carddata_key_value_default([HKEY - _ | T], KEY, VALUE, DEFAULT) :-
+    dif(HKEY, KEY),
+    carddata_key_value_default(T, KEY, VALUE, DEFAULT).
+carddata_key_value_default([], _, DEFAULT, DEFAULT).
+
 % Mark which cards need to be cast at the start or end of the sequence
 castfirst('Chancellor of the Annex').
 castfirst('Chancellor of the Tangle').
@@ -667,8 +676,7 @@ cmox(YIELD,
         [START_HAND, START_BOARD, START_MANA, START_GY, START_STORM, START_DECK, PROTECTION],
         [NEXT_HAND, END_BOARD, END_MANA, END_GY, END_STORM, END_DECK, PROTECTION]),
     % Imprint a card:
-    append(X, [IMPRINT | Y], NEXT_HAND),
-    append(X, Y, END_HAND),
+    remove_first(IMPRINT, NEXT_HAND, END_HAND),
     card(IMPRINT, DATA),
     list_to_assoc(DATA, CARD),
     get_assoc(colors, CARD, COLORS),
@@ -723,7 +731,7 @@ spact(YIELD,
     get_assoc(types, CARD, TYPES),
     member(g, COLORS),
     member(creature, TYPES),
-    remove(CARDNAME, NEXT_DECK, END_DECK).
+    remove_first(CARDNAME, NEXT_DECK, END_DECK).
 
 cantrip(NAME, YIELD,
     [START_HAND, START_BOARD, START_MANA, START_GY, START_STORM, START_DECK, PROTECTION],
@@ -774,6 +782,11 @@ istype(CARDNAME, TYPE) :-
     list_to_assoc(DATA, CARD),
     get_assoc(types, CARD, TYPES),
     member(TYPE, TYPES).
+isnottype(CARDNAME, TYPE) :-
+    card(CARDNAME, DATA),
+    list_to_assoc(DATA, CARD),
+    get_assoc(types, CARD, TYPES),
+    not_member(TYPE, TYPES).
 metalcraft_possible(HAND, BOARD) :-
     append(HAND, BOARD, EVERYTHING),
     type_threshold(3, artifact, EVERYTHING).
@@ -800,6 +813,14 @@ type_max(N, TYPE, [CARDNAME|T]) :-
     istype(CARDNAME, TYPE),
     M is N-1,
     type_max(M, TYPE, T).
+zone_type_count([], _, 0).
+zone_type_count([H|T], TYPE, COUNT) :-
+    zone_type_count(T, TYPE, N),
+    istype(H, TYPE),
+    COUNT is N+1.
+zone_type_count([H|T], TYPE, COUNT) :-
+    zone_type_count(T, TYPE, COUNT),
+    isnottype(H, TYPE).
 
 % General rules for casting
 
@@ -822,7 +843,7 @@ normalcast(NAME, YIELD,
     yard(NAME, START_GY, END_GY, GY),
     board(NAME, START_BOARD, END_BOARD, BOARD),
     type_max(1, land, END_BOARD),
-    protection(NAME, ADDITIONAL_PROTECTION),
+    carddata_key_value_default(DATA, protection, ADDITIONAL_PROTECTION, 0),
     END_PROTECTION is START_PROTECTION + ADDITIONAL_PROTECTION.
 yard(_, START_GY, START_GY, 0).
 yard(NAME, START_GY, END_GY, 1) :-
@@ -877,6 +898,11 @@ remove(ITEM, [ITEM | T], T) :- !.
 remove(ITEM, [H | T], [H | REMOVED]) :-
     remove(ITEM, T, REMOVED).
 
+remove_first(ITEM, [ITEM | T], T).
+remove_first(ITEM, [H | T], [H | REMOVED]) :-
+    dif(ITEM, H),
+    remove_first(ITEM, T, REMOVED).
+
 take(ITEM, [ITEM | T], T).
 take(ITEM, [H | T], [H | TAKEN]) :-
     take(ITEM, T, TAKEN).
@@ -888,3 +914,8 @@ protection(NAME, N) :-
         get_assoc(protection, CARD, N), !;
         not(get_assoc(protection, CARD, _)), N is 0
     ).
+
+not_member(_, []).
+not_member(ITEM, [H|T]) :-
+    dif(ITEM, H),
+    not_member(ITEM, T).

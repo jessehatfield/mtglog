@@ -6,8 +6,8 @@
 4 Dark Ritual
 
 // 2 always 1-ofs or more
-1-4 Dread Return
-1-4 Thassa's Oracle
+1-2 Dread Return
+1-2 Thassa's Oracle
 
 //5 reliable starting mana sources
 Chrome Mox
@@ -28,11 +28,11 @@ Grim Monolith
 Cabal Ritual
 Pyretic Ritual
 Desperate Ritual
-Seething Song
-Lion's Eye Diamond
+0 Seething Song
+0 Lion's Eye Diamond
 
 //1 less efficient win condition(s)
-Goblin Charbelcher
+0 Goblin Charbelcher
 
 //5 different lands that don't count as lands
 Emeria's Call
@@ -60,7 +60,7 @@ Leyline of Lifeforce
 Empty the Warrens
 
 //3 ways to get cards into the graveyard (unused for now)
-0 Bridge from Below
+0-1 Bridge from Below
 0 Lingering Souls
 0 Phantasmagorian
 

@@ -7,14 +7,16 @@ import seaborn as sns
 import math
 import re
 import sys
+	#individual [4, 4, 4, 4, 4, 1, 1, 0, 1, 3, 0, 3, 2, 0, 0, 4, 2, 0, 4, 3, 1, 0, 0, 0, 0, 0, 1, 2, 0, 3, 0, 0, 0, 4, 1, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0]: 0 successes out of 1 ; fitness=0.0
 
 if __name__ == "__main__":
     if len(sys.argv) != 2:
         print(f"Usage: {sys.argv[0]} <filename>")
         sys.exit(1)
     filename = sys.argv[1]
-    re_gen = re.compile('^Generation (\d+)$')
+    re_gen = re.compile('^Generation:? (\d+)$')
     re_fitness = re.compile('^.* ([0-9]+) successes out of ([0-9]+) ; fitness=([0-9.]+)$')
+    re_fitness_2 = re.compile('^.* [Ff]itness: ([0-9.]+) .* ([0-9]+) trials.*$')
     current_gen = 0
     data = []
     with open(filename, 'r') as f:
@@ -36,6 +38,13 @@ if __name__ == "__main__":
                     'p': p, 'stddev': stddev, 'remainder': remainder,
                     'p_lower': p-stddev, 'p_upper': p+stddev})
                 continue
+            match = re_fitness_2.match(line)
+            if match:
+                p = float(match.group(1))
+                n = int(match.group(2))
+                stddev = math.sqrt(p * (1-p) * n) / n
+                data.append({'generation': int(current_gen), 'fitness': p,
+                    'p': p, 'stddev': stddev, 'p_lower': p-stddev, 'p_upper': p+stddev})
     df = pd.DataFrame(data)
     max_ids = df.groupby(['generation'], sort=True)['fitness'].transform(max) == df['fitness']
     best_lower = df[max_ids]['p_lower']
@@ -47,7 +56,8 @@ if __name__ == "__main__":
     c_box = palette[4]
     c_point = palette[1]
     ax = plt.gca()
-    ax.fill_between(range(0, int(current_gen)+1), y1=best_lower, y2=best_upper, color=c_best, alpha=.2, zorder=0)
+    print(df[max_ids])
+#    ax.fill_between(range(0, int(current_gen)+1), y1=best_lower, y2=best_upper, color=c_best, alpha=.2, zorder=0)
     sns.lineplot(x='generation', y='p_lower', data=df[max_ids], ax=ax, color=c_best, alpha=.25,
         size=1, zorder=1, legend=False)
     sns.lineplot(x='generation', y='p_upper', data=df[max_ids], ax=ax, color=c_best, alpha=.25,

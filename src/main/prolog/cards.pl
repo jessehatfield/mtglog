@@ -330,7 +330,8 @@ card('Empty the Warrens', [
     types  - [sorcery],
     spell  - -1,
     board  - 0,
-    gy     - 1
+    gy     - 1,
+    protection - 1
 ]).
 card('Burning Wish', [
     cost   - [0, 0, 0, 1, 0, 0, 1],
@@ -503,6 +504,17 @@ card('Chancellor of the Annex', [
     gy     - 0,
     protection - 1
 ]).
+card('Leyline of Lifeforce', [
+    cost   - [0, 0, 0, 0, 0, 0, 0],
+    yield  - [0, 0, 0, 0, 0, 0, 0],
+    net    - 0,
+    colors - [g],
+    types  - [enchantment],
+    spell  - 0,
+    board  - 0,
+    gy     - 0,
+    protection - 1
+]).
 card('Thoughtseize', [
     cost   - [0, 0, 1, 0, 0, 0, 0],
     yield  - [0, 0, 0, 0, 0, 0, 0],
@@ -617,6 +629,7 @@ carddata_key_value_default([], _, DEFAULT, DEFAULT).
 % Mark which cards need to be cast at the start or end of the sequence
 castfirst('Chancellor of the Annex').
 castfirst('Chancellor of the Tangle').
+castfirst('Leyline of Lifeforce').
 castlast('Pact of Negation').
 castlast('Force of Will').
 castlast('Misdirection').

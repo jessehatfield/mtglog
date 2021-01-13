@@ -3,12 +3,15 @@ package mtg.logic;
 import org.junit.Assert;
 import org.junit.Test;
 
+import java.io.BufferedReader;
+import java.io.FileReader;
 import java.io.IOException;
 import java.net.URL;
 import java.util.regex.Matcher;
 
 public class DeckTemplateTest {
     private static final String DECK_FILENAME = "oopsTemplate.dec";
+    private static final String DECKLIST_FILENAME = "oops.dec";
 
     @Test
     public void testToDeck() throws IOException {
@@ -40,5 +43,33 @@ public class DeckTemplateTest {
         final Matcher matcher = DeckTemplate.COMMENT_PATTERN.matcher(inlineComment);
         Assert.assertTrue(matcher.matches());
         Assert.assertEquals("4 Narcomoeba ", matcher.group(1));
+    }
+
+    @Test
+    public void testToString() throws IOException {
+        final URL templateUrl = DeckTemplateTest.class.getClassLoader().getResource(DECK_FILENAME);
+        final DeckTemplate template = new DeckTemplate(templateUrl.getPath());
+        final URL decklistUrl = DeckTemplateTest.class.getClassLoader().getResource(DECKLIST_FILENAME);
+        final Deck deck = Deck.fromFile(decklistUrl.getPath());
+        final String[] lines = template.toString(deck).split("\n");
+        try (final BufferedReader reader = new BufferedReader(new FileReader(decklistUrl.getPath()))) {
+            int i = 0;
+            String line = reader.readLine();
+            while (line != null && i < lines.length) {
+                Assert.assertEquals(line.trim(), lines[i].trim());
+                System.out.println(lines[i]);
+                line = reader.readLine();
+                i++;
+            }
+            // Tolerate a difference of one trailing blank line in either direction
+            if (line != null) {
+                Assert.assertTrue(reader.readLine().trim().isEmpty());
+                Assert.assertNull(reader.readLine());
+            }
+            if (i < lines.length) {
+                Assert.assertTrue(lines[i].trim().isEmpty());
+                Assert.assertEquals(lines.length-1, i);
+            }
+        }
     }
 }

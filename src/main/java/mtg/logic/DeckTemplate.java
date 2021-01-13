@@ -10,6 +10,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -50,7 +51,7 @@ public class DeckTemplate implements Serializable {
 
     private final List<Segment> segments = new ArrayList<>();
 
-    private final Set<String> distinct = new LinkedHashSet<>();
+    private final Map<String, Boolean> distinct = new LinkedHashMap<>();
 
     private final int numEntries;
 
@@ -79,6 +80,7 @@ public class DeckTemplate implements Serializable {
         entryLists.add(new ArrayList<>());
         try (final BufferedReader in = new BufferedReader(reader)) {
             String line = in.readLine();
+            boolean newBlock = false;
             while (line != null) {
                 line = line.trim();
                 // If line demarcates the sideboard, switch over to the next segment
@@ -90,12 +92,15 @@ public class DeckTemplate implements Serializable {
                         // Remove trailing comments
                         line = commentMatch.group(1).trim();
                     }
-                    if (!line.isEmpty()) {
-                        // Skip whitespace or lines starting with '#' or '//'
-                        // Three forms of entry are valid:
-                        // <min>[x]-<max>[x] <name>
-                        // <number>[x] <name>
-                        // <name>
+                    // Skip whitespace or lines starting with '#' or '//'
+                    // Three forms of entry are valid:
+                    // <min>[x]-<max>[x] <name>
+                    // <number>[x] <name>
+                    // <name>
+                    if (line.isEmpty()) {
+                        // Comments or whitespace indicate new block, except for first card
+                        newBlock = !distinct.isEmpty();
+                    } else {
                         final Matcher rangeMatch = RANGE_PATTERN.matcher(line);
                         int minCount = 0;
                         int maxCount = DEFAULT_MAX_COUNT;
@@ -113,7 +118,8 @@ public class DeckTemplate implements Serializable {
                             }
                         }
                         entryLists.get(entryLists.size() - 1).add(new Entry(name, minCount, maxCount));
-                        distinct.add(name);
+                        distinct.putIfAbsent(name, newBlock);
+                        newBlock = false;
                     }
                 }
                 line = in.readLine();
@@ -136,7 +142,7 @@ public class DeckTemplate implements Serializable {
     }
 
     public String[] getDistinctItems() {
-        return distinct.toArray(new String[]{});
+        return distinct.keySet().toArray(new String[]{});
     }
 
     /**
@@ -246,12 +252,24 @@ public class DeckTemplate implements Serializable {
             vector[i] = Integer.parseInt(args[i+1]);
         }
         final Deck deck = template.toDeck(vector);
+        System.out.println(template.toString(deck));
+    }
+
+    public String toString(final Deck deck) {
+        final StringBuilder sb = new StringBuilder();
         final Map<String, Integer> counts = deck.getCounts();
-        for (String card : template.getDistinctItems()) {
+        boolean newBlock = false;
+        for (String card : getDistinctItems()) {
+            newBlock = newBlock || distinct.get(card);
             final int n = counts.getOrDefault(card, 0);
             if (n > 0) {
-                System.out.println(n + " " + card);
+                if (newBlock) {
+                    sb.append("\n");
+                }
+                sb.append(n + " " + card + "\n");
+                newBlock = false;
             }
         }
+        return sb.toString();
     }
 }

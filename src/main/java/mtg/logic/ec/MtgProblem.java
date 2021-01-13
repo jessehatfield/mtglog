@@ -2,9 +2,7 @@ package mtg.logic.ec;
 
 import ec.EvolutionState;
 import ec.Individual;
-import ec.Problem;
 import ec.simple.SimpleFitness;
-import ec.simple.SimpleProblemForm;
 import ec.util.Log;
 import ec.util.MersenneTwisterFast;
 import ec.util.Parameter;
@@ -13,15 +11,14 @@ import mtg.logic.Deck;
 import mtg.logic.PrologEngine;
 import mtg.logic.PrologProblem;
 import mtg.logic.Results;
+import mtg.logic.ec.stochastic.StochasticProblem;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.Serializable;
 import java.util.Arrays;
-import java.util.List;
 
-public class MtgProblem extends Problem implements SimpleProblemForm, Serializable {
+public class MtgProblem extends StochasticProblem {
     private static final long serialVersionUID = 1;
 
     private String prologSrcDir;
@@ -76,6 +73,7 @@ public class MtgProblem extends Problem implements SimpleProblemForm, Serializab
      */
     private double fitness(final IntegerVectorIndividual ind, final Deck deck, final EvolutionState state, final int threadnum) {
         final Results results = evaluateDeck(deck, state.random[threadnum]);
+        /*
         final int k = Math.max((int) Math.ceil(Math.log10(trials)), 3);
         final double shift = Math.pow(10, k);
         double f = ((int) (results.getPSuccess() * shift)) / shift;
@@ -87,10 +85,9 @@ public class MtgProblem extends Problem implements SimpleProblemForm, Serializab
             f += q;
         }
         f *= 100.0;
+        */
         final int nSuccesses = results.getNSuccesses();
-        state.output.println("\tindividual " + Arrays.toString(ind.genome)
-                + ": " + nSuccesses + " successes out of " + trials
-                + " ; fitness=" + f, Log.D_STDOUT);
+        final double f = results.getPSuccess();
         return f;
     }
 
@@ -103,8 +100,8 @@ public class MtgProblem extends Problem implements SimpleProblemForm, Serializab
         final IntegerVectorIndividual ind2 = (IntegerVectorIndividual) ind;
         final DecklistVectorSpecies species = (DecklistVectorSpecies) ind.species;
         final Deck deck = species.template.toDeck(ind2.genome);
-        state.output.println("Evaluating " + Arrays.toString(ind2.genome) + " (" + deck.getSize() + " cards)...",
-                Log.D_STDOUT);
+//        state.output.println("Evaluating " + Arrays.toString(ind2.genome) + " (" + deck.getSize() + " cards)...",
+//                Log.D_STDOUT);
         double f = fitness(ind2, deck, state, threadnum);
         if (deck.getSize() > deck.getMinSize()) { // this should never happen
             // but if it does, ensure it can't beat any valid individual's fitness
@@ -185,6 +182,23 @@ public class MtgProblem extends Problem implements SimpleProblemForm, Serializab
                     + " wins with property '" + booleanVar
                     + "' (stddev=" + results.getStdDev(booleanVar)
                     + " ; p=" + results.getP(booleanVar) + ")");
+        }
+    }
+
+    @Override
+    public void describe(final EvolutionState state,
+                        final Individual ind,
+                        final int subpopulation,
+                        final int threadnum,
+                        final int log) {
+        for (int i = 0; i < state.population.subpops.length; i++) {
+            for (int j = 0; j < state.population.subpops[i].individuals.length; j++) {
+                final DecklistVectorIndividual decklistInd = (DecklistVectorIndividual)
+                        state.population.subpops[i].individuals[j];
+                state.output.println("\tindividual "
+                        + decklistInd.genotypeToStringForHumans() + "; "
+                        + decklistInd.fitness.fitnessToStringForHumans(), log);
+            }
         }
     }
 

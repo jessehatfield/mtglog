@@ -47,8 +47,14 @@ if __name__ == "__main__":
                     'p': p, 'stddev': stddev, 'p_lower': p-stddev, 'p_upper': p+stddev})
     df = pd.DataFrame(data)
     max_ids = df.groupby(['generation'], sort=True)['fitness'].transform(max) == df['fitness']
-    best_lower = df[max_ids]['p_lower']
-    best_upper = df[max_ids]['p_upper']
+    df_best = df[max_ids]
+    max_ids = df_best.groupby(['generation'], sort=True)['p_lower'].transform(max) == df_best['p_lower']
+    df_best = df_best[max_ids].drop_duplicates()
+    best_lower = df_best['p_lower']
+    best_upper = df_best['p_upper']
+    best_fitness = df_best['fitness']
+    with pd.option_context('display.max_rows', None, 'display.max_columns', None):
+        print(df_best)
 
     sns.set_style("whitegrid")
     palette = sns.color_palette("mako", 5)
@@ -56,15 +62,14 @@ if __name__ == "__main__":
     c_box = palette[4]
     c_point = palette[1]
     ax = plt.gca()
-    print(df[max_ids])
-#    ax.fill_between(range(0, int(current_gen)+1), y1=best_lower, y2=best_upper, color=c_best, alpha=.2, zorder=0)
-    sns.lineplot(x='generation', y='p_lower', data=df[max_ids], ax=ax, color=c_best, alpha=.25,
+    ax.fill_between(range(0, len(df_best)), y1=best_lower, y2=best_upper, color=c_best, alpha=.2, zorder=0)
+    sns.lineplot(x='generation', y='p_lower', data=df_best, ax=ax, color=c_best, alpha=.25,
         size=1, zorder=1, legend=False)
-    sns.lineplot(x='generation', y='p_upper', data=df[max_ids], ax=ax, color=c_best, alpha=.25,
+    sns.lineplot(x='generation', y='p_upper', data=df_best, ax=ax, color=c_best, alpha=.25,
         size=1, zorder=1, legend=False)
     sns.boxplot(x='generation', y='p', data=df, ax=ax, color=c_box, zorder=100, showfliers=False,
         saturation=.3, boxprops={"zorder": 100}, whiskerprops={"zorder": 100})
-    sns.lineplot(x='generation', y='p', data=df[max_ids], ax=ax, color=c_best, zorder=200)
+    sns.lineplot(x='generation', y='p', data=df_best, ax=ax, color=c_best, zorder=200)
     sns.swarmplot(x='generation', y='p', data=df, ax=ax, color=c_point, zorder=300)
     ax.set_ybound(lower=0)
 

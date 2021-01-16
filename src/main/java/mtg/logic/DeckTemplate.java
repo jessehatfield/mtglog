@@ -27,6 +27,11 @@ import java.util.regex.Pattern;
  * entirely to range from the default minimum (typically 0) to the default
  * maximum (typically 4).
  *
+ * Furthermore, multiple entries on the same line will be consolidated into a
+ * single entry representing all of them, with the understanding that the first
+ * such entry must be filled before allocating the remaining quantity to the
+ * next, and so on.
+ *
  * Example:
  *     # Required
  *     4 A
@@ -34,12 +39,16 @@ import java.util.regex.Pattern;
  *     # Optional
  *     C
  *     0-2 D
- * will yield a template that accepts distributions over [A, B, C, D] that range
- * from [4, 1, 0, 0] to [4, 4, 0, 2]
+ *     # Sequential
+ *     1-2 E > F > 0-2 G
+ * will yield a template that accepts distributions over [A, B, C, D, E>F>G]
+ * that range from [4, 1, 0, 0, 1] to [4, 4, 0, 2, 8] (such that for example
+ * a value of 6 for the last entry results in 2 E plus 4 F).
  */
 public class DeckTemplate implements Serializable {
     private static final long serialVersionUID = 1;
 
+    public final static String SPLIT_STR = ">";
     public final static Pattern RANGE_PATTERN = Pattern.compile(
             "^([0-9])+[xX]?\\s*-\\s*([0-9]+)[xX]?\\s+(.*)$");
     public final static Pattern EXACT_PATTERN = Pattern.compile("^([0-9])+[xX]?\\s+(.*)$");
@@ -101,24 +110,33 @@ public class DeckTemplate implements Serializable {
                         // Comments or whitespace indicate new block, except for first card
                         newBlock = !distinct.isEmpty();
                     } else {
-                        final Matcher rangeMatch = RANGE_PATTERN.matcher(line);
-                        int minCount = 0;
-                        int maxCount = DEFAULT_MAX_COUNT;
-                        String name = line;
-                        if (rangeMatch.matches()) {
-                            minCount = Integer.parseInt(rangeMatch.group(1));
-                            maxCount = Integer.parseInt(rangeMatch.group(2));
-                            name = rangeMatch.group(3);
-                        } else {
-                            final Matcher exactMatch = EXACT_PATTERN.matcher(line);
-                            if (exactMatch.matches()) {
-                                minCount = Integer.parseInt(exactMatch.group(1));
-                                maxCount = minCount;
-                                name = exactMatch.group(2);
+                        final String[] parts = line.split(SPLIT_STR);
+                        Entry entry = null;
+                        for (final String part : parts) {
+                            String name = part.trim();
+                            final Matcher rangeMatch = RANGE_PATTERN.matcher(name);
+                            int minCount = 0;
+                            int maxCount = DEFAULT_MAX_COUNT;
+                            if (rangeMatch.matches()) {
+                                minCount = Integer.parseInt(rangeMatch.group(1));
+                                maxCount = Integer.parseInt(rangeMatch.group(2));
+                                name = rangeMatch.group(3);
+                            } else {
+                                final Matcher exactMatch = EXACT_PATTERN.matcher(name);
+                                if (exactMatch.matches()) {
+                                    minCount = Integer.parseInt(exactMatch.group(1));
+                                    maxCount = minCount;
+                                    name = exactMatch.group(2);
+                                }
+                            }
+                            distinct.putIfAbsent(name, newBlock);
+                            if (entry == null) {
+                                entry = new Entry(name, minCount, maxCount);
+                            } else {
+                                entry.add(name, minCount, maxCount);
                             }
                         }
-                        entryLists.get(entryLists.size() - 1).add(new Entry(name, minCount, maxCount));
-                        distinct.putIfAbsent(name, newBlock);
+                        entryLists.get(entryLists.size() - 1).add(entry);
                         newBlock = false;
                     }
                 }
@@ -163,39 +181,50 @@ public class DeckTemplate implements Serializable {
         }
         final List<Entry> mdEntries = segments.get(0).entries;
         final List<Entry> sbEntries = segments.size() > 1 ? segments.get(1).entries : Collections.emptyList();
-        final String[] cards = new String[mdEntries.size() + sbEntries.size()];
-        final int[] md = new int[mdEntries.size() + sbEntries.size()];
-        final int[] sb = new int[mdEntries.size() + sbEntries.size()];
-        int i = 0;
+        final int numMdCards = mdEntries.stream().map(Entry::getNumCards).reduce(0, Integer::sum);
+        final int numSbCards = sbEntries.stream().map(Entry::getNumCards).reduce(0, Integer::sum);
+        final String[] cards = new String[numMdCards + numSbCards];
+        final int[] md = new int[numMdCards + numSbCards];
+        final int[] sb = new int[numMdCards + numSbCards];
+        int countIndex = 0;
+        int cardIndex = 0;
         for (final Entry entry : mdEntries) {
-            cards[i] = entry.name;
-            md[i] = i < counts.length ? counts[i] : entry.minCount;
-            sb[i] = 0;
-            i++;
+            final int count = countIndex < counts.length ? counts[countIndex] : entry.getMinCount();
+            for (int j = 0; j < entry.getNumCards(); j++) {
+                cards[cardIndex] = entry.getName(j);
+                md[cardIndex] = entry.getCardCount(count, cards[cardIndex]);
+                sb[cardIndex] = 0;
+                cardIndex++;
+            }
+            countIndex++;
         }
         for (final Entry entry : sbEntries) {
-            cards[i] = entry.name;
-            md[i] = 0;
-            sb[i] = i < counts.length ? counts[i] : entry.minCount;
-            i++;
+            final int count = countIndex < counts.length ? counts[countIndex] : entry.getMinCount();
+            for (int j = 0; j < entry.getNumCards(); j++) {
+                cards[cardIndex] = entry.getName(j);
+                md[cardIndex] = 0;
+                sb[cardIndex] = entry.getCardCount(count, cards[cardIndex]);
+                cardIndex++;
+            }
+            countIndex++;
         }
         return new Deck(cards, md, sb);
     }
 
     private static int addMin(final Collection<Entry> entries) {
-        return entries.stream().map(e -> e.minCount).reduce(0, Integer::sum);
+        return entries.stream().map(e -> e.getMinCount()).reduce(0, Integer::sum);
     }
 
     private static int addMax(final Collection<Entry> entries) {
-        return entries.stream().map(e -> e.maxCount).reduce(0, Integer::sum);
+        return entries.stream().map(e -> e.getMaxCount()).reduce(0, Integer::sum);
     }
 
     public int getMin(int i) {
-        return getEntry(i).minCount;
+        return getEntry(i).getMinCount();
     }
 
     public int getMax(int i) {
-        return getEntry(i).maxCount;
+        return getEntry(i).getMaxCount();
     }
 
     private Entry getEntry(int i) {
@@ -225,13 +254,47 @@ public class DeckTemplate implements Serializable {
 
     static class Entry implements Serializable {
         private static final long serialVersionUID = 1;
-        final String name;
-        final int minCount;
-        final int maxCount;
+        private final List<String> names = new ArrayList<>();
+        private final List<Integer> minCounts = new ArrayList<>();
+        private final List<Integer> maxCounts = new ArrayList<>();
         Entry(final String name, final int minCount, final int maxCount) {
-            this.name = name;
-            this.minCount = minCount;
-            this.maxCount = maxCount;
+            this.names.add(name);
+            this.minCounts.add(minCount);
+            this.maxCounts.add(maxCount);
+        }
+        void add(final String name, final int minCount, final int maxCount) {
+            this.names.add(name);
+            this.minCounts.add(minCount);
+            this.maxCounts.add(maxCount);
+        }
+        String getName() {
+            return names.stream().reduce((s1, s2) -> s1 + ">" + s2).orElse("");
+        }
+        String getName(int index) {
+            return names.get(index);
+        }
+        int getMinCount() {
+            return minCounts.stream().reduce(0, Integer::sum);
+        }
+        int getMaxCount() {
+            return maxCounts.stream().reduce(0, Integer::sum);
+        }
+        int getNumCards() {
+            return names.size();
+        }
+        int getCardCount(final int totalCount, final String cardName) {
+            int remainder = totalCount;
+            for (int i = 0; i < names.size(); i++) {
+                final int cardCount = Math.max(
+                        Math.min(maxCounts.get(i), remainder),
+                        minCounts.get(i));
+                if (names.get(i).equals(cardName)) {
+                    return cardCount;
+                } else {
+                    remainder -= cardCount;
+                }
+            }
+            return 0;
         }
     }
 

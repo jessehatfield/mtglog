@@ -17,13 +17,16 @@ public class DeckTemplateTest {
     public void testToDeck() throws IOException {
         final URL url = DeckTemplateTest.class.getClassLoader().getResource(DECK_FILENAME);
         final DeckTemplate template = new DeckTemplate(url.getPath());
-        Assert.assertEquals(49, template.getNumEntries());
-        final Deck deck1 = template.toDeck(new int[]{4, 4, 4, 4, 4, 2, 2, 1, 2, 3, 0});
+        Assert.assertEquals(43, template.getNumEntries());
+        final Deck deck1 = template.toDeck(new int[]{4, 4, 4, 4, 4, 2, 2, 1, 2, 3, 0, 0, 0, 11});
         final String[] cardNames = {"Balustrade Spy", "Undercity Informer",
                 "Narcomoeba", "Lotus Petal", "Dark Ritual", "Dread Return",
                 "Thassa's Oracle", "Chrome Mox", "Elvish Spirit Guide",
-                "Simian Spirit Guide", "Summoner's Pact", "Cabal Therapy"};
-        final Deck deck2 = new Deck(cardNames, new int[]{4, 4, 4, 4, 4, 2, 2, 1, 2, 3, 0, 1});
+                "Simian Spirit Guide", "Summoner's Pact",
+                "Rite of Flame", "Pyretic Ritual", "Desperate Ritual", "Seething Song",
+                "Cabal Therapy"
+        };
+        final Deck deck2 = new Deck(cardNames, new int[]{4, 4, 4, 4, 4, 2, 2, 1, 2, 3, 0, 4, 2, 4, 1, 1});
         Assert.assertEquals(deck1, deck2);
     }
 

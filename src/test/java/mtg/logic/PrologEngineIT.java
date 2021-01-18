@@ -57,7 +57,8 @@ public class PrologEngineIT {
                         System.out.println();
                     }
                 }
-                final Results result = engine.testHand(hand, library, sideboard, putBack);
+                final SingleObjectivePrologProblem objective = problem.getObjectives().get(0);
+                final Results result = engine.testHand(objective, hand, library, sideboard, putBack);
                 final boolean win = result.isSuccess(0);
                 if (win != expectedWin) {
                     System.err.println("\nERROR[hand " + i + "]: Expected win=" + expectedWin

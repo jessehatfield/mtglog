@@ -45,15 +45,18 @@ public class PrologEngine {
 
     /**
      * Test a specific hand, putting back cards as required.
+     * @param objective The problem to test; sources should already be loaded
      * @param hand The cards in the hand to test
      * @param library The remainder of the library
      * @param sideboard The relevant cards in the sideboard
      * @param mulligans The number of cards to put back from the hand (i.e. mulligans so far)
      * @return A Results object representing the outputs of this trial
      */
-    public Results testHand(final String[] hand, final String[] library, final String[] sideboard, final int mulligans) {
+    public Results testHand(final SingleObjectivePrologProblem objective, final String[] hand,
+                            final String[] library, final String[] sideboard,
+                            final int mulligans) {
         final Map<Atom, Term> params = new HashMap<>();
-        for (Map.Entry<String, Object> entry : problem.getParams().entrySet()) {
+        for (Map.Entry<String, Object> entry : objective.getParams().entrySet()) {
             final String key = entry.getKey();
             final Object val = entry.getValue();
             if (val instanceof Integer) {
@@ -74,7 +77,7 @@ public class PrologEngine {
                 new Dict(new Atom("params"), params),
                 outputs};
         final long startTime = System.currentTimeMillis();
-        final Query handQuery = new Query(problem.getPredicate(), queryTerms);
+        final Query handQuery = new Query(objective.getPredicate(), queryTerms);
         final Map<String, Term> bindings = handQuery.oneSolution();
         Map<String, Term> outputMap = null;
         if (bindings != null) {
@@ -93,21 +96,23 @@ public class PrologEngine {
     /**
      * Run a single random game/hand, including performing mulligans as
      * required/permitted by the problem definition
+     * @param objective The problem to test; sources should already be loaded
      * @param deck The deck to experiment with
      * @param rng The random number generator to use for shuffling
      * @return A Results object representing the outputs of a single trial
      */
-    public Results simulateGame(final Deck deck, final MersenneTwisterFast rng) {
-        final int maxMulligans = problem.getMaxMulligans();
+    public Results simulateGame(final SingleObjectivePrologProblem objective, final Deck deck,
+                                final MersenneTwisterFast rng) {
+        final int maxMulligans = objective.getMaxMulligans();
         int mulligans = 0;
         Results individualResult;
         do {
             // draw a random hand
-            final int handSize = problem.getHandSize();
+            final int handSize = objective.getHandSize();
             final String[] shuffled = deck.getShuffled(rng);
             final String[] hand = Arrays.copyOfRange(shuffled, 0, handSize);
             final String[] library = Arrays.copyOfRange(shuffled, handSize, shuffled.length);
-            individualResult = testHand(hand, library, deck.getSideboard(), mulligans);
+            individualResult = testHand(objective, hand, library, deck.getSideboard(), mulligans);
             for (final BiConsumer<String[], Results> callback : callbacks) {
                 callback.accept(hand, individualResult);
             }
@@ -119,15 +124,17 @@ public class PrologEngine {
     /**
      * Run a number of independent random games/hands with the same deck, by repeatedly shuffling,
      * drawing a hand, and passing it to the logic engine.
+     * @param objective The problem to test; sources should already be loaded
      * @param deck The deck to experiment with
      * @param n The number of hands to sample and test
      * @param rng The random number generator to use for shuffling
      * @return A Results object aggregating all the outputs of all the trials
      */
-    public Results simulateGames(final Deck deck, int n, MersenneTwisterFast rng) {
+    public Results simulateGames(final SingleObjectivePrologProblem objective, final Deck deck,
+                                 int n, MersenneTwisterFast rng) {
         Results aggregatedResults = new Results();
         for (int i = 0; i < n; i++) {
-            Results individualResult = simulateGame(deck, rng);
+            Results individualResult = simulateGame(objective, deck, rng);
             aggregatedResults.add(individualResult);
         }
         return aggregatedResults;

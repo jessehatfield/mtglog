@@ -8,13 +8,13 @@ import java.net.URL;
 import java.util.Arrays;
 import java.util.Collections;
 
-public class PrologProblemTest {
+public class SingleObjectivePrologProblemTest {
     @Test
     public void testLoadYaml() throws IOException {
-        final PrologProblem oops;
+        final SingleObjectivePrologProblem oops;
         final URL specFile = this.getClass().getClassLoader().getResource("oopsProblem.yaml");
         Assert.assertNotNull(specFile);
-        oops = PrologProblem.fromYaml(specFile.getFile());
+        oops = SingleObjectivePrologProblem.fromYaml(specFile.getFile());
         Assert.assertEquals("Oops All Spells -- Legacy", oops.getName());
         Assert.assertEquals(3, oops.getMaxMulligans());
         Assert.assertEquals("play_oops_hand", oops.getPredicate());

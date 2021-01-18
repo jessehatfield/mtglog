@@ -1,0 +1,80 @@
+# Output configuration
+#stat = ec.simple.SimpleStatistics
+stat = ec.multiobjective.MultiObjectiveStatistics
+stat.do-hypervolume = true
+stat.reference-point = 0.0 0.0
+stat.do-per-generation-description = true
+stat.num-children = 1
+stat.child.0 = mtg.logic.ec.DecklistWriter
+
+# Output files
+stat.file = $problems/oops/runs/multi1/out.stat
+stat.front = $problems/oops/runs/multi1/front.stat
+stat.child.0.file = $problems/oops/runs/multi1/decklists.txt
+mtg.problem.log-hands = $problems/oops/runs/multi1/hands.txt
+
+# Input files
+mtg.problem.spec = $problems/oops/oopsProblemMulti.yaml
+mtg.deck.template = $problems/oops/legacyOops.dec
+
+# Evaluation budget: trials per individual * individuals per generation * number of generations
+eval.num-tests = 50
+eval.merge = mean
+pop.subpop.0.size = 50
+generations = 100
+
+#pop.subpop.0.file = $problems/oops/runs/run1/bestIndividuals.in
+#pop.subpop.0.extra-behavior = fill
+
+# Parallelism
+breedthreads = 1
+evalthreads = 1
+seed.0 = time
+seed.1 = time
+seed.2 = time
+seed.3 = time
+
+state = ec.simple.SimpleEvolutionState
+pop = ec.Population
+init = ec.simple.SimpleInitializer
+finish = ec.simple.SimpleFinisher
+exch = ec.simple.SimpleExchanger
+
+# Multiobjective algorithm
+breed = ec.multiobjective.nsga2.NSGA2Breeder
+eval = ec.multiobjective.nsga2.NSGA2Evaluator
+pop.subpop.0.species.fitness = mtg.logic.ec.stochastic.BinomialNSGA2Fitness
+breed.reevaluate-elites.0 = true
+
+# Multiobjective problem configuration (TODO: these could be inferred from the spec)
+multi.fitness.num-objectives = 2
+multi.fitness.min = 0
+multi.fitness.max = 1
+
+quit-on-run-complete = true
+checkpoint = false
+checkpoint-prefix = mtg-oops
+checkpoint-modulo = 10
+
+pop.subpops = 1
+pop.subpop.0 = ec.Subpopulation
+pop.subpop.0.duplicate-retries = 0
+
+pop.subpop.0.species = mtg.logic.ec.DecklistVectorSpecies
+
+pop.subpop.0.species.crossover-type = any
+pop.subpop.0.species.crossover-prob = 0
+pop.subpop.0.species.mutation-prob = 0.02
+pop.subpop.0.species.mutation-type = random-walk
+pop.subpop.0.species.random-walk-probability = 0.34
+pop.subpop.0.species.mutation-bounded = true
+pop.subpop.0.species.ind = mtg.logic.ec.DecklistVectorIndividual
+
+pop.subpop.0.species.pipe = ec.vector.breed.VectorMutationPipeline
+pop.subpop.0.species.pipe.source.0 = mtg.logic.ec.DecklistCrossoverPipeline
+pop.subpop.0.species.pipe.source.0.max = 4
+pop.subpop.0.species.pipe.source.0.source.0 = ec.select.TournamentSelection
+pop.subpop.0.species.pipe.source.0.source.1 = ec.select.TournamentSelection
+select.tournament.size = 2
+
+eval.problem = mtg.logic.ec.MtgProblem

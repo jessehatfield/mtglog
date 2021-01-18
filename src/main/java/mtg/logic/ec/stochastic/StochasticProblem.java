@@ -14,8 +14,8 @@ public abstract class StochasticProblem extends Problem implements SimpleProblem
         super.prepareToEvaluate(state, threadnum);
         for (final Subpopulation subpop : state.population.subpops) {
             for (final Individual ind : subpop.individuals) {
-                if (ind.fitness instanceof StochasticFitness) {
-                    ((StochasticFitness) ind.fitness).prepare(ind);
+                if (ind.fitness instanceof IndividualDependentFitness) {
+                    ((IndividualDependentFitness) ind.fitness).prepare(ind);
                 } else {
                     ind.fitness.trials = new ArrayList();
                 }

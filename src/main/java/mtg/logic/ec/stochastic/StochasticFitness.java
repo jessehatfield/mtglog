@@ -6,7 +6,7 @@ import ec.simple.SimpleFitness;
 
 import java.util.ArrayList;
 
-public abstract class StochasticFitness extends SimpleFitness {
+public abstract class StochasticFitness extends SimpleFitness implements IndividualDependentFitness {
     public boolean isIdealFitness() {
         return false;
     }
@@ -35,6 +35,7 @@ public abstract class StochasticFitness extends SimpleFitness {
      * works properly.
      * @ind the individual whose Fitness this represents
      */
+    @Override
     public void prepare(final Individual ind) {
         trials = new ArrayList<>();
     }

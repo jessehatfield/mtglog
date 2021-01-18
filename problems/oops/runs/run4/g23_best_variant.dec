@@ -1,0 +1,37 @@
+# Based on the best of Generation 23
+#
+# Tested 1000 games, mulliganing unprotected 7-card hands:
+#    540 wins (stddev=15.760710643876436 ; p=0.54)
+#    169 wins with property 'isProtected' (stddev=11.850696182081455 ; p=0.169)
+#
+# Tested 1000 games, mulligans prioritizing wins:
+#    662 wins (stddev=14.958475858188226 ; p=0.662)
+#    172 wins with property 'isProtected' (stddev=11.933817494833749 ; p=0.172)
+
+
+4 Balustrade Spy
+4 Undercity Informer
+4 Narcomoeba
+4 Lotus Petal
+4 Dark Ritual
+
+3 Dread Return
+1 Thassa's Oracle
+
+1 Chrome Mox
+2 Elvish Spirit Guide
+4 Simian Spirit Guide
+3 Summoner's Pact
+3 Chancellor of the Tangle
+1 Wild Cantor
+
+3 Rite of Flame
+4 Cabal Ritual
+2 Desperate Ritual
+
+4 Agadeem's Awakening
+2 Shatterskull Smashing
+
+2 Pact of Negation
+2 Chancellor of the Annex
+3 Cabal Therapy

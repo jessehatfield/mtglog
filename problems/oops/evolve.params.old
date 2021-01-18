@@ -1,0 +1,61 @@
+# Output files
+stat.file = $problems/oops/runs_etw/run2/run2.stat
+mtg.problem.log-hands = $problems/oops/runs_etw/run2/hands.txt
+
+# Input files
+mtg.problem.spec = $problems/oops/oopsProblem.yaml
+mtg.deck.template = $problems/oops/legacyOopsETW.dec
+
+# Evaluation budget: trials per individual * individuals per generation * number of generations
+mtg.problem.games = 100
+pop.subpop.0.size = 50
+#pop.subpop.0.file = $problems/oops/runs/run1/bestIndividuals.in
+pop.subpop.0.extra-behavior = fill
+generations = 100
+
+# Parallelism
+breedthreads = 1
+evalthreads = 4
+seed.0 = time
+seed.1 = time
+seed.2 = time
+seed.3 = time
+
+state = ec.simple.SimpleEvolutionState
+pop = ec.Population
+init = ec.simple.SimpleInitializer
+finish = ec.simple.SimpleFinisher
+breed = ec.simple.SimpleBreeder
+eval = ec.simple.SimpleEvaluator
+stat = ec.simple.SimpleStatistics
+exch = ec.simple.SimpleExchanger
+
+quit-on-run-complete = true
+checkpoint = false
+checkpoint-prefix = mtg-oops
+checkpoint-modulo = 10
+
+pop.subpops = 1
+pop.subpop.0 = ec.Subpopulation
+pop.subpop.0.duplicate-retries = 0
+breed.elite-fraction.0 = 0.10
+breed.reevaluate-elites.0 = true
+
+pop.subpop.0.species = mtg.logic.ec.DecklistVectorSpecies
+
+pop.subpop.0.species.fitness = ec.simple.SimpleFitness
+
+pop.subpop.0.species.crossover-type = any
+pop.subpop.0.species.crossover-prob = 0
+pop.subpop.0.species.mutation-prob = 0.025
+pop.subpop.0.species.mutation-type = reset
+pop.subpop.0.species.ind = mtg.logic.ec.DecklistVectorIndividual
+
+pop.subpop.0.species.pipe = ec.vector.breed.VectorMutationPipeline
+pop.subpop.0.species.pipe.source.0 = mtg.logic.ec.DecklistCrossoverPipeline
+pop.subpop.0.species.pipe.source.0.max = 4
+pop.subpop.0.species.pipe.source.0.source.0 = ec.select.TournamentSelection
+pop.subpop.0.species.pipe.source.0.source.1 = ec.select.TournamentSelection
+select.tournament.size = 2
+
+eval.problem = mtg.logic.ec.MtgProblem

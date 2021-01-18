@@ -1,0 +1,43 @@
+# Best of Generation 23
+# Fitness: 67.012
+# (67 wins out of 100, with 12 protected, when mulliganing unprotected 7-card hands)
+#
+# Tested 1000 games, mulliganing unprotected 7-card hands:
+#    493 wins (stddev=15.809838708854686 ; p=0.493)
+#    78 wins with property 'isProtected' (stddev=8.48033018225116 ; p=0.078)
+# Tested 1000 games, mulligans prioritizing wins:
+#    582 wins (stddev=15.597307459943206 ; p=0.582)
+#    88 wins with property 'isProtected' (stddev=8.958571314668427 ; p=0.088)
+
+4 Balustrade Spy
+4 Undercity Informer
+4 Narcomoeba
+4 Lotus Petal
+4 Dark Ritual
+
+3 Dread Return
+1 Thassa's Oracle
+
+1 Chrome Mox
+1 Elvish Spirit Guide
+3 Simian Spirit Guide
+3 Summoner's Pact
+3 Chancellor of the Tangle
+1 Wild Cantor
+
+1 Mox Opal
+2 Rite of Flame
+1 Grim Monolith
+3 Cabal Ritual
+2 Desperate Ritual
+1 Seething Song
+1 Lion's Eye Diamond
+
+4 Agadeem's Awakening
+1 Shatterskull Smashing
+1 Turntimber Symbiosis
+
+1 Pact of Negation
+1 Chancellor of the Annex
+3 Cabal Therapy
+2 Orim's Chant

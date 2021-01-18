@@ -1,0 +1,34 @@
+# Highest fitness of last generation
+#   Generation 99
+#   Best individual, Fitness: 0.67 (stddev: 0.04702127178203498; 100 trials)
+#
+# Tested 1000 games, mulligan for protection:
+#   581 wins (stddev=15.602531845825537 ; p=0.581)
+#   105 wins with property 'isProtected' (stddev=9.694070352540258 ; p=0.105)
+
+4 Balustrade Spy
+4 Undercity Informer
+4 Narcomoeba
+4 Lotus Petal
+4 Dark Ritual
+
+2 Dread Return
+2 Thassa's Oracle
+
+4 Chrome Mox
+3 Elvish Spirit Guide
+4 Simian Spirit Guide
+4 Chancellor of the Tangle
+
+3 Rite of Flame
+3 Grim Monolith
+3 Cabal Ritual
+
+4 Agadeem's Awakening
+1 Shatterskull Smashing
+
+2 Chancellor of the Annex
+
+1 Cabal Therapy
+
+4 Empty the Warrens

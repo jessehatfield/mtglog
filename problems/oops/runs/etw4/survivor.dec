@@ -1,0 +1,32 @@
+# Highest fitness of old individual at end of run
+#   4 4 4 4 4 2 1 4 4 4 0 4 0 0 0 0 3 4 4 0 0 0 0 0 0 0 4 1 0 0 0 0 0 1 0 0 0 0 0 0 4 0 0 0 0 0 0 0 0
+#   Fitness: 0.6207407407407407 (stddev: 0.009337730581720934; 2700 trials)
+#
+# Tested 1000 games, mulligan for protection:
+#   617 wins (stddev=15.372410351015224 ; p=0.617)
+#   12 wins with property 'isProtected' (stddev=3.443254274665175 ; p=0.012)
+
+4 Balustrade Spy
+4 Undercity Informer
+4 Narcomoeba
+4 Lotus Petal
+4 Dark Ritual
+
+2 Dread Return
+1 Thassa's Oracle
+
+4 Chrome Mox
+4 Elvish Spirit Guide
+4 Simian Spirit Guide
+4 Chancellor of the Tangle
+
+3 Rite of Flame
+4 Grim Monolith
+4 Cabal Ritual
+
+4 Agadeem's Awakening
+1 Shatterskull Smashing
+
+1 Cabal Therapy
+
+4 Empty the Warrens

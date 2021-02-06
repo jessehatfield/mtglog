@@ -38,7 +38,7 @@ win(HAND, DECK, SB, SEQUENCE, PROTECTION) :-
     breakfast(HAND, DECK, SEQUENCE, PROTECTION);
     etw(HAND, DECK, SEQUENCE, STORM, PROTECTION), STORM >= 4, canpass(SEQUENCE);
     belcher(HAND, DECK, SEQUENCE, PROTECTION);
-    wish_warrens(HAND, DECK, SB, SEQUENCE, STORM, PROTECTION), STORM >= 4;
+    wish_warrens(HAND, DECK, SB, SEQUENCE, STORM, PROTECTION), STORM >= 4, canpass(SEQUENCE);
     wish_spy(HAND, DECK, SB, SEQUENCE, PROTECTION);
     wish_informer(HAND, DECK, SB, SEQUENCE, PROTECTION).
 win_basic(HAND, DECK, _, SEQUENCE, PROTECTION) :-
@@ -172,10 +172,11 @@ etw(H1, B1, M1, G1, S1, D1, SEQUENCE, STORM, PROTECTION) :-
     member('Empty the Warrens', H1),
     prune(4, H1, B1, G1, M1),
     % Make 3R mana, cast
-    makemana_goal('Empty the Warrens', [H1, B1, M1, G1, S1, D1, 0], [H2, _, M2, _, S2, _, PROTECTION], [], SEQUENCE1),
+    makemana_goal('Empty the Warrens', [H1, B1, M1, G1, S1, D1, 0], [H2, _, M2, _, S2, _, P1], [], SEQUENCE1),
     remove('Empty the Warrens', H2, _),
     spend([0, 0, 0, 1, 0, 0, 3], M2, _),
     STORM is S2 + 1,
+    PROTECTION is P1 + 1, % count an ETW win as protected
     append(SEQUENCE1, ['Empty the Warrens'], SEQUENCE),
     !.
 
@@ -192,9 +193,10 @@ wish_warrens(H1, B1, M1, G1, S1, D1, SEQUENCE, STORM, PROTECTION) :-
     S3 is S2 + 1,
     append(SEQUENCE1, ['Burning Wish'], SEQUENCE2),
     % Cast ETW
-    makemana([H3, B2, M3, G2, S3, D2, P2], [_, _, M4, _, S4, _, PROTECTION], SEQUENCE2, SEQUENCE3),
+    makemana([H3, B2, M3, G2, S3, D2, P2], [_, _, M4, _, S4, _, P3], SEQUENCE2, SEQUENCE3),
     spend([0, 0, 0, 1, 0, 0, 3], M4, _),
     STORM is S4 + 1,
+    PROTECTION is P3 + 1, % count an ETW win as protected
     append(SEQUENCE3, ['Empty the Warrens'], SEQUENCE),
     !.
 

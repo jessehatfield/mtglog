@@ -14,6 +14,7 @@ run_oops_tests :-
     test_hand_5,
     test_hand_6,
     test_hand_7,
+    test_hand_etw,
     test_makemana_goal(_, _).
 
 % Should be a simple win, but can take up to 5 minutes to process because of trivial choices
@@ -69,6 +70,16 @@ test_hand_7 :-
     % relies on Spy being a sacrificeable creature, so shouldn't work with Informer:
     H2 = ['Lotus Petal', 'Narcomoeba', 'Dark Ritual', 'Chrome Mox', 'Undercity Informer', 'Lotus Petal', 'Narcomoeba'],
     not(hand_wins_(H2, LIBRARY, [], 0, 0)).
+
+% ETW with storm >= 4 should count as a protected win, unless it requires a Pact
+test_etw :-
+    HAND = ['Lotus Petal', 'Rite of Flame', 'Mox Opal', 'Elvish Spirit Guide', 'Simian Spirit Guide', 'Empty the Warrens'],
+    LIBRARY = ['Elvish Spirit Guide'],
+    hand_wins_(['Empty the Warrens'|HAND], LIBRARY, [], 0, 1), % one protection from ETW itself
+    hand_wins_(['Chancellor of the Annex'|HAND], LIBRARY, [], 0, 2), % can add protection
+    not(hand_wins_(['Pact of Negation'|HAND], LIBRARY, [], 0, 2)), % can't cast Pact for protection
+    H2 = ['Lotus Petal', 'Rite of Flame', 'Mox Opal', 'Summoner\'s Pact', 'Simian Spirit Guide', 'Empty the Warrens', 'Empty the Warrens'],
+    not(hand_wins_(H2, ['Elvish Spirit Guide'], [], 0, _)). % can't cast Pact for mana
 
 hand_wins_(HAND, LIBRARY, SB, MULLIGANS, PROTECTION) :-
     format('~w\n', [HAND]),

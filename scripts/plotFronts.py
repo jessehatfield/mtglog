@@ -10,8 +10,8 @@ import math
 import re
 import sys
 
-p1_key = 'Objective 1 Success Rate'
-p2_key = 'Objective 2 Success Rate'
+p1_key = 'Objective 1'
+p2_key = 'Objective 2'
 beta_prior = 1
 num_posterior_samples = 1000
 
@@ -21,14 +21,15 @@ if __name__ == "__main__":
         sys.exit(1)
     filename = sys.argv[1]
     re_gen = re.compile('^Generation: (\d+)$')
-    re_ind = re.compile('^\s+individual ')
+    re_ind = re.compile('^\s+individual .*; Fitness: \[([0-9eE.-]+) ([0-9eE.-]+)')
     re_rank = re.compile('^\s*Rank: (\d+)$')
-    re_counts = re.compile('^\s*Counts: \[([0-9]+)/([0-9]+) , ([0-9]+)/([0-9]+)\]$')
+    re_counts = re.compile('^\s*Counts: \[([0-9]+)/([0-9]+) , ([0-9]+)/([0-9]+)')
     re_end = re.compile(".*PARETO FRONTS.*")
     current_gen = 0
     current_rank = 0
     read_ind = False
     data = []
+    fitness = [0.0, 0.0]
     with open(filename, 'r') as f:
         for line in f:
             match = re_gen.match(line)
@@ -39,6 +40,7 @@ if __name__ == "__main__":
             match = re_ind.match(line)
             if match:
                 read_ind = True
+                fitness = [float(match.group(1)), float(match.group(2))]
                 continue
             if not read_ind:
                 continue
@@ -57,16 +59,18 @@ if __name__ == "__main__":
                 p_2 = float(successes_2) / n_2
                 stddev_2 = math.sqrt(p_2 * (1-p_2) * n_2) / n_2
                 individual = {'Generation': current_gen, 'Pareto Rank': current_rank,
-                    p1_key: p_1, p2_key: p_2,
+                    'Objective 1': fitness[0], 'Objective 2': fitness[1],
+                    'Objective 1 Success Rate': p_1, 'Objective 2 Success Rate': p_2,
                     'stddev1': stddev_1, 'stddev2': stddev_2,
-                    'p1_lower': p_1-stddev_1, 'p1_upper': p_1+stddev_1,
-                    'p2_lower': p_2-stddev_2, 'p2_upper': p_2+stddev_2,
+                    'Objective 1 Success Rate - 1 std.dev': p_1-stddev_1, 'p1_upper': p_1+stddev_1,
+                    'Objective 2 Success Rate - 1 std.dev': p_2-stddev_2, 'p2_upper': p_2+stddev_2,
                     'success_1': successes_1, 'failure_1': n_1-successes_1,
-                    'success_2': successes_2, 'failure_2': n_2-successes_2
+                    'success_2': successes_2, 'failure_2': n_2-successes_2,
+                    'n': min(n_1, n_2)
                     }
                 if len(data) > 0 \
                         and data[-1]['Generation'] == current_gen and data[-1]['Pareto Rank'] == current_rank \
-                        and data[-1][p1_key] == p_1 and data[-1][p2_key] == p_2:
+                        and data[-1]['Objective 1 Success Rate'] == p_1 and data[-1]['Objective 2 Success Rate'] == p_2:
                     if data[-1]['success_1'] >= successes_1 and data[-1]['success_2'] >= successes_2:
                         continue
                     elif data[-1]['success_1'] <= successes_1 and data[-1]['success_2'] <= successes_2:
@@ -83,6 +87,7 @@ if __name__ == "__main__":
     final_front = front_df[df['Generation'] == current_gen]
     with pd.option_context('display.max_rows', None, 'display.max_columns', None):
         print(final_front)
+    high_n = df[df['n'] >= 200]
 
     posterior_samples = []
     for index, front_point in final_front.iterrows():
@@ -121,6 +126,13 @@ if __name__ == "__main__":
     sns.lineplot(data=final_df, x=p1_key, y=p2_key, hue='Pareto Rank', palette=cmap, legend=False, ax=ax)
     sns.scatterplot(data=final_df, x=p1_key, y=p2_key, hue='Pareto Rank', palette=cmap,
             legend='full', ax=ax)
+    ax.set_ybound(lower=0, upper=1)
+    ax.set_xbound(lower=0, upper=1)
+    ax.set(aspect="equal")
+    plt.show()
+
+    ax = plt.gca()
+    sns.scatterplot(data=high_n, x=p1_key, y=p2_key, hue='n', ax=ax)
     ax.set_ybound(lower=0, upper=1)
     ax.set_xbound(lower=0, upper=1)
     ax.set(aspect="equal")

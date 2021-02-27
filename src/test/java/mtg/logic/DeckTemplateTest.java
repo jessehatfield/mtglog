@@ -31,6 +31,27 @@ public class DeckTemplateTest {
     }
 
     @Test
+    public void testToVector() throws IOException {
+        final URL url = DeckTemplateTest.class.getClassLoader().getResource(DECK_FILENAME);
+        final DeckTemplate template = new DeckTemplate(url.getPath());
+        final int[] expectedCounts = new int[]{
+                4, 4, 4, 4, 4, 2, 2, 1, 2, 3, 0, 0, 0, 11,
+                0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                0, 0, 0, 0, 0, 1, 0, 0, 0, 0,
+                0, 0, 0, 0, 0, 0, 0, 0, 0 };
+    final String[] cardNames = {"Balustrade Spy", "Undercity Informer",
+                "Narcomoeba", "Lotus Petal", "Dark Ritual", "Dread Return",
+                "Thassa's Oracle", "Chrome Mox", "Elvish Spirit Guide",
+                "Simian Spirit Guide", "Summoner's Pact",
+                "Rite of Flame", "Pyretic Ritual", "Desperate Ritual", "Seething Song",
+                "Cabal Therapy"
+        };
+        final Deck deck = new Deck(cardNames, new int[]{4, 4, 4, 4, 4, 2, 2, 1, 2, 3, 0, 4, 2, 4, 1, 1});
+        final int[] vector = template.toVector(deck);
+        Assert.assertArrayEquals(expectedCounts, vector);
+    }
+
+    @Test
     public void testCommentPattern() throws IOException {
         final String emptyLine = "";
         final String whitespace = "  ";

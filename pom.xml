@@ -111,6 +111,21 @@
                         <mainClass>mtg.logic.DeckTemplate</mainClass>
                     </configuration>
                 </execution>
+                <execution>
+                    <id>serialize</id>
+                    <goals>
+                        <goal>java</goal>
+                    </goals>
+                    <configuration>
+                        <mainClass>mtg.logic.ec.PopulationWriter</mainClass>
+                        <systemProperties>
+                            <systemProperty>
+                                <key>prolog.src.dir</key>
+                                <value>${project.basedir}/src/main/prolog</value>
+                            </systemProperty>
+                        </systemProperties>
+                    </configuration>
+                </execution>
             </executions>
         </plugin>
       </plugins>

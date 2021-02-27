@@ -211,6 +211,27 @@ public class DeckTemplate implements Serializable {
         return new Deck(cards, md, sb);
     }
 
+    /**
+     * Convert an instantiation of the deck to a vector representation with one
+     * entry per free parameter.
+     * @param deck A valid decklist according to this template
+     * @return A vector that would produce the same deck if passed to toDeck
+     */
+    public int[] toVector(final Deck deck) {
+        final int[] counts = new int[numEntries];
+        final Map<String, Integer> cardCounts = deck.getCounts();
+        final List<Entry> mdEntries = segments.get(0).entries;
+        int countIndex = 0;
+        for (final Entry entry : mdEntries) {
+            for (int j = 0; j < entry.getNumCards(); j++) {
+                final String cardName = entry.getName(j);
+                counts[countIndex] += cardCounts.getOrDefault(cardName, 0);
+            }
+            countIndex++;
+        }
+        return counts;
+    }
+
     private static int addMin(final Collection<Entry> entries) {
         return entries.stream().map(e -> e.getMinCount()).reduce(0, Integer::sum);
     }

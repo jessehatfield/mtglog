@@ -20,7 +20,7 @@ public class DecklistCrossoverPipelineTest {
     public void setup() {
         pipeline = new DecklistCrossoverPipeline();
         pipeline.total = 20;
-        pipeline.max_copies = 4;
+        pipeline.default_max_copies = 4;
         pipeline.parents[0] = new IntegerVectorIndividual();
         pipeline.parents[1] = new IntegerVectorIndividual();
     }

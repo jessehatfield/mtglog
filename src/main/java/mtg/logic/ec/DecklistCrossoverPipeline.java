@@ -15,7 +15,7 @@ public class DecklistCrossoverPipeline extends BreedingPipeline {
     public static final String P_MAX = "max";
     public static final int NUM_SOURCES = 2;
     public int total;
-    public int max_copies;
+    public int default_max_copies;
 
     IntegerVectorIndividual[] parents;
 
@@ -34,7 +34,7 @@ public class DecklistCrossoverPipeline extends BreedingPipeline {
         Parameter def = defaultBase();
         total = state.parameters.getIntWithDefault(base.push(P_TOTAL),
                 def.push(P_TOTAL), 60);
-        max_copies = state.parameters.getIntWithDefault(base.push(P_MAX),
+        default_max_copies = state.parameters.getIntWithDefault(base.push(P_MAX),
                 def.push(P_MAX), 4);
     }
 
@@ -115,8 +115,12 @@ public class DecklistCrossoverPipeline extends BreedingPipeline {
             if (cardIndex < 0) {
                 continue;
             }
-            final int max_gene = species == null ? Integer.MAX_VALUE : (int) species.maxGene(cardIndex);
-            final int max_card_copies = Math.min(max_copies, max_gene);
+            final int max_card_copies;
+            if (species == null) {
+                max_card_copies = default_max_copies;
+            } else {
+                max_card_copies = (int) species.maxGene(cardIndex);
+            }
             if (child.genome[cardIndex] < max_card_copies || max_card_copies < 0) {
                 child.genome[cardIndex]++;
                 nCards++;

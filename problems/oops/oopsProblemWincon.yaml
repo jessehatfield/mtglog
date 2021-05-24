@@ -1,0 +1,61 @@
+name: Oops All Spells -- Legacy, Multiobjective
+
+sources:
+  - mana.pl
+  - cards.pl
+  - oops.pl
+  - test.pl
+
+objectives:
+
+    - name: win
+      predicate: play_oops_hand
+      maxMulligans: 3
+      params:
+        protection: 1
+        greedy_mulligans: 0
+      outputs:
+        boolean:
+          - isProtected
+
+    - name: protectedWin
+      predicate: play_oops_hand
+      maxMulligans: 4
+      params:
+        protection: 1
+        greedy_mulligans: 4
+      outputs:
+        boolean:
+          - isProtected
+
+    - name: optimisticWin
+      predicate: play_oops_hand
+      maxMulligans: 3
+      params:
+        protection: 1
+        greedy_mulligans: 1
+      outputs:
+        boolean:
+          - isProtected
+
+    - name: oops
+      predicate: play_oops_hand
+      maxMulligans: 3
+      params:
+        protection: 1
+        greedy_mulligans: 0
+        wincon: oops
+      outputs:
+        boolean:
+          - isProtected
+
+    - name: empty
+      predicate: play_oops_hand
+      maxMulligans: 3
+      params:
+        protection: 1
+        greedy_mulligans: 0
+        wincon: empty
+      outputs:
+        boolean:
+          - isProtected

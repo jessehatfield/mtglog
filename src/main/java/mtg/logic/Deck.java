@@ -92,15 +92,19 @@ public class Deck implements Serializable {
         return remainder.toArray(new String[]{});
     }
 
+    public static <T> void shuffle(final T[] arr, final MersenneTwisterFast rng) {
+        for (int j = arr.length-1; j > 0; j--) {
+            int k = rng.nextInt(j+1);
+            T temp = arr[k];
+            arr[k] = arr[j];
+            arr[j] = temp;
+        }
+    }
+
     public String[] getShuffled(MersenneTwisterFast rng) {
         String[] library = new String[maindeck.size()];
         maindeck.toArray(library);
-        for (int j = library.length-1; j > 0; j--) {
-            int k = rng.nextInt(j+1);
-            String temp = library[k];
-            library[k] = library[j];
-            library[j] = temp;
-        }
+        shuffle(library, rng);
         return library;
     }
 

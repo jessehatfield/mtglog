@@ -23,14 +23,20 @@ public class Results {
     private final List<Boolean> success = new ArrayList<>();
     private final List<Long> durations = new ArrayList<>();
     private final List<Integer> mulliganCounts = new ArrayList<>();
+    private final List<Integer> powderCounts = new ArrayList<>();
 
     public Results() { }
 
     public Results(Map<String, Term> prologMetadata, long duration, int mulliganCount) {
+        this(prologMetadata, duration, mulliganCount, 0);
+    }
+
+    public Results(Map<String, Term> prologMetadata, long duration, int mulliganCount, int powderCount) {
         this.nTotal = 1;
         success.add(prologMetadata != null);
         durations.add(duration);
         mulliganCounts.add(mulliganCount);
+        powderCounts.add(powderCount);
         if (prologMetadata == null) {
             this.nSuccesses = 0;
             this.nFailures = 1;
@@ -67,6 +73,10 @@ public class Results {
                     }
                 }
             });
+            intMetadata.put("nMulligans", Collections.singletonList(mulliganCount));
+            intMetadata.put("nPowders", Collections.singletonList(powderCount));
+            booleanMetadata.put("mulligan", Collections.singletonList(mulliganCount > 0));
+            booleanMetadata.put("powder", Collections.singletonList(powderCount > 0));
         }
     }
 
@@ -80,7 +90,8 @@ public class Results {
                 + "," + listMetadata
                 + "," + booleanMetadata + ";"
                 + "durations=" + durations + ";"
-                + "mulliganCounts=" + mulliganCounts + "}";
+                + "mulliganCounts=" + mulliganCounts + ";"
+                + "powderCounts=" + powderCounts + "}";
     }
 
     public void add(Results other) {
@@ -109,17 +120,32 @@ public class Results {
         }
         durations.addAll(other.durations);
         mulliganCounts.addAll(other.mulliganCounts);
+        powderCounts.addAll(other.powderCounts);
     }
 
     public int getNTotal() { return nTotal; }
     public int getNSuccesses() { return nSuccesses; }
     public int getNFailures() { return nFailures; }
     public int getNWithProperty(final String property) {
+        if (getNSuccesses() == 0) {
+            return 0;
+        }
         if (!booleanMetadata.containsKey(property)) {
             throw new IllegalArgumentException("Results don't contain boolean property '"
                     + property + "'. Boolean properties found: " + booleanMetadata);
         }
         return (int) booleanMetadata.get(property).stream().filter(b -> b).count();
+    }
+
+    public int getPropertySum(final String property) {
+        if (getNSuccesses() == 0) {
+            return 0;
+        }
+        if (!intMetadata.containsKey(property)) {
+            throw new IllegalArgumentException("Results don't contain integer property '"
+                    + property + "'. Integer properties found: " + intMetadata);
+        }
+        return intMetadata.get(property).stream().reduce(Integer::sum).orElse(0);
     }
 
     public Map<String, Integer> getIntMetadata(final int i) {
@@ -160,8 +186,14 @@ public class Results {
 
     public List<Integer> getMulliganCounts() { return mulliganCounts; }
 
+    public List<Integer> getPowderCounts() { return powderCounts; }
+
     public int getMulliganCounts(final int i) {
         return mulliganCounts.get(i);
+    }
+
+    public int getPowderCounts(final int i) {
+        return powderCounts.get(i);
     }
 
     public boolean isSuccess(final int i) {

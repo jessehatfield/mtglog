@@ -33,6 +33,7 @@ public class SingleObjectivePrologProblem implements Serializable, PrologProblem
 
     private String name;
     private String predicate;
+    private String serumPowderPredicate;
     private List<String> sources;
     private int maxMulligans;
     private Map<String, Object> params;
@@ -51,8 +52,16 @@ public class SingleObjectivePrologProblem implements Serializable, PrologProblem
         return predicate;
     }
 
+    public String getSerumPowderPredicate() {
+        return serumPowderPredicate;
+    }
+
     public void setPredicate(final String predicate) {
         this.predicate = predicate;
+    }
+
+    public void setSerumPowderPredicate(final String serumPowderPredicate) {
+        this.serumPowderPredicate = serumPowderPredicate;
     }
 
     @Override
@@ -110,6 +119,8 @@ public class SingleObjectivePrologProblem implements Serializable, PrologProblem
      *   predicate (string): name of prolog predicate to test hands
      *   max_mulligans (int): number of times to mulligan failed hands before declaring complete failure for that trial
      *   params (map): additional parameters required for the given predicate
+     * Optional properties:
+     *   serumPowderPredicate (string): name of prolog predicate to check whether a hand can safely Serum Powder
      * @param filename Name of YAML file specifying the problem
      * @return The corresponding hand evaluation problem specification
      */
@@ -129,6 +140,8 @@ public class SingleObjectivePrologProblem implements Serializable, PrologProblem
      *   predicate (string): name of prolog predicate to test hands
      *   max_mulligans (int): number of times to mulligan failed hands before declaring complete failure for that trial
      *   params (map): additional parameters required for the given predicate
+     * Optional properties:
+     *   serumPowderPredicate (string): name of prolog predicate to check whether a hand can safely Serum Powder
      * @param is Input stream for reading the YAML specification of the problem
      * @return The corresponding hand evaluation problem specification
      */

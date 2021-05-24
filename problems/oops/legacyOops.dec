@@ -1,13 +1,12 @@
-// 5 Always 4-ofs
 4 Balustrade Spy
 4 Undercity Informer
-4 Narcomoeba // can work as a 3-of but test that later; tests with 1-2 waste too much time
+3-4 Narcomoeba
 4 Lotus Petal
 4 Dark Ritual
 
 // 2 always 1-ofs or more
-1-2 Dread Return
-1-2 Thassa's Oracle
+1-4 Dread Return
+1-4 Thassa's Oracle
 
 //5 reliable starting mana sources
 Chrome Mox
@@ -17,56 +16,32 @@ Summoner's Pact
 Chancellor of the Tangle
 
 //2 mana filtering effects
-Manamorphose
-Wild Cantor
+Wild Cantor > Manamorphose
 
-//9 ritual effects of varying quality
-Mox Opal
-Tinder Wall
-Rite of Flame
-Grim Monolith
+//6 ritual effects of varying quality
 Cabal Ritual
-Pyretic Ritual
-Desperate Ritual
-0 Seething Song
-0 Lion's Eye Diamond
-
-//1 less efficient win condition(s)
-0 Goblin Charbelcher
+Rite of Flame > Pyretic Ritual > Desperate Ritual
+Grim Monolith
+Tinder Wall
 
 //5 different lands that don't count as lands
+4 Agadeem's Awakening
 Emeria's Call
 Sea Gate Restoration
-Agadeem's Awakening
 Shatterskull Smashing
 Turntimber Symbiosis
 
-//4 simple protection spells
-Pact of Negation
-Force of Will
-Unmask
-Chancellor of the Annex
-
-//7 narrower protection spells
-1-4 Cabal Therapy
-Thoughtseize
-Silence
-Orim's Chant
-Veil of Summer
-Misdirection
-Leyline of Lifeforce
+//protection spells organized by color
+1-4 Cabal Therapy > Thoughtseize
+Unmask > Grief
+Pact of Negation > Force of Will > Misdirection
+Chancellor of the Annex > Silence > Orim's Chant
+Leyline of Lifeforce > Veil of Summer
+Force of Vigor
 
 //1 Non-immediate win condition
 Empty the Warrens
 
-//3 ways to get cards into the graveyard (unused for now)
-0-1 Bridge from Below
-0 Lingering Souls
-0 Phantasmagorian
-
-//5 misc. (unused for now)
-0 Street Wraith
-0 Living Wish
-0 Cephalid Illusionist
-0 Shuko
-0 Burning Wish
+//misc
+Bridge from Below
+Serum Powder

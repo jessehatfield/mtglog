@@ -493,6 +493,17 @@ card('Unmask', [
     gy     - 1,
     protection - 1
 ]).
+card('Grief', [
+    cost   - [0, 0, 2, 0, 0, 0, 2],
+    yield  - [0, 0, 0, 0, 0, 0, 0],
+    net    - 0,
+    colors - [b],
+    types  - [creature],
+    spell  - 1,
+    board  - 0,
+    gy     - 1,
+    protection - 1
+]).
 card('Chancellor of the Annex', [
     cost   - [0, 0, 0, 0, 0, 0, 0],
     yield  - [0, 0, 0, 0, 0, 0, 0],
@@ -571,7 +582,7 @@ card('Defense Grid', [
     protection - 1
 ]).
 
-% Cards we don't cast but might search for for Chrome Mox
+% Cards we don't cast but might search for for Chrome Mox or otherwise use
 card('Spiritmonger', [
     cost   - [0, 0, 1, 0, 1, 0, 3],
     yield  - [0, 0, 0, 0, 0, 0, 0],
@@ -589,6 +600,17 @@ card('The Mimeoplasm', [
     colors - [ubg],
     types  - [creature],
     spell  - -1,
+    board  - 0,
+    gy     - 0
+]).
+
+card('Serum Powder', [
+    cost   - [0, 0, 0, 0, 0, 0, 3],
+    yield  - [0, 0, 0, 0, 0, 1, 0],
+    net    - 0,
+    colors - [],
+    types  - [artifact],
+    spell  - 1,
     board  - 0,
     gy     - 0
 ]).
@@ -655,6 +677,7 @@ specialcast(NAME, YIELD, OLD_STATE, NEW_STATE) :-
     NAME == 'Street Wraith', cantrip('Street Wraith', YIELD, OLD_STATE, NEW_STATE);
 %    NAME == 'Gitaxian Probe', cantrip('Gitaxian Probe', YIELD, OLD_STATE, NEW_STATE). (banned)
     NAME == 'Unmask', pitch('Unmask', b, YIELD, OLD_STATE, NEW_STATE);
+    NAME == 'Grief', pitch('Grief', b, YIELD, OLD_STATE, NEW_STATE);
     NAME == 'Force of Will', pitch('Force of Will', u, YIELD, OLD_STATE, NEW_STATE);
     NAME == 'Misdirection', pitch('Misdirection', u, YIELD, OLD_STATE, NEW_STATE);
     NAME == 'Chancellor of the Annex', chancellor_annex(YIELD, OLD_STATE, NEW_STATE).

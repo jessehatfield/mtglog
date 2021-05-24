@@ -163,20 +163,37 @@ public class MtgProblem extends StochasticProblem {
     }
 
     private Results evaluateDeck(final SingleObjectivePrologProblem objective,
-                                 final Deck deck, final MersenneTwisterFast rng) {
+                                 final Deck deck,
+                                 final MersenneTwisterFast rng) {
         return prolog.simulateGames(objective, deck, trials, rng);
     }
 
     private void printResults(final SingleObjectivePrologProblem objective,
                               final Results results) {
-        System.out.println(results.getNSuccesses() + " wins (stddev="
+        System.out.println("    " + results.getNSuccesses() + " wins (stddev="
                 + results.getStdDevSuccesses() + " ; p="
                 + results.getPSuccess() + ")");
         for (final String booleanVar : objective.getBooleanOutputs()) {
-            System.out.println(results.getNWithProperty(booleanVar)
+            System.out.println("    " + results.getNWithProperty(booleanVar)
                     + " wins with property '" + booleanVar
                     + "' (stddev=" + results.getStdDev(booleanVar)
                     + " ; p=" + results.getP(booleanVar) + ")");
+        }
+        final int nMull = results.getNWithProperty("mulligan");
+        final double avgMulls = results.getPropertySum("nMulligans") / ((double) nMull);
+        System.out.println("    " + nMull
+                + " wins with at least one mulligan (stddev="
+                + results.getStdDev("mulligan")
+                + " ; p=" + results.getP("mulligan")
+                + "), avg # in those games: " + avgMulls + ")");
+        final int nPowder = results.getNWithProperty("powder");
+        if (nPowder > 0) {
+            final double avgPowders = results.getPropertySum("nPowders") / ((double) nPowder);
+            System.out.println("    " + nPowder
+                    + " wins with at least one Serum Powder (stddev="
+                    + results.getStdDev("powder")
+                    + " ; p=" + results.getP("powder")
+                    + "), avg # in those games: " + avgPowders + ")");
         }
     }
 

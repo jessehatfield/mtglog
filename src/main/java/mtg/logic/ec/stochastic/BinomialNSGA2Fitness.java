@@ -269,6 +269,15 @@ public class BinomialNSGA2Fitness extends NSGA2MultiObjectiveFitness implements 
     }
 
     @Override
+    public int getNSamples() {
+        int n = 0;
+        for (int i = 0; i < objectives.length; i++) {
+            n = Math.max(0, successCounts[i] + failureCounts[i]);
+        }
+        return n;
+    }
+
+    @Override
     public Object clone() {
         final BinomialNSGA2Fitness other = (BinomialNSGA2Fitness) super.clone();
         final int k = objectives.length;

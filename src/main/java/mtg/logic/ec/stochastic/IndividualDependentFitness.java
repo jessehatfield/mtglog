@@ -14,4 +14,11 @@ public interface IndividualDependentFitness {
      * @ind the individual whose Fitness this represents
      */
     void prepare(final Individual ind);
+
+    /**
+     * Get the number of historical samples tracked.
+     */
+    default int getNSamples() {
+        return 0;
+    }
 }

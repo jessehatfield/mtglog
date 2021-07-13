@@ -1,6 +1,4 @@
-name: Oops All Spells -- Legacy
-
-predicate: play_oops_hand
+name: Oops All Spells -- Legacy, Multiobjective
 
 sources:
   - mana.pl
@@ -8,12 +6,38 @@ sources:
   - oops.pl
   - test.pl
 
-maxMulligans: 3
+objectives:
 
-params:
-  protection: 1
-  greedy_mulligans: 0
+    - name: win
+      predicate: play_oops_hand
+      serumPowderPredicate: can_powder
+      maxMulligans: 4
+      params:
+        protection: 1
+        greedy_mulligans: 0
+      outputs:
+        boolean:
+          - isProtected
 
-outputs:
-  boolean:
-    - isProtected
+    - name: protectedWinLazy
+      predicate: play_oops_hand
+      serumPowderPredicate: can_powder
+      maxMulligans: 4
+      params:
+        protection: 1
+        greedy_mulligans: 0
+      outputs:
+        boolean:
+          - isProtected
+      filter: isProtected
+
+    - name: protectedWin
+      predicate: play_oops_hand
+      serumPowderPredicate: can_powder
+      maxMulligans: 4
+      params:
+        protection: 1
+        greedy_mulligans: 4
+      outputs:
+        boolean:
+          - isProtected

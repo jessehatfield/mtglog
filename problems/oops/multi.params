@@ -19,11 +19,13 @@ mtg.problem.log-hands = $problems/oops/runs/multi5/hands.txt
 mtg.problem.spec = $problems/oops/oopsProblemFull.yaml
 mtg.deck.template = $problems/oops/legacyOops.dec
 
-# Evaluation budget: trials per individual * individuals per generation * number of generations
-eval.num-tests = 25
-eval.merge = mean
-pop.subpop.0.size = 100
-generations = 100
+# Normal evaluation budget: trials per individual * individuals per generation * number of generations
+# Adapt/catchup budget: trials * individuals * generations * (generations+1) / 2
+mtg.games = 10
+mtg.adapt-sampling = catchup
+#eval.merge = mean
+pop.subpop.0.size = 30
+generations = 50
 
 #pop.subpop.0.file = $problems/oops/runs/multi5/individuals.in
 #pop.subpop.0.extra-behavior = fill

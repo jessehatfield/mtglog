@@ -424,3 +424,13 @@ hand_maxprotection([H|T], P) :-
     protection(H, P1),
     hand_maxprotection(T, P2),
     P is P1 + P2.
+
+can_powder(HAND, LIBRARY, 0, []) :-
+    member('Serum Powder', HAND),
+    library_contains_win([], LIBRARY).
+can_powder(HAND, LIBRARY, N_BOTTOM, BOTTOM) :-
+    N_BOTTOM > 0,
+    remove('Serum Powder', HAND, MINUS_POWDER),
+    combination(MINUS_POWDER, N_BOTTOM, BOTTOM, _),
+    append(LIBRARY, BOTTOM, POWDER_LIBRARY),
+    library_contains_win([], POWDER_LIBRARY).

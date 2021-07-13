@@ -11,11 +11,11 @@ import java.io.File;
 import java.lang.Integer;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.BiConsumer;
+import java.util.stream.Collectors;
 
 public class PrologEngine {
     private final File prologSrcDir;
@@ -96,28 +96,45 @@ public class PrologEngine {
 
     /**
      * Check whether a specific hand and library permits using a Serum Powder,
-     * if the objective provides a predicate for testing that, or just check
-     * for the existence of a Powder otherwise.
+     * if the objective provides a predicate for testing that, and if so
+     * determine the set of cards to put on the bottom first, if there have
+     * been mulligans already.
      * @param objective The problem to test; sources should already be loaded
      * @param hand The cards in the hand to test
      * @param library The remainder of the library
-     * @return True if this hand contains a Serum Powder and no reason not to use it
+     * @param bottom The number of cards we need to put on the bottom if using Powder
+     * @return null if this hand doesn't contain Serum Powder or can't use it;
+     *         otherwise a list of cards in the hand to put on the bottom
+     *         before using
      */
-    public boolean canSerumPowder(final SingleObjectivePrologProblem objective,
-                                  final String[] hand,
-                                  final String[] library) {
+    public List<String> canSerumPowder(final SingleObjectivePrologProblem objective,
+                                       final String[] hand,
+                                       final String[] library,
+                                       final int bottom) {
         boolean canPowder = containsCard(hand, "Serum Powder");
         if (canPowder) {
             final String predicate = objective.getSerumPowderPredicate();
             if (predicate != null) {
+                final Variable bottomVar = new Variable("Bottom");
                 Term[] queryTerms = new Term[] {
                         Term.stringArrayToList(hand),
-                        Term.stringArrayToList(library)};
+                        Term.stringArrayToList(library),
+                        new org.jpl7.Integer(bottom),
+                        bottomVar};
                 final Query powderQuery = new Query(predicate, queryTerms);
-                canPowder = powderQuery.hasSolution();
+                final Map<String, Term> bindings = powderQuery.oneSolution();
+                if (bindings == null) {
+                    return null;
+                }
+                final Term bottomTerm = bindings.get("Bottom");
+                if (bottomTerm.isList()) {
+                    return Arrays.stream(bottomTerm.listToTermArray())
+                            .map(Term::name)
+                            .collect(Collectors.toList());
+                }
             }
         }
-        return canPowder;
+        return null;
     }
 
     private boolean containsCard(final String[] zone, final String card) {
@@ -146,7 +163,7 @@ public class PrologEngine {
         Results individualResult;
         String[] currentDeck = deck.getShuffled(rng);
         do {
-            // draw a random hand
+            // draw a random full-sized hand
             Deck.shuffle(currentDeck, rng);
             String[] hand = Arrays.copyOfRange(currentDeck, 0, handSize);
             String[] library = Arrays.copyOfRange(currentDeck, handSize, currentDeck.length);
@@ -154,12 +171,30 @@ public class PrologEngine {
             for (final BiConsumer<String[], Results> callback : callbacks) {
                 callback.accept(hand, individualResult);
             }
-            while (!individualResult.isSuccess(0) && canSerumPowder(objective, hand, library)) {
+            while (!individualResult.isSuccess(0)) {
+                final int nBottom = mulligans - (handSize - hand.length);
+                List<String> bottom = canSerumPowder(objective, hand, library, nBottom);
+                if (bottom == null) {
+                    break;
+                }
                 powders++;
-                currentDeck = library;
+                // Start with the remaining library as the new deck
+                currentDeck = new String[library.length + nBottom];
+                System.arraycopy(library, 0, currentDeck, 0, library.length);
+                // remove Powder from hand and put <nBottom> cards on the bottom
+                final List<String> remainingHand = Arrays.asList(hand);
+                final boolean powder = remainingHand.remove("Serum Powder");
+                assert(powder);
+                for (int i = 0; i < nBottom; i++) {
+                    final String bottomCard = bottom.get(i);
+                    final boolean removed = remainingHand.remove(bottomCard);
+                    assert(removed);
+                    currentDeck[library.length + i] = bottomCard;
+                }
+                // draw <handSize> - <mulligans> cards for the next hand
                 Deck.shuffle(currentDeck, rng);
-                hand = Arrays.copyOfRange(currentDeck, 0, handSize);
-                library = Arrays.copyOfRange(currentDeck, handSize, currentDeck.length);
+                hand = Arrays.copyOfRange(currentDeck, 0, handSize - mulligans);
+                library = Arrays.copyOfRange(currentDeck, handSize - mulligans, currentDeck.length);
                 individualResult = testHand(objective, hand, library, deck.getSideboard(), mulligans, powders);
                 for (final BiConsumer<String[], Results> callback : callbacks) {
                     callback.accept(hand, individualResult);

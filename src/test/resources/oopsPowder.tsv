@@ -1,0 +1,18 @@
+handSize	hand	mulligans	powder	bottom
+7	Balustrade Spy, Elvish Spirit Guide, Lotus Petal, Dark Ritual, Agadeem's Awakening, Lotus Petal, Simian Spirit Guide	0	False		.
+7	Balustrade Spy, Elvish Spirit Guide, Lotus Petal, Dark Ritual, Agadeem's Awakening, Lotus Petal, Simian Spirit Guide	1	False		.
+7	Balustrade Spy, Elvish Spirit Guide, Lotus Petal, Dark Ritual, Agadeem's Awakening, Lotus Petal, Simian Spirit Guide	2	False		.
+7	Balustrade Spy, Elvish Spirit Guide, Lotus Petal, Dark Ritual, Agadeem's Awakening, Lotus Petal, Simian Spirit Guide	3	False		.
+7	Balustrade Spy, Elvish Spirit Guide, Lotus Petal, Dark Ritual, Agadeem's Awakening, Lotus Petal, Serum Powder	0	True		.
+7	Balustrade Spy, Elvish Spirit Guide, Lotus Petal, Dark Ritual, Agadeem's Awakening, Lotus Petal, Serum Powder	1	True	Balustrade Spy	.
+7	Balustrade Spy, Elvish Spirit Guide, Lotus Petal, Dark Ritual, Agadeem's Awakening, Lotus Petal, Serum Powder	2	True	Balustrade Spy, Elvish Spirit Guide	.
+7	Balustrade Spy, Elvish Spirit Guide, Lotus Petal, Dark Ritual, Agadeem's Awakening, Lotus Petal, Serum Powder	3	True	Balustrade Spy, Elvish Spirit Guide, Lotus Petal	.
+7	Elvish Spirit Guide, Chrome Mox, Chrome Mox, Narcomoeba, Lotus Petal, Chrome Mox, Balustrade Spy	0	False		.
+7	Elvish Spirit Guide, Chrome Mox, Chrome Mox, Narcomoeba, Lotus Petal, Chrome Mox, Balustrade Spy	1	False		.
+7	Elvish Spirit Guide, Chrome Mox, Chrome Mox, Narcomoeba, Lotus Petal, Chrome Mox, Serum Powder	0	True		.
+7	Elvish Spirit Guide, Chrome Mox, Chrome Mox, Narcomoeba, Lotus Petal, Narcomoeba, Serum Powder	1	True	Narcomoeba
+7	Elvish Spirit Guide, Summoner's Pact, Dread Return, Simian Spirit Guide, Summoner's Pact, Undercity Informer, Chrome Mox	0	False		.
+7	Elvish Spirit Guide, Summoner's Pact, Dread Return, Simian Spirit Guide, Summoner's Pact, Serum Powder, Chrome Mox	0	False		.
+7	Elvish Spirit Guide, Summoner's Pact, Dread Return, Simian Spirit Guide, Summoner's Pact, Serum Powder, Chrome Mox	1	True	Dread Return
+6	Elvish Spirit Guide, Summoner's Pact, Dread Return, Simian Spirit Guide, Summoner's Pact, Serum Powder	0	False		.
+6	Elvish Spirit Guide, Summoner's Pact, Dread Return, Simian Spirit Guide, Summoner's Pact, Serum Powder	1	True	Dread Return

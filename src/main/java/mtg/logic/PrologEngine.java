@@ -182,7 +182,7 @@ public class PrologEngine {
                 currentDeck = new String[library.length + nBottom];
                 System.arraycopy(library, 0, currentDeck, 0, library.length);
                 // remove Powder from hand and put <nBottom> cards on the bottom
-                final List<String> remainingHand = Arrays.asList(hand);
+                final List<String> remainingHand = new ArrayList<>(Arrays.asList(hand));
                 final boolean powder = remainingHand.remove("Serum Powder");
                 assert(powder);
                 for (int i = 0; i < nBottom; i++) {

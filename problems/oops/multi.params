@@ -9,25 +9,26 @@ stat.child.0 = mtg.logic.ec.DecklistWriter
 stat.child.1 = mtg.logic.ec.PopulationWriter
 
 # Output files
-stat.file = $problems/oops/runs/multi5/out.stat
-stat.front = $problems/oops/runs/multi5/front.stat
-stat.child.0.file = $problems/oops/runs/multi5/decklists.txt
-stat.child.1.file = $problems/oops/runs/multi5/individuals.out
-mtg.problem.log-hands = $problems/oops/runs/multi5/hands.txt
+stat.file = $problems/oops/runs/multi6/out.stat
+stat.front = $problems/oops/runs/multi6/front.stat
+stat.child.0.file = $problems/oops/runs/multi6/decklists.txt
+stat.child.1.file = $problems/oops/runs/multi6/individuals.out
+mtg.problem.log-hands = $problems/oops/runs/multi6/hands.txt
 
 # Input files
-mtg.problem.spec = $problems/oops/oopsProblemFull.yaml
+mtg.problem.spec = $problems/oops/oopsProblemFast.yaml
 mtg.deck.template = $problems/oops/legacyOops.dec
 
 # Normal evaluation budget: trials per individual * individuals per generation * number of generations
 # Adapt/catchup budget: trials * individuals * generations * (generations+1) / 2
-mtg.games = 10
-mtg.adapt-sampling = catchup
+# Adapt/sqrt budget: trials * individuals * sum[i from 1 to generations]{sqrt(i)}
+mtg.problem.games = 5
+mtg.problem.adapt-sampling = sqrt-gen
 #eval.merge = mean
-pop.subpop.0.size = 30
-generations = 50
+pop.subpop.0.size = 100
+generations = 100
 
-#pop.subpop.0.file = $problems/oops/runs/multi5/individuals.in
+#pop.subpop.0.file = $problems/oops/runs/multi6/individuals.in
 #pop.subpop.0.extra-behavior = fill
 
 # Parallelism
@@ -55,7 +56,7 @@ pop.subpop.0.species.fitness.conf = 0.9
 breed.reevaluate-elites.0 = true
 
 # Multiobjective problem configuration (TODO: these could be inferred from the spec)
-multi.fitness.num-objectives = 3
+multi.fitness.num-objectives = 2
 multi.fitness.min = 0
 multi.fitness.max = 1
 

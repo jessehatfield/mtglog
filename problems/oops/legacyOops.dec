@@ -33,7 +33,7 @@ Turntimber Symbiosis
 
 //protection spells organized by color
 1-4 Cabal Therapy > Thoughtseize
-Unmask > Grief
+Grief > Unmask
 Pact of Negation > Force of Will > Misdirection
 Chancellor of the Annex > Silence > Orim's Chant
 Leyline of Lifeforce > Veil of Summer
@@ -45,3 +45,15 @@ Empty the Warrens
 //misc
 Bridge from Below
 Serum Powder
+
+//things requiring sacrifices
+Culling the Weak
+Burnt Offering > Sacrifice
+Eldritch Evolution
+
+//creatures for sacrificing
+Burning-Tree Emissary
+Quirion Sentinel
+Priest of Gix
+Priest of Urabrask
+Vine Dryad > Endurance

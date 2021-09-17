@@ -48,7 +48,9 @@ win(HAND, DECK, SB, SEQUENCE, PROTECTION) :-
     belcher(HAND, DECK, SEQUENCE, PROTECTION);
     wish_warrens(HAND, DECK, SB, SEQUENCE, STORM, PROTECTION), STORM >= 4, canpass(SEQUENCE);
     wish_spy(HAND, DECK, SB, SEQUENCE, PROTECTION);
-    wish_informer(HAND, DECK, SB, SEQUENCE, PROTECTION).
+    wish_informer(HAND, DECK, SB, SEQUENCE, PROTECTION);
+    ee_informer(HAND, DECK, SB, SEQUENCE, PROTECTION);
+    ee_spy(HAND, DECK, SB, SEQUENCE, PROTECTION).
 win_oops(HAND, DECK, SB, SEQUENCE, PROTECTION) :-
     informer(HAND, DECK, SEQUENCE, PROTECTION);
     spy(HAND, DECK, SEQUENCE, PROTECTION);
@@ -103,7 +105,7 @@ informer(START_HAND, START_DECK, SEQUENCE, PROTECTION) :-
     informer(START_HAND, [], [0,0,0,0,0,0,0], [], 0, START_DECK, SEQUENCE, PROTECTION).
 informer(H1, B1, M1, G1, S1, D1, SEQUENCE, PROTECTION) :-
     % Verify that its possible in the best case scenario for mana sequencing
-    member('Undercity Informer', H1),
+    member_or_tutor('Undercity Informer', H1, D1),
     prune(4, H1, B1, G1, M1),
     canInformer(H1, G1, D1),
     informerCombo(H1, B1, D1, G1, M1, [], _, _),
@@ -124,7 +126,7 @@ informer_mill(H1, B1, M1, G1, S1, D1, H4, B3, M5, G3, S3, D3, SEQUENCE_PRIOR, SE
     append(SEQUENCE3, SEQUENCE4, SEQUENCE_FINAL),
     spendGeneric(1, M4, M5).
 informer_mill(START_HAND, START_DECK, SEQUENCE, PROTECTION) :-
-    member('Undercity Informer', START_HAND),
+    member_or_tutor('Undercity Informer', START_HAND, START_DECK),
     informer_mill(START_HAND, [], [0,0,0,0,0,0,0], [], 0, START_DECK, _, _, _, _, _, [], SEQUENCE, PROTECTION),
     !.
 
@@ -132,7 +134,7 @@ spy(START_HAND, START_DECK, SEQUENCE, PROTECTION) :-
     spy(START_HAND, [], [0,0,0,0,0,0,0], [], 0, START_DECK, SEQUENCE, PROTECTION).
 spy(H1, B1, M1, G1, S1, D1, SEQUENCE, PROTECTION) :-
     % Verify that its possible in the best case scenario for mana sequencing
-    member('Balustrade Spy', H1),
+    member_or_tutor('Balustrade Spy', H1, D1),
     prune(4, H1, B1, G1, M1),
     canInformer(H1, G1, D1),
     informerCombo(H1, ['Balustrade Spy'|B1], D1, G1, M1, [], _, _),
@@ -150,15 +152,15 @@ spy_mill(H1, B1, M1, G1, S1, D1, H3, B3, M3, G2, S2, D2, SEQUENCE_PRIOR, SEQUENC
     append(SEQUENCE2, ['Balustrade Spy'], SEQUENCE_FINAL),
     append(B2, ['Balustrade Spy'], B3).
 spy_mill(START_HAND, START_DECK, SEQUENCE, PROTECTION) :-
-    member('Balustrade Spy', START_HAND),
+    member_or_tutor('Balustrade Spy', START_HAND, START_DECK),
     spy_mill(START_HAND, [0,0,0,0,0,0,0], [], 0, START_DECK, _, _, _, _, _, [], SEQUENCE, PROTECTION),
     !.
 
 breakfast(START_HAND, START_DECK, SEQUENCE, PROTECTION) :-
     breakfast(START_HAND, [], [0,0,0,0,0,0,0], [], 0, START_DECK, SEQUENCE, PROTECTION).
 breakfast(H1, B1, M1, G1, S1, D1, SEQUENCE, PROTECTION) :-
-    member('Cephalid Illusionist', H1),
-    member('Shuko', H1),
+    member_or_tutor('Cephalid Illusionist', H1, D1),
+    member_or_tutor('Shuko', H1, D1),
     canInformer(H1, G1, D1),
     breakfast_mill(H1, B1, M1, G1, S1, D1, H2, B2, M2, G2, _, D2, [], SEQUENCE1, P1),
     informerCombo(H2, B2, D2, G2, M2, SEQUENCE1, SEQUENCE, P2),
@@ -174,8 +176,8 @@ breakfast_mill(H1, B1, M1, G1, S1, D1, H4, B3, M3, G2, S2, D2, SEQUENCE_PRIOR, S
     append(SEQUENCE2, ['Shuko', 'Cephalid Illusionist'], SEQUENCE_FINAL),
     append(B2, ['Shuko', 'Cephalid Illusionist'], B3).
 breakfast_mill(START_HAND, START_DECK, SEQUENCE, PROTECTION) :-
-    member('Shuko', START_HAND),
-    member('Cephalid Illusionist', START_HAND),
+    member_or_tutor('Shuko', START_HAND, START_DECK),
+    member_or_tutor('Cephalid Illusionist', START_HAND, START_DECK),
     breakfast_mill(START_HAND, [], [0,0,0,0,0,0,0], [], 0, START_DECK, _, _, _, _, _, [], SEQUENCE, PROTECTION),
     !.
 
@@ -270,6 +272,63 @@ wish_informer_mill(START_HAND, START_DECK, SB, SEQUENCE) :-
     member('Undercity Informer', SB),
     member('Living Wish', START_HAND),
     wish_informer_mill(START_HAND, [], [0,0,0,0,0,0,0], [], 0, START_DECK, _, _, _, _, _, [], SEQUENCE),
+    !.
+
+ee_informer(START_HAND, START_DECK, _, SEQUENCE, PROTECTION) :-
+    member('Undercity Informer', START_DECK),
+    ee_informer(START_HAND, [], [0,0,0,0,0,0,0], [], 0, START_DECK, SEQUENCE, PROTECTION).
+ee_informer(H1, B1, M1, G1, S1, D1, SEQUENCE, PROTECTION) :-
+    % Verify that its possible in the best case scenario for mana sequencing
+    member('Eldritch Evolution', H1),
+    prune(3, H1, B1, G1, M1),
+    canInformer(H1, G1, D1),
+    informerCombo(H1, B1, D1, G1, M1, [], _, _),
+    % Then attempt it for real
+    makemana([H1, B1, M1, G1, S1, D1, 0], [H2, B2, M2, G2, S2, D2, P2], [], SEQUENCE1),
+    remove('Eldritch Evolution', H2, H3),
+    spend([0, 0, 0, 0, 2, 0, 1], M2, M3),
+    sacrifice_creature(CREATURE, [H3, B2, M3, G2, S2, D2, P2], [H4, B3, M4, G3, S3, D3, P3], SAC_SEQUENCE),
+    append(SEQUENCE1, ['Eldritch Evolution'], SEQUENCE2),
+    append(SEQUENCE2, SAC_SEQUENCE, SEQUENCE3),
+    append(SEQUENCE3, ['-> Undercity Informer'], SEQUENCE4),
+    % Creature should cost >= 1
+    card(CREATURE, DATA),
+    list_to_assoc(DATA, CARD),
+    get_assoc(cmc, CARD, CMC),
+    CMC >= 1,
+    remove('Undercity Informer', D3, D4),
+    % Make 1 more, activate
+    makemana([H4, B3, M4, G3, S3, D4, P3], [H5, B4, M5, G4, _, D5, P4], SEQUENCE4, SEQUENCE5),
+    spendGeneric(1, M5, M6),
+    informerCombo(H5, B4, D5, ['Undercity Informer'|G4], M6, SEQUENCE5, SEQUENCE, P5),
+    PROTECTION is P4 + P5,
+    !.
+
+ee_spy(START_HAND, START_DECK, _, SEQUENCE, PROTECTION) :-
+    member('Balustrade Spy', START_DECK),
+    ee_spy(START_HAND, [], [0,0,0,0,0,0,0], [], 0, START_DECK, SEQUENCE, PROTECTION).
+ee_spy(H1, B1, M1, G1, S1, D1, SEQUENCE, PROTECTION) :-
+    % Verify that its possible in the best case scenario for mana sequencing
+    member('Eldritch Evolution', H1),
+    prune(3, H1, B1, G1, M1),
+    canInformer(H1, G1, D1),
+    informerCombo(H1, B1, D1, G1, M1, [], _, _),
+    % Then attempt it for real
+    makemana([H1, B1, M1, G1, S1, D1, 0], [H2, B2, M2, G2, S2, D2, P2], [], SEQUENCE1),
+    remove('Eldritch Evolution', H2, H3),
+    spend([0, 0, 0, 0, 2, 0, 1], M2, M3),
+    sacrifice_creature(CREATURE, [H3, B2, M3, G2, S2, D2, P2], [H4, B3, M4, G3, _, D3, P3], SAC_SEQUENCE),
+    append(SEQUENCE1, ['Eldritch Evolution'], SEQUENCE2),
+    append(SEQUENCE2, SAC_SEQUENCE, SEQUENCE3),
+    append(SEQUENCE3, ['-> Balustrade Spy'], SEQUENCE4),
+    % Creature should cost >= 2
+    card(CREATURE, DATA),
+    list_to_assoc(DATA, CARD),
+    get_assoc(cmc, CARD, CMC),
+    CMC >= 2,
+    remove('Balustrade Spy', D3, D4),
+    informerCombo(H4, ['Balustrade Spy'|B3], D4, G3, M4, SEQUENCE4, SEQUENCE, P4),
+    PROTECTION is P3 + P4,
     !.
 
 informerCombo(HAND, BOARD, LIBRARY, START_GY, MANA, PRIOR_SEQUENCE, TOTAL_SEQUENCE, PROTECTION) :-

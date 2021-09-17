@@ -5,23 +5,24 @@ makemana(START_STATE, START_STATE, _, []).
 makemana([START_HAND, START_BOARD, START_MANA, START_GY, START_STORM, START_DECK, START_PROTECTION],
 	[END_HAND, END_BOARD, END_MANA, END_GY, END_STORM, END_DECK, END_PROTECTION],
 	PRIOR_SEQUENCE,
-	[NAME | T]) :-
+    NEW_SEQUENCE) :-
     member(NAME, START_HAND),
     check_timing(NAME, PRIOR_SEQUENCE),
     card(NAME, DATA),
     list_to_assoc(DATA, CARD),
     get_assoc(cost, CARD, COST),
     remove_first(NAME, START_HAND, NEXT_HAND),
-    append(PRIOR_SEQUENCE, [NAME], CAST_SEQUENCE),
     spend(COST, START_MANA, NEXT_MANA),
-    cast(NAME, YIELD,
+    cast(NAME, YIELD, EXTRA_STEPS,
     	[NEXT_HAND, START_BOARD, NEXT_MANA, START_GY, START_STORM, START_DECK, START_PROTECTION],
     	[CAST_HAND, CAST_BOARD, CAST_MANA, CAST_GY, CAST_STORM, CAST_DECK, CAST_PROTECTION]),
+    append(PRIOR_SEQUENCE, [NAME|EXTRA_STEPS], CAST_SEQUENCE),
     addmana(YIELD, CAST_MANA, RESULT_MANA),
     makemana([CAST_HAND, CAST_BOARD, RESULT_MANA, CAST_GY, CAST_STORM, CAST_DECK, CAST_PROTECTION],
 	[END_HAND, END_BOARD, END_MANA, END_GY, END_STORM, END_DECK, END_PROTECTION],
         CAST_SEQUENCE,
-	T).
+	NEXT_SEQUENCE),
+    append([NAME | EXTRA_STEPS], NEXT_SEQUENCE, NEW_SEQUENCE).
 
 check_timing(CARDNAME, ALREADY_CAST) :-
     check_castfirst(CARDNAME, ALREADY_CAST),
@@ -55,7 +56,7 @@ makemana_goal(TARGET_CARD_NAME,
         PRIOR_SEQUENCE,
 	COMBINED_SEQUENCE) :-
     % Verify that we have the target and could theoretically get the mana and colors to cast it
-    member(TARGET_CARD_NAME, START_HAND),
+    member_or_tutor(TARGET_CARD_NAME, START_HAND, START_DECK),
     card(TARGET_CARD_NAME, TARGET_CARD_DATA),
     list_to_assoc(TARGET_CARD_DATA, TARGET_CARD),
     get_assoc(cost, TARGET_CARD, TARGET_COST),
@@ -74,10 +75,10 @@ makemana_goal(TARGET_CARD_NAME,
     list_to_assoc(DATA, CARD),
     get_assoc(cost, CARD, COST),
     spend(COST, START_MANA, NEXT_MANA),
-    append(PRIOR_SEQUENCE, [NAME], INTERMEDIATE_SEQUENCE),
-    cast(NAME, YIELD,
+    cast(NAME, YIELD, EXTRA_STEPS,
     	[NEXT_HAND, START_BOARD, NEXT_MANA, START_GY, START_STORM, START_DECK, START_PROTECTION],
     	[CAST_HAND, CAST_BOARD, CAST_MANA, CAST_GY, CAST_STORM, CAST_DECK, CAST_PROTECTION]),
+    append(PRIOR_SEQUENCE, [NAME|EXTRA_STEPS], INTERMEDIATE_SEQUENCE),
     addmana(YIELD, CAST_MANA, RESULT_MANA),
     makemana_goal(TARGET_CARD_NAME,
         [CAST_HAND, CAST_BOARD, RESULT_MANA, CAST_GY, CAST_STORM, CAST_DECK, CAST_PROTECTION],
@@ -151,15 +152,13 @@ prune(TOTAL_MANA, HAND, BOARD, GY, FLOATING) :-
     total(FLOATING, CMC),
     DIFFERENCE is TOTAL_MANA - CMC,
     prune(DIFFERENCE, HAND, BOARD, GY).
-total([], 0).
-total([H | T], SUM) :-
-    total(T, PARTIAL),
-    SUM is H + PARTIAL.
 % Require that the total possible protection is at least a certain number
 prune_protection(MIN_PROTECTION, []) :-
    MIN_PROTECTION < 1.
 prune_protection(MIN_PROTECTION, [H|T]) :-
-    card_key_value_default(H, protection, PROTECTION, 0),
+    card_key_value_default(H, protection, IS_PROTECTION, 0),
+    card_key_value_default(H, find_protection, FIND_PROTECTION, 0),
+    PROTECTION is max(IS_PROTECTION, FIND_PROTECTION),
     MIN_REMAINING is MIN_PROTECTION - PROTECTION,
     prune_protection(MIN_REMAINING, T).
 

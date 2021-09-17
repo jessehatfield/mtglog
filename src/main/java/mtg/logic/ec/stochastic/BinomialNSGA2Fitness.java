@@ -21,7 +21,8 @@ import java.util.Arrays;
  * sampled success/failure counts to refine that estimate over multiple
  * generations.
  */
-public class BinomialNSGA2Fitness extends NSGA2MultiObjectiveFitness implements IndividualDependentFitness {
+public class BinomialNSGA2Fitness extends NSGA2MultiObjectiveFitness
+        implements IndividualDependentFitness, AdaptiveTrialsFitness {
     public static String P_NUM_SAMPLES = "samples";
     public static String P_FITNESS_STAT = "stat";
     public static String P_CONFIDENCE = "conf";
@@ -293,5 +294,12 @@ public class BinomialNSGA2Fitness extends NSGA2MultiObjectiveFitness implements 
         other.confidence = confidence;
         other.fitnessStat = fitnessStat;
         return other;
+    }
+
+    @Override
+    public void setNTrials(int n) {
+        for (int i = 0; i < numTrials.length; i++) {
+            numTrials[i] = n;
+        }
     }
 }

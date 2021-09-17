@@ -31,10 +31,10 @@ draw(DECK, HAND_SIZE, HAND, LIBRARY) :-
 %    protected_win(MULL_HAND, MULL_LIBRARY, SB, MIN_PROTECTION, 3, SEQ, PROTECTION),
 %    !.
 
-get_or_default(DICT, KEY, _, VAR) :-
-    is_dict(DICT), get_dict(KEY, DICT, VAR).
-get_or_default(DICT, KEY, DEFAULT, DEFAULT) :-
-    is_dict(DICT), not(get_dict(KEY, DICT, _)).
+%get_or_default(DICT, KEY, _, VAR) :-
+%    is_dict(DICT), get_dict(KEY, DICT, VAR).
+%get_or_default(DICT, KEY, DEFAULT, DEFAULT) :-
+%    is_dict(DICT), not(get_dict(KEY, DICT, _)).
 
 play_oops_game(DECK, SB, MAX_MULLIGANS, MIN_PROTECTION, GREEDY_MULLIGANS, FINAL_HAND, SEQ, N_MULLIGANS, PROTECTION, RESULT) :-
     (N_MULLIGANS < GREEDY_MULLIGANS, REQUIRED_PROTECTION is MIN_PROTECTION; N_MULLIGANS >= GREEDY_MULLIGANS, REQUIRED_PROTECTION is 0),
@@ -67,14 +67,14 @@ play_oops_game(DECK, SB, MAX_MULLIGANS, MIN_PROTECTION, GREEDY_MULLIGANS, HAND, 
 %    format('\t~d : ~w\n', [RESULT, SEQ]),
     !.
 
-combination(X, 0, [], X).
-combination([H|T], N, [H|CHOICE], REMAINDER) :-
-    N > 0,
-    M is N - 1,
-    combination(T, M, CHOICE, REMAINDER).
-combination([H|T], N, CHOICE, [H|REMAINDER]) :-
-    N > 0,
-    combination(T, N, CHOICE, REMAINDER).
+%combination(X, 0, [], X).
+%combination([H|T], N, [H|CHOICE], REMAINDER) :-
+%    N > 0,
+%    M is N - 1,
+%    combination(T, M, CHOICE, REMAINDER).
+%combination([H|T], N, CHOICE, [H|REMAINDER]) :-
+%    N > 0,
+%    combination(T, N, CHOICE, REMAINDER).
 
 play_games(N, DECK, HAND_SIZE, MAX_MULLIGANS, MIN_PROTECTION, GREEDY_MULLIGANS, HANDS, SEQS, PROT_COUNTS, RESULTS) :-
     play_games(N, DECK, [], HAND_SIZE, MAX_MULLIGANS, MIN_PROTECTION, GREEDY_MULLIGANS, HANDS, SEQS, PROT_COUNTS, RESULTS).

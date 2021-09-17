@@ -23,6 +23,7 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <maven.compiler.source>1.8</maven.compiler.source>
     <maven.compiler.target>1.8</maven.compiler.target>
+    <log4j.version>2.14.1</log4j.version>
   </properties>
 
   <dependencies>
@@ -46,6 +47,16 @@
       <groupId>org.apache.commons</groupId>
       <artifactId>commons-math3</artifactId>
       <version>3.6.1</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.logging.log4j</groupId>
+      <artifactId>log4j-api</artifactId>
+      <version>${log4j.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.logging.log4j</groupId>
+      <artifactId>log4j-core</artifactId>
+      <version>${log4j.version}</version>
     </dependency>
 
     <!-- testing -->
@@ -83,6 +94,25 @@
                             <systemProperty>
                                 <key>prolog.src.dir</key>
                                 <value>${project.basedir}/src/main/prolog</value>
+                            </systemProperty>
+                        </systemProperties>
+                    </configuration>
+                </execution>
+                <execution>
+                    <id>goldfish-debug</id>
+                    <goals>
+                        <goal>java</goal>
+                    </goals>
+                    <configuration>
+                        <mainClass>mtg.logic.ec.MtgProblem</mainClass>
+                        <systemProperties>
+                            <systemProperty>
+                                <key>prolog.src.dir</key>
+                                <value>${project.basedir}/src/main/prolog</value>
+                            </systemProperty>
+                            <systemProperty>
+                                <key>log4j2.level</key>
+                                <value>debug</value>
                             </systemProperty>
                         </systemProperties>
                     </configuration>

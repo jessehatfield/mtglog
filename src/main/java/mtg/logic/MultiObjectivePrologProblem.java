@@ -25,6 +25,7 @@ public class MultiObjectivePrologProblem implements Serializable, PrologProblem 
 
     private String name;
     private List<SingleObjectivePrologProblem> objectives;
+    private List<SecondaryObjective> secondaryObjectives = new ArrayList<>();
     private List<String> sources;
 
     @Override
@@ -53,6 +54,14 @@ public class MultiObjectivePrologProblem implements Serializable, PrologProblem 
                 }
             }
         }
+    }
+
+    public List<SecondaryObjective> getSecondaryObjectives() {
+        return secondaryObjectives;
+    }
+
+    public void setSecondaryObjectives(final List<SecondaryObjective> secondaryObjectives) {
+        this.secondaryObjectives = secondaryObjectives;
     }
 
     public void setSources(final List<String> sources) {

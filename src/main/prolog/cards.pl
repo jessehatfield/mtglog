@@ -5,13 +5,12 @@
 % To implement:
 % Land Grant
 % make Manamorphose draw a card (doesn't it already?)
-% Culling the Weak
 % Wish for mana?
 % Cast creatures just for Dread Return (have we done that yet?)
 % Multiple Bridge from Below
 % Casting the land/spells (e.g. Turntimber Symbiosis)
 % Finale of Devastation
-% Neoform and Eldritch Evolution
+% Once Upon a Time
 
 % Placeholder
 card('Unknown', [
@@ -161,7 +160,56 @@ card('Tinder Wall', [
     types  - [creature],
     spell  - 1,
     board  - 0,
-    gy     - 1
+    gy     - 1,
+    options - true
+]).
+card('Tinder Wall_unused', [
+    cost   - [0, 0, 0, 0, 1, 0, 0],
+    yield  - [0, 0, 0, 0, 0, 0, 0],
+    net    - 0,
+    colors - [g],
+    types  - [creature],
+    spell  - 1,
+    board  - 1,
+    gy     - 0,
+    cmc    - 1,
+    restricted - true
+]).
+card('Culling the Weak', [
+    cost   - [0, 0, 1, 0, 0, 0, 0],
+    yield  - [0, 0, 4, 0, 0, 0, 0],
+    net    - 3,
+    colors - [b],
+    types  - [],
+    spell  - 1,
+    board  - 0,
+    gy     - 1,
+    best   - [0, 0, 4, 0, 0, 0, 0],
+    restricted - true
+]).
+card('Sacrifice', [
+    cost   - [0, 0, 1, 0, 0, 0, 0],
+    yield  - [0, 0, 0, 0, 0, 0, 0],
+    net    - 0,
+    colors - [b],
+    types  - [],
+    spell  - 1,
+    board  - 0,
+    gy     - 1,
+    best   - [0, 0, 4, 0, 0, 0, 0],
+    restricted - true
+]).
+card('Burnt Offering', [
+    cost   - [0, 0, 1, 0, 0, 0, 0],
+    yield  - [0, 0, 0, 0, 0, 0, 0],
+    net    - 0,
+    colors - [b],
+    types  - [],
+    spell  - 1,
+    board  - 0,
+    gy     - 1,
+    best   - [0, 0, 4, 4, 0, 0, 0],
+    restricted - true
 ]).
 
 %card('Lion\'s Eye Diamond', [
@@ -219,21 +267,80 @@ card('Wild Cantor', [
     cost   - [0, 0, 0, 0, 0, 0, 0, 1],
     yield  - [0, 0, 0, 0, 0, 0, 1],
     net    - 0,
-    colors - [r,g],
+    colors - [r, g],
     types  - [creature],
     spell  - 1,
     board  - 0,
-    gy     - 1
+    gy     - 1,
+    options - true
+]).
+card('Wild Cantor_unused', [
+    cost   - [0, 0, 0, 0, 0, 0, 0, 1],
+    yield  - [0, 0, 0, 0, 0, 0, 0],
+    net    - 0,
+    colors - [r, g],
+    types  - [creature],
+    spell  - 1,
+    board  - 1,
+    gy     - 0,
+    cmc    - 1,
+    restricted - true
 ]).
 card('Burning-Tree Emissary', [
     cost   - [0, 0, 0, 0, 0, 0, 0, 2],
     yield  - [0, 0, 0, 1, 1, 0, 0],
     net    - 0,
-    colors - [r,g],
+    colors - [r, g],
     types  - [creature],
     spell  - 1,
     board  - 1,
-    gy     - 0
+    gy     - 0,
+    cmc    - 2
+]).
+card('Quirion Sentinel', [
+    cost   - [0, 0, 0, 0, 1, 0, 1],
+    yield  - [0, 0, 0, 0, 0, 0, 1],
+    net    - 0,
+    colors - [g],
+    types  - [creature],
+    spell  - 1,
+    board  - 1,
+    gy     - 0,
+    cmc    - 2
+]).
+card('Priest of Gix', [
+    cost   - [0, 0, 1, 0, 0, 0, 2],
+    yield  - [0, 0, 3, 0, 0, 0, 0],
+    net    - 0,
+    colors - [b],
+    types  - [creature],
+    spell  - 1,
+    board  - 1,
+    gy     - 0,
+    cmc    - 3
+]).
+card('Priest of Urabrask', [
+    cost   - [0, 0, 0, 1, 0, 0, 2],
+    yield  - [0, 0, 0, 3, 0, 0, 0],
+    net    - 0,
+    colors - [r],
+    types  - [creature],
+    spell  - 1,
+    board  - 1,
+    gy     - 0,
+    cmc    - 3
+]).
+card('Vine Dryad', [
+    cost   - [0, 0, 0, 0, 0, 0, 0],
+    yield  - [0, 0, 0, 0, 0, 0, 0],
+    net    - 0,
+    colors - [g],
+    types  - [creature],
+    spell  - 1,
+    board  - 1,
+    gy     - 0,
+    cmc    - 4,
+    restricted -true
 ]).
 
 card('Summoner\'s Pact', [
@@ -247,6 +354,57 @@ card('Summoner\'s Pact', [
     gy     - 1,
     % Best-case scenario is optimistic -- Wild Cantor can produce any color if given spare {R/G}
     best   - [0, 0, 0, 0, 0, 0, 1]
+]).
+
+card('Once Upon a Time', [
+    cost   - [0, 0, 0, 0, 0, 0, 0],
+    yield  - [0, 0, 0, 0, 0, 0, 0],
+    net    - 1,
+    colors - [g],
+    types  - [],
+    spell  - 1,
+    board  - 0,
+    gy     - 1,
+    % Best-case scenario is optimistic -- Wild Cantor can produce any color if given spare {R/G}
+    best   - [0, 0, 0, 0, 0, 0, 1],
+    restricted - true,
+    find_protection - 1
+]).
+card('Once Upon a Time_nonfree', [
+    cost   - [0, 0, 0, 0, 1, 0, 1],
+    yield  - [0, 0, 0, 0, 0, 0, 0],
+    net    - 0,
+    colors - [g],
+    types  - [],
+    spell  - 1,
+    board  - 0,
+    gy     - 1,
+    % Best-case scenario is optimistic -- Wild Cantor can produce any color if given spare {R/G}
+    best   - [0, 0, 0, 0, 0, 0, 1],
+    restricted - true
+]).
+
+card('Eldritch Evolution', [
+    cost   - [0, 0, 0, 0, 2, 0, 1],
+    yield  - [0, 0, 0, 0, 0, 0, 0],
+    net    - 1,
+    colors - [g],
+    types  - [sorcery],
+    spell  - 1,
+    board  - 0,
+    gy     - 1,
+    restricted - true
+]).
+card('Neoform', [
+    cost   - [0, 1, 0, 0, 1, 0, 0],
+    yield  - [0, 0, 0, 0, 0, 0, 0],
+    net    - 1,
+    colors - [u, g],
+    types  - [sorcery],
+    spell  - 1,
+    board  - 0,
+    gy     - 1,
+    restricted - true
 ]).
 
 % Generic land/spell pattern
@@ -461,7 +619,7 @@ card('Pact of Negation', [
     protection - 1
 ]).
 card('Force of Will', [
-    cost   - [0, 2, 0, 0, 0, 0, 3],
+    cost   - [0, 0, 0, 0, 0, 0, 0],
     yield  - [0, 0, 0, 0, 0, 0, 0],
     net    - 0,
     colors - [u],
@@ -469,10 +627,11 @@ card('Force of Will', [
     spell  - 0,
     board  - 0,
     gy     - 0,
-    protection - 1
+    protection - 1,
+    restricted - true
 ]).
 card('Misdirection', [
-    cost   - [0, 2, 0, 0, 0, 0, 3],
+    cost   - [0, 0, 0, 0, 0, 0, 0],
     yield  - [0, 0, 0, 0, 0, 0, 0],
     net    - 0,
     colors - [u],
@@ -480,10 +639,11 @@ card('Misdirection', [
     spell  - 0,
     board  - 0,
     gy     - 0,
-    protection - 1
+    protection - 1,
+    restricted - true
 ]).
 card('Unmask', [
-    cost   - [0, 0, 1, 0, 0, 0, 3],
+    cost   - [0, 0, 0, 0, 0, 0, 0],
     yield  - [0, 0, 0, 0, 0, 0, 0],
     net    - 0,
     colors - [b],
@@ -491,10 +651,11 @@ card('Unmask', [
     spell  - 1,
     board  - 0,
     gy     - 1,
-    protection - 1
+    protection - 1,
+    restricted - true
 ]).
 card('Grief', [
-    cost   - [0, 0, 2, 0, 0, 0, 2],
+    cost   - [0, 0, 0, 0, 0, 0, 0],
     yield  - [0, 0, 0, 0, 0, 0, 0],
     net    - 0,
     colors - [b],
@@ -502,7 +663,9 @@ card('Grief', [
     spell  - 1,
     board  - 0,
     gy     - 1,
-    protection - 1
+    cmc    - 4,
+    protection - 1,
+    restricted - true
 ]).
 card('Chancellor of the Annex', [
     cost   - [0, 0, 0, 0, 0, 0, 0],
@@ -582,12 +745,12 @@ card('Defense Grid', [
     protection - 1
 ]).
 
-% Cards we don't cast but might search for for Chrome Mox or otherwise use
+% Cards we don't directly use but might search for for Chrome Mox or otherwise use
 card('Spiritmonger', [
     cost   - [0, 0, 1, 0, 1, 0, 3],
     yield  - [0, 0, 0, 0, 0, 0, 0],
     net    - 0,
-    colors - [bg],
+    colors - [b, g],
     types  - [creature],
     spell  - -1,
     board  - 0,
@@ -597,11 +760,24 @@ card('The Mimeoplasm', [
     cost   - [0, 1, 1, 0, 1, 0, 2],
     yield  - [0, 0, 0, 0, 0, 0, 0],
     net    - 0,
-    colors - [ubg],
+    colors - [u, b, g],
     types  - [creature],
     spell  - -1,
     board  - 0,
     gy     - 0
+]).
+card('Endurance', [
+    cost   - [0, 0, 0, 0, 0, 0, 0],
+    yield  - [0, 0, 0, 0, 0, 0, 0],
+    net    - 0,
+    colors - [g],
+    types  - [creature],
+    spell  - 1,
+    board  - 0,
+    gy     - 1,
+    cmc    - 3,
+    protection - 0,
+    restricted - true
 ]).
 
 card('Serum Powder', [
@@ -665,7 +841,11 @@ landspell('Turntimber Symbiosis', g, [0, 0, 0, 0, 1, 0, 0]).
 
 % Special rules for casting / making mana
 
-specialcast(NAME, YIELD, OLD_STATE, NEW_STATE) :-
+specialcast(NAME, YIELD, OLD_STATE, NEW_STATE, EXTRA_STEPS) :-
+    NAME == 'Culling the Weak', culling(YIELD, OLD_STATE, NEW_STATE, EXTRA_STEPS);
+    NAME == 'Sacrifice', sacrifice(YIELD, OLD_STATE, NEW_STATE, EXTRA_STEPS);
+    NAME == 'Burnt Offering', burnt_offering(YIELD, OLD_STATE, NEW_STATE, EXTRA_STEPS).
+specialcast(NAME, YIELD, OLD_STATE, NEW_STATE, []) :-
     NAME == 'Lion\'s Eye Diamond', led(YIELD, OLD_STATE, NEW_STATE);
     NAME == 'Cabal Ritual', cabal(YIELD, OLD_STATE, NEW_STATE);
     NAME == 'Chrome Mox', cmox(YIELD, OLD_STATE, NEW_STATE);
@@ -676,11 +856,19 @@ specialcast(NAME, YIELD, OLD_STATE, NEW_STATE) :-
     NAME == 'Manamorphose', cantrip('Manamorphose', YIELD, OLD_STATE, NEW_STATE);
     NAME == 'Street Wraith', cantrip('Street Wraith', YIELD, OLD_STATE, NEW_STATE);
 %    NAME == 'Gitaxian Probe', cantrip('Gitaxian Probe', YIELD, OLD_STATE, NEW_STATE). (banned)
-    NAME == 'Unmask', pitch('Unmask', b, YIELD, OLD_STATE, NEW_STATE);
-    NAME == 'Grief', pitch('Grief', b, YIELD, OLD_STATE, NEW_STATE);
-    NAME == 'Force of Will', pitch('Force of Will', u, YIELD, OLD_STATE, NEW_STATE);
-    NAME == 'Misdirection', pitch('Misdirection', u, YIELD, OLD_STATE, NEW_STATE);
-    NAME == 'Chancellor of the Annex', chancellor_annex(YIELD, OLD_STATE, NEW_STATE).
+    NAME == 'Chancellor of the Annex', chancellor_annex(YIELD, OLD_STATE, NEW_STATE);
+    NAME == 'Wild Cantor', cantor_unused(YIELD, OLD_STATE, NEW_STATE);
+    NAME == 'Tinder Wall', tinder_unused(YIELD, OLD_STATE, NEW_STATE);
+    NAME == 'Once Upon a Time', once_upon_a_time(YIELD, OLD_STATE, NEW_STATE).
+specialcast(NAME, YIELD, OLD_STATE, NEW_STATE, [STEP]) :-
+    (
+        NAME == 'Unmask', pitch('Unmask', b, YIELD, OLD_STATE, NEW_STATE, PITCH);
+        NAME == 'Grief', pitch('Grief', b, YIELD, OLD_STATE, NEW_STATE, PITCH);
+        NAME == 'Endurance', pitch('Endurance', g, YIELD, OLD_STATE, NEW_STATE, PITCH);
+        NAME == 'Force of Will', pitch('Force of Will', u, YIELD, OLD_STATE, NEW_STATE, PITCH);
+        NAME == 'Misdirection', pitch('Misdirection', u, YIELD, OLD_STATE, NEW_STATE, PITCH);
+        NAME == 'Vine Dryad', pitch('Vine Dryad', g, YIELD, OLD_STATE, NEW_STATE, PITCH)
+    ), atom_concat('pitch ', PITCH, STEP).
 
 led(YIELD,
     [START_HAND, START_BOARD, START_MANA, START_GY, START_STORM, START_DECK, PROTECTION],
@@ -755,6 +943,79 @@ chancellor(YIELD,
         [START_HAND, START_BOARD, START_MANA, START_GY, START_STORM, START_DECK, PROTECTION],
         [END_HAND, END_BOARD, END_MANA, END_GY, END_STORM, END_DECK, PROTECTION]).
 
+cantor_unused(YIELD,
+    [START_HAND, START_BOARD, START_MANA, START_GY, START_STORM, START_DECK, PROTECTION],
+    [END_HAND, END_BOARD, END_MANA, END_GY, END_STORM, END_DECK, PROTECTION]) :-
+    normalcast('Wild Cantor_unused', YIELD,
+        [['Wild Cantor_unused'|START_HAND], START_BOARD, START_MANA, START_GY, START_STORM, START_DECK, PROTECTION],
+        [END_HAND, END_BOARD, END_MANA, END_GY, END_STORM, END_DECK, PROTECTION]).
+tinder_unused(YIELD,
+    [START_HAND, START_BOARD, START_MANA, START_GY, START_STORM, START_DECK, PROTECTION],
+    [END_HAND, END_BOARD, END_MANA, END_GY, END_STORM, END_DECK, PROTECTION]) :-
+    normalcast('Tinder Wall_unused', YIELD,
+        [['Tinder Wall_unused'|START_HAND], START_BOARD, START_MANA, START_GY, START_STORM, START_DECK, PROTECTION],
+        [END_HAND, END_BOARD, END_MANA, END_GY, END_STORM, END_DECK, PROTECTION]).
+
+culling(YIELD, START_STATE, END_STATE, STEPS) :-
+    sacrifice_creature_instant(_, START_STATE, NEXT_STATE, STEPS),
+    normalcast('Culling the Weak', YIELD, NEXT_STATE, END_STATE).
+sacrifice([0, 0, CMC, 0, 0, 0, 0], START_STATE, END_STATE, STEPS) :-
+    sacrifice_creature_instant(CREATURE, START_STATE, NEXT_STATE, STEPS),
+    cmc(CREATURE, CMC),
+    normalcast('Sacrifice', _, NEXT_STATE, END_STATE).
+burnt_offering([0, 0, B, R, 0, 0, 0], START_STATE, END_STATE, STEPS) :-
+    sacrifice_creature_instant(CREATURE, START_STATE, NEXT_STATE, SACRIFICE_STEPS),
+    cmc(CREATURE, CMC),
+    normalcast('Burnt Offering', _, NEXT_STATE, END_STATE),
+    between(0, CMC, B),
+    R is CMC - B,
+    concat_n(b, B, BS),
+    concat_n(r, R, RS),
+    atom_concat(BS, RS, DISTRIBUTION),
+    append(SACRIFICE_STEPS, [DISTRIBUTION], STEPS).
+
+concat_n(_, 0, '').
+concat_n(ATOM, 1, ATOM).
+concat_n(ATOM, N, RESULT) :-
+    N > 1,
+    M is N - 1,
+    concat_n(ATOM, M, NEXT),
+    atom_concat(ATOM, NEXT, RESULT).
+
+cmc(CARDNAME, CMC) :-
+    card(CARDNAME, DATA),
+    list_to_assoc(DATA, CARD),
+    (
+        get_assoc(cmc, CARD, CMC);
+        (
+            get_assoc(cost, CARD, COST),
+            total(COST, CMC)
+        )
+    ).
+
+sacrifice_creature(CARDNAME,
+    [HAND, START_BOARD, MANA, START_GY, STORM, DECK, PROTECTION],
+    [HAND, END_BOARD, MANA, [CARDNAME|START_GY], STORM, DECK, PROTECTION],
+    [SACRIFICE_STEP]) :-
+    remove_first(CARDNAME, START_BOARD, END_BOARD),
+    card(CARDNAME, DATA),
+    list_to_assoc(DATA, CARD),
+    get_assoc(types, CARD, TYPES),
+    member(creature, TYPES),
+    atom_concat('sacrifice ', CARDNAME, SACRIFICE_STEP).
+
+sacrifice_creature_instant(CARD_NAME,
+    [START_HAND, BOARD, MANA, GY, STORM, DECK, PROTECTION],
+    END_STATE,
+    STEPS) :-
+    (CARD_NAME = 'Grief' ; CARD_NAME = 'Endurance'),
+    remove_first(CARD_NAME, START_HAND, NEXT_HAND),
+    specialcast(CARD_NAME, _, [NEXT_HAND, BOARD, MANA, GY, STORM, DECK, PROTECTION], END_STATE, CAST_STEPS),
+    atom_concat('sacrifice ', CARD_NAME, SACRIFICE_STEP),
+    append(CAST_STEPS, [SACRIFICE_STEP], STEPS).
+sacrifice_creature_instant(CARDNAME, START_STATE, END_STATE, STEPS) :-
+    sacrifice_creature(CARDNAME, START_STATE, END_STATE, STEPS).
+
 spact(YIELD,
     [START_HAND, START_BOARD, START_MANA, START_GY, START_STORM, START_DECK, PROTECTION],
     [[CARDNAME | NEXT_HAND], END_BOARD, END_MANA, END_GY, END_STORM, END_DECK, PROTECTION]) :-
@@ -776,11 +1037,68 @@ cantrip(NAME, YIELD,
         [START_HAND, START_BOARD, START_MANA, START_GY, START_STORM, START_DECK, PROTECTION],
         [END_HAND, END_BOARD, END_MANA, END_GY, END_STORM, [ _ | END_DECK], PROTECTION]).
 
+append_n([], [], _, []).
+append_n([], List, 0, List).
+append_n([H], Remainder, 1, [H|Remainder]).
+append_n([H|TSublist], Remainder, N, [H|TCombinedList]) :-
+    N > 0,
+    M is N - 1,
+    append_n(TSublist, Remainder, M, TCombinedList).
+
+once_upon_a_time(YIELD,
+    [START_HAND, START_BOARD, START_MANA, START_GY, 0, START_DECK, PROTECTION],
+    [[CARDNAME | NEXT_HAND], END_BOARD, END_MANA, END_GY, END_STORM, END_DECK, PROTECTION]) :-
+    normalcast('Once Upon a Time', YIELD,
+        [START_HAND, START_BOARD, START_MANA, START_GY, 0, START_DECK, PROTECTION],
+        [NEXT_HAND, END_BOARD, END_MANA, END_GY, END_STORM, NEXT_DECK, PROTECTION]),
+    append_n(TOP, REMAINDER, 5, NEXT_DECK),
+    member(CARDNAME, TOP),
+    card(CARDNAME, DATA),
+    list_to_assoc(DATA, CARD),
+    get_assoc(types, CARD, TYPES),
+    member(creature, TYPES),
+    remove_first(CARDNAME, TOP, MINUS_CHOSEN),
+    append(REMAINDER, MINUS_CHOSEN, END_DECK).
+% TODO: for performance reasons, ignoring a) option to OUAT without finding something; b) ability to cast a second one for 1G
+%once_upon_a_time(YIELD,
+%    [START_HAND, START_BOARD, START_MANA, START_GY, 0, START_DECK, PROTECTION],
+%    [NEXT_HAND, END_BOARD, END_MANA, END_GY, END_STORM, END_DECK, PROTECTION]) :-
+%    normalcast('Once Upon a Time', YIELD,
+%        [START_HAND, START_BOARD, START_MANA, START_GY, 0, START_DECK, PROTECTION],
+%        [NEXT_HAND, END_BOARD, END_MANA, END_GY, END_STORM, NEXT_DECK, PROTECTION]),
+%    append_n(TOP, REMAINDER, 5, NEXT_DECK),
+%    append(REMAINDER, TOP, END_DECK).
+%once_upon_a_time(YIELD,
+%    [START_HAND, START_BOARD, START_MANA, START_GY, START_STORM, START_DECK, PROTECTION],
+%    [NEXT_HAND, END_BOARD, END_MANA, END_GY, END_STORM, END_DECK, PROTECTION]) :-
+%    START_STORM > 0,
+%    normalcast('Once Upon a Time_nonfree', YIELD,
+%        [START_HAND, START_BOARD, START_MANA, START_GY, START_STORM, START_DECK, PROTECTION],
+%        [NEXT_HAND, END_BOARD, END_MANA, END_GY, END_STORM, NEXT_DECK, PROTECTION]),
+%    append_n(TOP, REMAINDER, 5, NEXT_DECK),
+%    append(REMAINDER, TOP, END_DECK).
+%once_upon_a_time(YIELD,
+%    [START_HAND, START_BOARD, START_MANA, START_GY, START_STORM, START_DECK, PROTECTION],
+%    [[CARDNAME | NEXT_HAND], END_BOARD, END_MANA, END_GY, END_STORM, END_DECK, PROTECTION]) :-
+%    START_STORM > 0,
+%    normalcast('Once Upon a Time_nonfree', YIELD,
+%        [START_HAND, START_BOARD, START_MANA, START_GY, START_STORM, START_DECK, PROTECTION],
+%        [NEXT_HAND, END_BOARD, END_MANA, END_GY, END_STORM, NEXT_DECK, PROTECTION]),
+%    append_n(TOP, REMAINDER, 5, NEXT_DECK),
+%    member(CARDNAME, TOP),
+%    card(CARDNAME, DATA),
+%    list_to_assoc(DATA, CARD),
+%    get_assoc(types, CARD, TYPES),
+%    member(creature, TYPES),
+%    remove_first(CARDNAME, TOP, MINUS_CHOSEN),
+%    append(REMAINDER, MINUS_CHOSEN, END_DECK).
+
 % Special rules for protection spells
 
 pitch(NAME, COLOR, YIELD,
     [START_HAND, START_BOARD, START_MANA, START_GY, START_STORM, START_DECK, START_PROTECTION],
-    [END_HAND, END_BOARD, END_MANA, END_GY, END_STORM, END_DECK, END_PROTECTION]) :-
+    [END_HAND, END_BOARD, END_MANA, END_GY, END_STORM, END_DECK, END_PROTECTION],
+    PITCH) :-
     normalcast(NAME, YIELD,
         [START_HAND, START_BOARD, START_MANA, START_GY, START_STORM, START_DECK, START_PROTECTION],
         [NEXT_HAND, END_BOARD, END_MANA, END_GY, END_STORM, END_DECK, END_PROTECTION]),
@@ -860,9 +1178,11 @@ zone_type_count([H|T], TYPE, COUNT) :-
 
 % General rules for casting
 
-cast(NAME, YIELD, OLD_STATE, NEW_STATE) :-
-    specialcast(NAME, YIELD, OLD_STATE, NEW_STATE);
-    not(specialcast(NAME, _, OLD_STATE, _)),
+cast(NAME, YIELD, STEPS, OLD_STATE, NEW_STATE) :-
+    specialcast(NAME, YIELD, OLD_STATE, NEW_STATE, STEPS);
+    STEPS = [],
+    not(only_special(NAME)),
+    (special_optional(NAME); not(specialcast(NAME, _, OLD_STATE, _, _))),
     normalcast(NAME, YIELD, OLD_STATE, NEW_STATE).
 
 normalcast(NAME, YIELD,
@@ -908,6 +1228,10 @@ maxnet(NAME, HAND, BOARD, GY, MAX) :-
     NAME == 'Mox Opal',
     (metalcraft_possible(HAND, BOARD), MAX is 1, !; MAX is 0),
     !;
+    % assume max plausible CMC is 4 for Sacrifice/Burnt Offering
+    (NAME == 'Sacrifice'; NAME == 'Burnt Offering'),
+    MAX is 3,
+    !;
     % for everything else just use the base number
     maxnet(NAME, MAX).
 
@@ -919,6 +1243,16 @@ max_yield(NAME, MAX) :-
         not(get_assoc(best, CARD, _)), get_assoc(yield, CARD, MAX)
     ), !;
     MAX = [0, 0, 0, 0, 0, 0, 0].
+
+only_special(NAME) :-
+    card(NAME, DATA),
+    list_to_assoc(DATA, CARD),
+    get_assoc(restricted, CARD, _).
+
+special_optional(NAME) :-
+    card(NAME, DATA),
+    list_to_assoc(DATA, CARD),
+    get_assoc(options, CARD, _).
 
 % Misc. utility
 
@@ -955,3 +1289,50 @@ not_member(_, []).
 not_member(ITEM, [H|T]) :-
     dif(ITEM, H),
     not_member(ITEM, T).
+
+total([], 0).
+total([H | T], SUM) :-
+    total(T, PARTIAL),
+    SUM is H + PARTIAL.
+
+get_or_default(DICT, KEY, _, VAR) :-
+    is_dict(DICT), get_dict(KEY, DICT, VAR).
+get_or_default(DICT, KEY, DEFAULT, DEFAULT) :-
+    is_dict(DICT), not(get_dict(KEY, DICT, _)).
+
+combination(X, 0, [], X).
+combination([H|T], N, [H|CHOICE], REMAINDER) :-
+    N > 0,
+    M is N - 1,
+    combination(T, M, CHOICE, REMAINDER).
+combination([H|T], N, CHOICE, [H|REMAINDER]) :-
+    N > 0,
+    combination(T, N, CHOICE, REMAINDER).
+
+member_or_tutor(CARDNAME, HAND, LIBRARY) :-
+    (member(CARDNAME, HAND);
+    member(TUTOR, HAND), tutors_for(TUTOR, CARDNAME, LIBRARY), member(CARDNAME, LIBRARY)),
+    !.
+
+tutors_for(TUTOR_NAME, TARGET_NAME, DECK) :-
+    card(TARGET_NAME, DATA),
+    list_to_assoc(DATA, TARGET_ASSOC),
+    tutors_for_(TUTOR_NAME, TARGET_NAME, TARGET_ASSOC, DECK).
+tutors_for_('Summoner\'s Pact', TARGET_NAME, TARGET_ASSOC, DECK) :-
+    member(TARGET_NAME, DECK),
+    get_assoc(types, TARGET_ASSOC, TYPES),
+    member(creature, TYPES),
+    get_assoc(colors, TARGET_ASSOC, COLORS),
+    member(g, COLORS).
+tutors_for_('Once Upon a Time', TARGET_NAME, TARGET_ASSOC, DECK) :-
+    in_first_n(TARGET_NAME, DECK, 5),
+    get_assoc(types, TARGET_ASSOC, TYPES),
+    (member(creature, TYPES); member(land, TYPES)).
+
+in_first_n(H, [H|_], N) :-
+    N > 0.
+in_first_n(TARGET, [H|T], N) :-
+    TARGET \= H,
+    N > 1,
+    M is N - 1,
+    in_first_n(TARGET, T, M).

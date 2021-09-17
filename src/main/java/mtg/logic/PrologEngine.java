@@ -17,10 +17,14 @@ import java.util.Map;
 import java.util.function.BiConsumer;
 import java.util.stream.Collectors;
 
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+
 public class PrologEngine {
     private final File prologSrcDir;
     private final List<BiConsumer<String[], Results>> callbacks = new ArrayList<>();
     private PrologProblem problem;
+    private static final Logger log = LogManager.getLogger();
 
     public PrologEngine(String srcPath) {
         this.prologSrcDir = new File(srcPath);
@@ -79,18 +83,22 @@ public class PrologEngine {
                 outputs};
         final long startTime = System.currentTimeMillis();
         final Query handQuery = new Query(objective.getPredicate(), queryTerms);
+        log.debug("Attempting hand: " + handQuery);
         final Map<String, Term> bindings = handQuery.oneSolution();
         Map<String, Term> outputMap = null;
+        long duration = System.currentTimeMillis() - startTime;
         if (bindings != null) {
             final Term outputTerm = bindings.get("Outputs");
+            log.debug("Success: " + outputTerm + " [" + duration + " ms]");
             if (outputTerm instanceof Dict) {
                 outputMap = new HashMap<>();
                 for (Map.Entry<Atom, Term> entry : ((Dict) outputTerm).getMap().entrySet()) {
                     outputMap.put(entry.getKey().toString(), entry.getValue());
                 }
             }
+        } else {
+            log.debug("Failure. [" + duration + " ms]");
         }
-        long duration = System.currentTimeMillis() - startTime;
         return new Results(outputMap, duration, mulligans, powders);
     }
 
@@ -217,9 +225,13 @@ public class PrologEngine {
     public Results simulateGames(final SingleObjectivePrologProblem objective, final Deck deck,
                                  int n, MersenneTwisterFast rng) {
         Results aggregatedResults = new Results();
+        int interval = n / 20;
         for (int i = 0; i < n; i++) {
             Results individualResult = simulateGame(objective, deck, rng);
             aggregatedResults.add(individualResult);
+            if ((i+1) < n && (i+1) % interval == 0) {
+                System.err.println(aggregatedResults.getNSuccesses() + " / " + aggregatedResults.getNTotal() +  " successes...");
+            }
         }
         return aggregatedResults;
     }

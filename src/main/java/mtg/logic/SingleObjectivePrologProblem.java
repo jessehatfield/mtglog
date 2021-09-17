@@ -38,6 +38,7 @@ public class SingleObjectivePrologProblem implements Serializable, PrologProblem
     private int maxMulligans;
     private Map<String, Object> params;
     private Map<String, List<String>> outputs;
+    private String filter;
 
     @Override
     public String getName() {
@@ -111,6 +112,22 @@ public class SingleObjectivePrologProblem implements Serializable, PrologProblem
     }
 
     /**
+     * @return The name of a boolean property that needs to be true for a full
+     *         success, or null if there is no such requirement
+     */
+    public String getFilter() {
+        return filter;
+    }
+
+    /**
+     * Set an output property that needs to be true for a full success
+     * @param filter The name of an expected boolean property
+     */
+    public void setFilter(final String filter) {
+        this.filter = filter;
+    }
+
+    /**
      * Load a problem specification defined as a YAML file.
      *
      * Expects properties:
@@ -121,6 +138,8 @@ public class SingleObjectivePrologProblem implements Serializable, PrologProblem
      *   params (map): additional parameters required for the given predicate
      * Optional properties:
      *   serumPowderPredicate (string): name of prolog predicate to check whether a hand can safely Serum Powder
+     *   filter (string): name of boolean output property that, if false, indicates a result should be treated as a
+     *                    failure, i.e. allows a success criterion that isn't considered during mulligans
      * @param filename Name of YAML file specifying the problem
      * @return The corresponding hand evaluation problem specification
      */
@@ -142,6 +161,8 @@ public class SingleObjectivePrologProblem implements Serializable, PrologProblem
      *   params (map): additional parameters required for the given predicate
      * Optional properties:
      *   serumPowderPredicate (string): name of prolog predicate to check whether a hand can safely Serum Powder
+     *   filter (string): name of boolean output property that, if false, indicates a result should be treated as a
+     *                    failure, i.e. allows a success criterion that isn't considered during mulligans
      * @param is Input stream for reading the YAML specification of the problem
      * @return The corresponding hand evaluation problem specification
      */

@@ -9,26 +9,34 @@ import ec.util.MersenneTwisterFast;
 import ec.util.Parameter;
 import ec.vector.IntegerVectorIndividual;
 import mtg.logic.Deck;
+import mtg.logic.MultiObjectivePrologProblem;
 import mtg.logic.PrologEngine;
 import mtg.logic.PrologProblem;
+import mtg.logic.SecondaryObjective;
 import mtg.logic.SingleObjectivePrologProblem;
 import mtg.logic.Results;
+import mtg.logic.ec.stochastic.AdaptiveTrialsFitness;
+import mtg.logic.ec.stochastic.BinomialNSGA2Fitness;
 import mtg.logic.ec.stochastic.StochasticProblem;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 public class MtgProblem extends StochasticProblem {
     private static final long serialVersionUID = 1;
 
     private String prologSrcDir;
-    private int trials;
+    private int baseTrials;
     private transient PrologEngine prolog;
     private PrologProblem problem;
     private int handLogNum = -1;
+    private String adaptive;
 
     public static final String PROLOG_SRC_PROPERTY = "prolog.src.dir";
 
@@ -36,6 +44,10 @@ public class MtgProblem extends StochasticProblem {
     public static final String P_PROLOG_DIR = "srcdir";
     public static final String P_N_GAMES = "games";
     public static final String P_HAND_LOG = "log-hands";
+    public static final String P_ADAPT = "adapt-sampling";
+
+    public static final String ADAPTIVE_CATCHUP = "catchup";
+    public static final String ADAPTIVE_GENERATION_SQRT = "sqrt-gen";
 
     @Override
     public Parameter defaultBase() {
@@ -46,15 +58,40 @@ public class MtgProblem extends StochasticProblem {
         prologSrcDir = System.getProperty(PROLOG_SRC_PROPERTY, System.getProperty("user.dir"));
     }
 
+    private int trialsGen(final EvolutionState state) {
+        if (ADAPTIVE_GENERATION_SQRT.equals(adaptive)) {
+            double multiplier = Math.sqrt(state.generation + 1);
+            return (int) Math.ceil(baseTrials * multiplier);
+        } else {
+            return baseTrials;
+        }
+    }
+
+    int trialsInd(final int newTrials, final int padTrials, final Individual ind) {
+        int gap = padTrials;
+        if (ind.fitness instanceof BinomialNSGA2Fitness) {
+            gap -= ((BinomialNSGA2Fitness) ind.fitness).getNSamples();
+            gap = Math.max(gap, 0);
+        }
+        return gap + newTrials;
+    }
+
     /**
      * Single-objective fitness function that gets the success rate of the first (or only) objective
      * defined in the problem specification.
      */
     private double fitness(final IntegerVectorIndividual ind, final Deck deck,
+                           final int expectedMinTrials, final int newTrials,
                            final EvolutionState state, final int threadnum) {
         final SingleObjectivePrologProblem singleObjective = problem.getObjectives().get(0);
-        final Results results = evaluateDeck(singleObjective, deck, state.random[threadnum]);
-        final double f = results.getPSuccess();
+        final int trials = trialsInd(newTrials, expectedMinTrials, ind);
+        final Results results = evaluateDeck(singleObjective, deck, trials, state.random[threadnum]);
+        final double f;
+        if (singleObjective.getFilter() == null) {
+            f = results.getPSuccess();
+        } else {
+            f = results.getP(singleObjective.getFilter());
+        }
         return f;
     }
 
@@ -63,12 +100,30 @@ public class MtgProblem extends StochasticProblem {
      * problem specification, in order.
      */
     private double[] objectives(final IntegerVectorIndividual ind, final Deck deck,
+                           final int expectedMinTrials, final int newTrials,
                            final EvolutionState state, final int threadnum) {
         final List<SingleObjectivePrologProblem> objectives = problem.getObjectives();
-        final double[] results = new double[objectives.size()];
+        final List<SecondaryObjective> secondaryObjectives = new ArrayList<>();
+        if (problem instanceof MultiObjectivePrologProblem) {
+            secondaryObjectives.addAll(((MultiObjectivePrologProblem) problem).getSecondaryObjectives());
+        }
+        final double[] results = new double[objectives.size() + secondaryObjectives.size()];
         int i = 0;
+        final Map<String, Results> resultsMap = new HashMap<>();
+        final int trials = trialsInd(newTrials, expectedMinTrials, ind);
         for (final SingleObjectivePrologProblem objective : objectives) {
-            results[i] = evaluateDeck(objective, deck, state.random[threadnum]).getPSuccess();
+            final Results objectiveResults = evaluateDeck(objective, deck, trials, state.random[threadnum]);
+            if (objective.getFilter() == null) {
+                results[i] = objectiveResults.getPSuccess();
+            } else {
+                results[i] = objectiveResults.getP(objective.getFilter());
+            }
+            resultsMap.put(objective.getName(), objectiveResults);
+            i++;
+        }
+        for (final SecondaryObjective secondaryObjective : secondaryObjectives) {
+            final Results mainResults = resultsMap.get(secondaryObjective.getObjective());
+            results[i] = mainResults.getP(secondaryObjective.getFilter());
             i++;
         }
         return results;
@@ -83,11 +138,16 @@ public class MtgProblem extends StochasticProblem {
         final IntegerVectorIndividual vectorInd = (IntegerVectorIndividual) ind;
         final DecklistVectorSpecies species = (DecklistVectorSpecies) ind.species;
         final Deck deck = species.template.toDeck(vectorInd.genome);
+        int padTrials = ADAPTIVE_CATCHUP.equals(adaptive) ? maxTrials : 0;
+        int newTrials = trialsGen(state);
+        if (vectorInd.fitness instanceof AdaptiveTrialsFitness) {
+            ((AdaptiveTrialsFitness) vectorInd.fitness).setNTrials(newTrials);
+        }
         if (vectorInd.fitness instanceof MultiObjectiveFitness) {
-            final double[] o = objectives(vectorInd, deck, state, threadnum);
+            final double[] o = objectives(vectorInd, deck, padTrials, newTrials, state, threadnum);
             ((MultiObjectiveFitness)vectorInd.fitness).setObjectives(state, o);
         } else {
-            final double f = fitness(vectorInd, deck, state, threadnum);
+            final double f = fitness(vectorInd, deck, padTrials, newTrials, state, threadnum);
             ((SimpleFitness)vectorInd.fitness).setFitness(state, f, false);
         }
         vectorInd.evaluated = true;
@@ -96,8 +156,16 @@ public class MtgProblem extends StochasticProblem {
     @Override
     public void setup(final EvolutionState state, final Parameter base) {
         final Parameter def = defaultBase();
-        trials = state.parameters.getIntWithDefault(
+        baseTrials = state.parameters.getIntWithDefault(
                 base.push(P_N_GAMES), def.push(P_N_GAMES), 1);
+        adaptive = state.parameters.getString(
+                base.push(P_ADAPT), def.push(P_ADAPT));
+        if ((adaptive != null)
+                && !adaptive.equals(ADAPTIVE_CATCHUP)
+                && !adaptive.equals(ADAPTIVE_GENERATION_SQRT)) {
+            state.output.fatal("Doesn't understand adaptive sample size type",
+                            base.push(P_ADAPT), def.push(P_ADAPT));
+        }
         final Parameter specA = base.push(P_PROBLEM_SPEC);
         final Parameter specB = def.push(P_PROBLEM_SPEC);
         try {
@@ -111,7 +179,7 @@ public class MtgProblem extends StochasticProblem {
                 base.push(P_PROLOG_DIR), def.push(P_PROLOG_DIR), prologSrcDir);
         state.output.println("Initializing problem [" + problem.getName()
                 + "], prolog src dir [ " + prologSrcDir
-                + " ], trials [" + trials + "]...",
+                + " ], trials [" + baseTrials + "]...",
                 Log.D_STDOUT);
         final List<String> objectiveNames = problem.getObjectives().stream()
                 .map(SingleObjectivePrologProblem::getName).collect(Collectors.toList());
@@ -164,12 +232,19 @@ public class MtgProblem extends StochasticProblem {
 
     private Results evaluateDeck(final SingleObjectivePrologProblem objective,
                                  final Deck deck,
+                                 final int n,
                                  final MersenneTwisterFast rng) {
-        return prolog.simulateGames(objective, deck, trials, rng);
+        return prolog.simulateGames(objective, deck, n, rng);
     }
 
     private void printResults(final SingleObjectivePrologProblem objective,
                               final Results results) {
+        if (objective.getFilter() != null) {
+            final String prop = objective.getFilter();
+            System.out.println("    " + results.getNWithProperty(prop) + " successes (stddev="
+                    + results.getStdDev(prop) + " ; p="
+                    + results.getP(prop) + ")");
+        }
         System.out.println("    " + results.getNSuccesses() + " wins (stddev="
                 + results.getStdDevSuccesses() + " ; p="
                 + results.getPSuccess() + ")");
@@ -197,6 +272,16 @@ public class MtgProblem extends StochasticProblem {
         }
     }
 
+    private void printResults(final SecondaryObjective secondaryObjective,
+                              final Results mainResults) {
+        final String prop = secondaryObjective.getFilter();
+        if (secondaryObjective.getFilter() != null) {
+            System.out.println("    " + mainResults.getNWithProperty(prop) + " successes (stddev="
+                    + mainResults.getStdDev(prop) + " ; p="
+                    + mainResults.getP(prop) + ")");
+        }
+    }
+
     @Override
     public void describe(final EvolutionState state,
                         final Individual ind,
@@ -220,13 +305,24 @@ public class MtgProblem extends StochasticProblem {
             final MtgProblem app = new MtgProblem();
             app.problem = PrologProblem.fromYaml(args[0]);
             final String decklistFile = args[1];
-            app.trials = Integer.parseInt(args[2]);
+            app.baseTrials = Integer.parseInt(args[2]);
             app.initProlog(null);
             final Deck deck = Deck.fromFile(decklistFile);
             final MersenneTwisterFast rng = new MersenneTwisterFast();
+            final Map<String, Results> resultsMap = new HashMap<>();
             for (final SingleObjectivePrologProblem objective : app.problem.getObjectives()) {
                 System.out.println("Objective: " + objective.getName());
-                app.printResults(objective, app.evaluateDeck(objective, deck, rng));
+                final Results objectiveResults = app.evaluateDeck(objective, deck, app.baseTrials, rng);
+                app.printResults(objective, objectiveResults);
+                resultsMap.put(objective.getName(), objectiveResults);
+            }
+            if (app.problem instanceof MultiObjectivePrologProblem) {
+                for (final SecondaryObjective secondaryObjective :
+                        ((MultiObjectivePrologProblem) app.problem).getSecondaryObjectives()) {
+                    System.out.println("Objective: " + secondaryObjective.getName());
+                    final Results mainResults = resultsMap.get(secondaryObjective.getObjective());
+                    app.printResults(secondaryObjective, mainResults);
+                }
             }
         } else {
             System.out.println("Usage: MtgProblem <problem spec file> <decklist> <n games>");

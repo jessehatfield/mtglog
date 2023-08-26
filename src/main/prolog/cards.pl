@@ -343,6 +343,18 @@ card('Vine Dryad', [
     restricted -true
 ]).
 
+card(NAME, [
+    cost   - [0, 0, 0, 0, 0, 0, 0],
+    yield  - [0, 0, 0, 0, 0, 0, 0],
+    net    - 0,
+    colors - COLORS,
+    types  - TYPES,
+    spell  - 1,
+    board  - 1,
+    gy     - 0,
+    cmc    - 0
+]) :- free_permanent(NAME, TYPES, COLORS).
+
 card('Summoner\'s Pact', [
     cost   - [0, 0, 0, 0, 0, 0, 0],
     yield  - [0, 0, 0, 0, 0, 0, 0],
@@ -400,6 +412,18 @@ card('Neoform', [
     yield  - [0, 0, 0, 0, 0, 0, 0],
     net    - 1,
     colors - [u, g],
+    types  - [sorcery],
+    spell  - 1,
+    board  - 0,
+    gy     - 1,
+    restricted - true
+]).
+
+card('Beseech the Mirror', [
+    cost   - [0, 0, 3, 0, 0, 0, 1],
+    yield  - [0, 0, 0, 0, 0, 0, 0],
+    net    - 0,
+    colors - [b],
     types  - [sorcery],
     spell  - 1,
     board  - 0,
@@ -711,6 +735,28 @@ card('Veil of Summer', [
     gy     - 1,
     protection - 1
 ]).
+card('Nature\'s Claim', [
+    cost   - [0, 0, 0, 0, 1, 0, 0],
+    yield  - [0, 0, 0, 0, 0, 0, 0],
+    net    - 0,
+    colors - [g],
+    types  - [instant],
+    spell  - 1,
+    board  - 0,
+    gy     - 1,
+    protection - 1
+]).
+card('Foundation Breaker', [
+    cost   - [0, 0, 0, 0, 1, 0, 1],
+    yield  - [0, 0, 0, 0, 0, 0, 0],
+    net    - 0,
+    colors - [g],
+    types  - [creature],
+    spell  - 1,
+    board  - 0,
+    gy     - 1,
+    protection - 1
+]).
 card('Silence', [
     cost   - [1, 0, 0, 0, 0, 0, 0],
     yield  - [0, 0, 0, 0, 0, 0, 0],
@@ -779,6 +825,16 @@ card('Endurance', [
     protection - 0,
     restricted - true
 ]).
+card('Memory\'s Journey', [
+    cost   - [0, 1, 0, 0, 0, 0, 1],
+    yield  - [0, 0, 0, 0, 0, 0, 0],
+    net    - 0,
+    colors - [u],
+    types  - [instant],
+    spell  - -1,
+    board  - 0,
+    gy     - 0
+]).
 
 card('Serum Powder', [
     cost   - [0, 0, 0, 0, 0, 0, 3],
@@ -838,6 +894,12 @@ landspell('Sea Gate Restoration', u, [0, 1, 0, 0, 0, 0, 0]).
 landspell('Agadeem\'s Awakening', b, [0, 0, 1, 0, 0, 0, 0]).
 landspell('Shatterskull Smashing', r, [0, 0, 0, 1, 0, 0, 0]).
 landspell('Turntimber Symbiosis', g, [0, 0, 0, 0, 1, 0, 0]).
+
+% Concrete instantiations of the free permanent pattern
+free_permanent('Shield Sphere', [artifact, creature], []).
+free_permanent('Phyrexian Walker', [artifact, creature], []).
+free_permanent('Ornithopter', [artifact, creature], []).
+free_permanent('Memnite', [artifact, creature], []).
 
 % Special rules for casting / making mana
 
@@ -1016,6 +1078,17 @@ sacrifice_creature_instant(CARD_NAME,
 sacrifice_creature_instant(CARDNAME, START_STATE, END_STATE, STEPS) :-
     sacrifice_creature(CARDNAME, START_STATE, END_STATE, STEPS).
 
+sacrifice_bargain(CARDNAME,
+    [HAND, START_BOARD, MANA, START_GY, STORM, DECK, PROTECTION],
+    [HAND, END_BOARD, MANA, [CARDNAME|START_GY], STORM, DECK, PROTECTION],
+    [SACRIFICE_STEP]) :-
+    remove_first(CARDNAME, START_BOARD, END_BOARD),
+    card(CARDNAME, DATA),
+    list_to_assoc(DATA, CARD),
+    get_assoc(types, CARD, TYPES),
+    (member(token, TYPES); member(artifact, TYPES); member(enchantment, TYPES)),
+    atom_concat('sacrifice ', CARDNAME, SACRIFICE_STEP).
+
 spact(YIELD,
     [START_HAND, START_BOARD, START_MANA, START_GY, START_STORM, START_DECK, PROTECTION],
     [[CARDNAME | NEXT_HAND], END_BOARD, END_MANA, END_GY, END_STORM, END_DECK, PROTECTION]) :-
@@ -1092,6 +1165,21 @@ once_upon_a_time(YIELD,
 %    member(creature, TYPES),
 %    remove_first(CARDNAME, TOP, MINUS_CHOSEN),
 %    append(REMAINDER, MINUS_CHOSEN, END_DECK).
+
+beseech_nocast(YIELD,
+    [START_HAND, START_BOARD, START_MANA, START_GY, START_STORM, START_DECK, PROTECTION],
+    [[CARDNAME | NEXT_HAND], END_BOARD, END_MANA, END_GY, END_STORM, END_DECK, PROTECTION]) :-
+    normalcast('Beseech the Mirror', YIELD,
+        [START_HAND, START_BOARD, START_MANA, START_GY, START_STORM, START_DECK, PROTECTION],
+        [NEXT_HAND, END_BOARD, END_MANA, END_GY, END_STORM, NEXT_DECK, PROTECTION]),
+    remove_first(CARDNAME, NEXT_DECK, END_DECK).
+beseech_bargain(CARDNAME,
+    START_STATE,
+    [[CARDNAME | NEXT_HAND], END_BOARD, END_MANA, END_GY, END_STORM, END_DECK, PROTECTION],
+    ['Beseech the Mirror' | STEPS]) :-
+    normalcast('Beseech the Mirror', _, START_STATE, CAST_STATE),
+    sacrifice_bargain(_, CAST_STATE, [NEXT_HAND, END_BOARD, END_MANA, END_GY, END_STORM, NEXT_DECK, PROTECTION], STEPS),
+    remove_first(CARDNAME, NEXT_DECK, END_DECK).
 
 % Special rules for protection spells
 

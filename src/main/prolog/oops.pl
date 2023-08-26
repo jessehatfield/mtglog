@@ -43,6 +43,7 @@ win(HAND, DECK, SEQUENCE, PROTECTION) :-
 win(HAND, DECK, SB, SEQUENCE, PROTECTION) :-
     informer(HAND, DECK, SEQUENCE, PROTECTION);
     spy(HAND, DECK, SEQUENCE, PROTECTION);
+    beseech_spy(HAND, DECK, SEQUENCE, PROTECTION);
     breakfast(HAND, DECK, SEQUENCE, PROTECTION);
     etw(HAND, DECK, SEQUENCE, STORM, PROTECTION), STORM >= 4, canpass(SEQUENCE);
     belcher(HAND, DECK, SEQUENCE, PROTECTION);
@@ -154,6 +155,36 @@ spy_mill(H1, B1, M1, G1, S1, D1, H3, B3, M3, G2, S2, D2, SEQUENCE_PRIOR, SEQUENC
 spy_mill(START_HAND, START_DECK, SEQUENCE, PROTECTION) :-
     member_or_tutor('Balustrade Spy', START_HAND, START_DECK),
     spy_mill(START_HAND, [0,0,0,0,0,0,0], [], 0, START_DECK, _, _, _, _, _, [], SEQUENCE, PROTECTION),
+    !.
+
+beseech_spy(START_HAND, START_DECK, SEQUENCE, PROTECTION) :-
+    beseech_spy(START_HAND, [], [0,0,0,0,0,0,0], [], 0, START_DECK, SEQUENCE, PROTECTION).
+beseech_spy(H1, B1, M1, G1, S1, D1, SEQUENCE, PROTECTION) :-
+    % Verify that its possible in the best case scenario for mana sequencing
+    member_or_tutor('Beseech the Mirror', H1, D1),
+    member('Balustrade Spy', D1),
+    prune(4, H1, B1, G1, M1),
+    canInformer(H1, G1, D1),
+    informerCombo(H1, ['Balustrade Spy'|B1], D1, G1, M1, [], _, _),
+    % Then attempt it for real
+    beseech_spy_mill(H1, B1, M1, G1, S1, D1, H2, B2, M2, G2, _, D2, [], SEQUENCE1, P1),
+    informerCombo(H2, B2, D2, G2, M2, SEQUENCE1, SEQUENCE, P2),
+    PROTECTION is P1 + P2,
+    !.
+beseech_spy_mill(H1, B1, M1, G1, S1, D1, H5, B6, M5, G5, S5, D5, SEQUENCE_PRIOR, SEQUENCE_FINAL, PROTECTION) :-
+    prune(4, H1, B1, G1, M1),
+    member('Balustrade Spy', D1),
+    % Make 1BBB mana, cast
+    makemana_goal('Beseech the Mirror', [H1, B1, M1, G1, S1, D1, 0], STATE2, SEQUENCE_PRIOR, SEQUENCE2),
+    remove_from_hand('Beseech the Mirror', STATE2, STATE3),
+    spend_([0, 0, 3, 0, 0, 0, 1], STATE3, STATE4),
+    beseech_bargain('Balustrade Spy', STATE4, [H5, B5, M5, G5, S5, D5, PROTECTION], SEQUENCE_SAC),
+    append(SEQUENCE2, SEQUENCE_SAC, SEQUENCE3),
+    append(SEQUENCE3, ['Balustrade Spy'], SEQUENCE_FINAL),
+    append(B5, ['Balustrade Spy'], B6).
+beseech_spy_mill(START_HAND, START_DECK, SEQUENCE, PROTECTION) :-
+    member_or_tutor('Beseech the Mirror', START_HAND, START_DECK),
+    beseech_spy_mill(START_HAND, [0,0,0,0,0,0,0], [], 0, START_DECK, _, _, _, _, _, [], SEQUENCE, PROTECTION),
     !.
 
 breakfast(START_HAND, START_DECK, SEQUENCE, PROTECTION) :-

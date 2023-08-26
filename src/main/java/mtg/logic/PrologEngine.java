@@ -21,10 +21,12 @@ import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
 
 public class PrologEngine {
+    private static final Logger log = LogManager.getLogger();
+
     private final File prologSrcDir;
     private final List<BiConsumer<String[], Results>> callbacks = new ArrayList<>();
     private PrologProblem problem;
-    private static final Logger log = LogManager.getLogger();
+    private List<ResultConsumer> resultConsumers = new ArrayList<>();
 
     public PrologEngine(String srcPath) {
         this.prologSrcDir = new File(srcPath);
@@ -39,6 +41,10 @@ public class PrologEngine {
 
     public void addCallback(final BiConsumer<String[], Results> callback) {
         callbacks.add(callback);
+    }
+
+    public void addFinalCallback(final ResultConsumer consumer) {
+        resultConsumers.add(consumer);
     }
 
     public void consultFile(String localName) {
@@ -83,13 +89,13 @@ public class PrologEngine {
                 outputs};
         final long startTime = System.currentTimeMillis();
         final Query handQuery = new Query(objective.getPredicate(), queryTerms);
-        log.debug("Attempting hand: " + handQuery);
+        log.trace("Attempting hand: " + handQuery);
         final Map<String, Term> bindings = handQuery.oneSolution();
         Map<String, Term> outputMap = null;
         long duration = System.currentTimeMillis() - startTime;
         if (bindings != null) {
             final Term outputTerm = bindings.get("Outputs");
-            log.debug("Success: " + outputTerm + " [" + duration + " ms]");
+            log.trace("Success: " + outputTerm + " [" + duration + " ms]");
             if (outputTerm instanceof Dict) {
                 outputMap = new HashMap<>();
                 for (Map.Entry<Atom, Term> entry : ((Dict) outputTerm).getMap().entrySet()) {
@@ -97,7 +103,7 @@ public class PrologEngine {
                 }
             }
         } else {
-            log.debug("Failure. [" + duration + " ms]");
+            log.trace("Failure. [" + duration + " ms]");
         }
         return new Results(outputMap, duration, mulligans, powders);
     }
@@ -160,16 +166,17 @@ public class PrologEngine {
      * @param objective The problem to test; sources should already be loaded
      * @param deck The deck to experiment with
      * @param rng The random number generator to use for shuffling
-     * @return A Results object representing the outputs of a single trial
+     * @return A ResultSequence object representing the outputs of a single trial
      */
-    public Results simulateGame(final SingleObjectivePrologProblem objective, final Deck deck,
-                                final MersenneTwisterFast rng) {
+    public ResultSequence simulateGame(final SingleObjectivePrologProblem objective, final Deck deck,
+                                       final MersenneTwisterFast rng) {
         final int maxMulligans = objective.getMaxMulligans();
         final int handSize = objective.getHandSize();
-        int mulligans = 0;
+        int mulligans = objective.getStartingMulligans();
         int powders = 0;
         Results individualResult;
         String[] currentDeck = deck.getShuffled(rng);
+        ResultSequence.Builder resultBuilder = ResultSequence.builder();
         do {
             // draw a random full-sized hand
             Deck.shuffle(currentDeck, rng);
@@ -179,13 +186,18 @@ public class PrologEngine {
             for (final BiConsumer<String[], Results> callback : callbacks) {
                 callback.accept(hand, individualResult);
             }
+            resultBuilder.test(hand, individualResult);
             while (!individualResult.isSuccess(0)) {
                 final int nBottom = mulligans - (handSize - hand.length);
                 List<String> bottom = canSerumPowder(objective, hand, library, nBottom);
                 if (bottom == null) {
+                    if (mulligans < maxMulligans) {
+                        resultBuilder.mulligan();
+                    }
                     break;
                 }
                 powders++;
+                resultBuilder.powder();
                 // Start with the remaining library as the new deck
                 currentDeck = new String[library.length + nBottom];
                 System.arraycopy(library, 0, currentDeck, 0, library.length);
@@ -207,10 +219,11 @@ public class PrologEngine {
                 for (final BiConsumer<String[], Results> callback : callbacks) {
                     callback.accept(hand, individualResult);
                 }
+                resultBuilder.test(hand, individualResult);
             }
             mulligans++;
         } while (!individualResult.isSuccess(0) && mulligans <= maxMulligans);
-        return individualResult;
+        return resultBuilder.keepAndBuild();
     }
 
     /**
@@ -225,10 +238,13 @@ public class PrologEngine {
     public Results simulateGames(final SingleObjectivePrologProblem objective, final Deck deck,
                                  int n, MersenneTwisterFast rng) {
         Results aggregatedResults = new Results();
-        int interval = n / 20;
+        int interval = n < 20 ? 1 : n / 20;
         for (int i = 0; i < n; i++) {
-            Results individualResult = simulateGame(objective, deck, rng);
-            aggregatedResults.add(individualResult);
+            ResultSequence testResult = simulateGame(objective, deck, rng);
+            for (ResultConsumer consumer : resultConsumers) {
+                consumer.consumeResult(objective, deck, testResult);
+            }
+            aggregatedResults.add(testResult.getFinalResult());
             if ((i+1) < n && (i+1) % interval == 0) {
                 System.err.println(aggregatedResults.getNSuccesses() + " / " + aggregatedResults.getNTotal() +  " successes...");
             }

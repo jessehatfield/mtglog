@@ -36,6 +36,7 @@ public class SingleObjectivePrologProblem implements Serializable, PrologProblem
     private String serumPowderPredicate;
     private List<String> sources;
     private int maxMulligans;
+    private int startingMulligans = 0;
     private Map<String, Object> params;
     private Map<String, List<String>> outputs;
     private String filter;
@@ -87,6 +88,14 @@ public class SingleObjectivePrologProblem implements Serializable, PrologProblem
         this.maxMulligans = maxMulligans;
     }
 
+    public int getStartingMulligans() {
+        return startingMulligans;
+    }
+
+    public void setStartingMulligans(final int startingMulligans) {
+        this.startingMulligans = startingMulligans;
+    }
+
     public Map<String, Object> getParams() {
         return params;
     }
@@ -125,6 +134,15 @@ public class SingleObjectivePrologProblem implements Serializable, PrologProblem
      */
     public void setFilter(final String filter) {
         this.filter = filter;
+    }
+
+    /**
+     * Serialize a problem specification as a YAML file.
+     * @return a string specification of the problem.
+     */
+    public String toYaml() {
+        final Yaml yaml = new Yaml(new Constructor(SingleObjectivePrologProblem.class));
+        return yaml.dump(this);
     }
 
     /**

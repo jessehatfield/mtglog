@@ -24,6 +24,7 @@
     <maven.compiler.source>1.8</maven.compiler.source>
     <maven.compiler.target>1.8</maven.compiler.target>
     <log4j.version>2.14.1</log4j.version>
+    <mongodb.version>4.3.2</mongodb.version>
   </properties>
 
   <dependencies>
@@ -57,6 +58,11 @@
       <groupId>org.apache.logging.log4j</groupId>
       <artifactId>log4j-core</artifactId>
       <version>${log4j.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.mongodb</groupId>
+      <artifactId>mongodb-driver-sync</artifactId>
+      <version>${mongodb.version}</version>
     </dependency>
 
     <!-- testing -->
@@ -94,6 +100,10 @@
                             <systemProperty>
                                 <key>prolog.src.dir</key>
                                 <value>${project.basedir}/src/main/prolog</value>
+                            </systemProperty>
+                            <systemProperty>
+                                <key>log4j2.level</key>
+                                <value>info</value>
                             </systemProperty>
                         </systemProperties>
                     </configuration>

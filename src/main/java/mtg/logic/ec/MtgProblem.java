@@ -9,9 +9,11 @@ import ec.util.MersenneTwisterFast;
 import ec.util.Parameter;
 import ec.vector.IntegerVectorIndividual;
 import mtg.logic.Deck;
+import mtg.logic.MongoResultStore;
 import mtg.logic.MultiObjectivePrologProblem;
 import mtg.logic.PrologEngine;
 import mtg.logic.PrologProblem;
+import mtg.logic.ResultStore;
 import mtg.logic.SecondaryObjective;
 import mtg.logic.SingleObjectivePrologProblem;
 import mtg.logic.Results;
@@ -307,6 +309,12 @@ public class MtgProblem extends StochasticProblem {
             final String decklistFile = args[1];
             app.baseTrials = Integer.parseInt(args[2]);
             app.initProlog(null);
+            ResultStore store = null;
+            if (args.length >= 5) {
+                store = new MongoResultStore(args[3], args[4]);
+                store.setCacheSize(100);
+                app.prolog.addFinalCallback(store);
+            }
             final Deck deck = Deck.fromFile(decklistFile);
             final MersenneTwisterFast rng = new MersenneTwisterFast();
             final Map<String, Results> resultsMap = new HashMap<>();
@@ -315,6 +323,12 @@ public class MtgProblem extends StochasticProblem {
                 final Results objectiveResults = app.evaluateDeck(objective, deck, app.baseTrials, rng);
                 app.printResults(objective, objectiveResults);
                 resultsMap.put(objective.getName(), objectiveResults);
+                if (store != null) {
+                    store.flushResults();
+                }
+            }
+            if (store != null) {
+                store.close();
             }
             if (app.problem instanceof MultiObjectivePrologProblem) {
                 for (final SecondaryObjective secondaryObjective :

@@ -54,7 +54,19 @@ card('Lotus Petal', [
     types  - [artifact],
     spell  - 1,
     board  - 0,
-    gy     - 1
+    gy     - 1,
+    options - true
+]).
+card('Lotus Petal_unused', [
+    cost   - [0, 0, 0, 0, 0, 0, 0],
+    yield  - [0, 0, 0, 0, 0, 0, 0],
+    net    - 0,
+    colors - [],
+    types  - [artifact],
+    spell  - 1,
+    board  - 1,
+    gy     - 0,
+    restricted - true
 ]).
 card('Chrome Mox', [
     cost   - [0, 0, 0, 0, 0, 0, 0],
@@ -236,16 +248,39 @@ card('Lion\'s Eye Diamond', DATA) :-
         best   - [0, 0, 0, 0, 0, 0, 3],
         net    - 3,
         colors - [],
-        types  - [],
+        types  - [artifact],
         spell  - 1,
         board  - 0,
         gy     - 1
     ].
+card('Lion\'s Eye Diamond_unused', [
+    cost   - [0, 0, 0, 0, 0, 0, 0],
+    yield  - [0, 0, 0, 0, 0, 0, 0],
+    best   - [0, 0, 0, 0, 0, 0, 0],
+    net    - 0,
+    colors - [],
+    types  - [artifact],
+    spell  - 1,
+    board  - 1,
+    gy     - 0,
+    restricted - true
+]).
 
 card('Grim Monolith', [
     cost   - [0, 0, 0, 0, 0, 0, 2],
     yield  - [0, 0, 0, 0, 0, 3, 0],
     net    - 1,
+    colors - [],
+    types  - [artifact],
+    spell  - 1,
+    board  - 1,
+    gy     - 0
+]).
+
+card('Throne of Eldraine', [
+    cost   - [0, 0, 0, 0, 0, 0, 5],
+    yield  - [0, 0, 0, 0, 0, 0, 4],
+    net    - 0,
     colors - [],
     types  - [artifact],
     spell  - 1,
@@ -709,9 +744,31 @@ card('Leyline of Lifeforce', [
     colors - [g],
     types  - [enchantment],
     spell  - 0,
-    board  - 0,
+    board  - 1,
     gy     - 0,
     protection - 1
+]).
+card('Leyline of Sanctity', [
+    cost   - [0, 0, 0, 0, 0, 0, 0],
+    yield  - [0, 0, 0, 0, 0, 0, 0],
+    net    - 0,
+    colors - [w],
+    types  - [enchantment],
+    spell  - 0,
+    board  - 1,
+    gy     - 0,
+    protection - 0
+]).
+card('Leyline of the Void', [
+    cost   - [0, 0, 0, 0, 0, 0, 0],
+    yield  - [0, 0, 0, 0, 0, 0, 0],
+    net    - 0,
+    colors - [b],
+    types  - [enchantment],
+    spell  - 0,
+    board  - 1,
+    gy     - 0,
+    protection - 0
 ]).
 card('Thoughtseize', [
     cost   - [0, 0, 1, 0, 0, 0, 0],
@@ -884,9 +941,17 @@ carddata_key_value_default([], _, DEFAULT, DEFAULT).
 castfirst('Chancellor of the Annex').
 castfirst('Chancellor of the Tangle').
 castfirst('Leyline of Lifeforce').
+castfirst('Leyline of Sanctity').
+castfirst('Leyline of the Void').
 castlast('Pact of Negation').
 castlast('Force of Will').
 castlast('Misdirection').
+
+% Other restrictions
+spellsonly('Throne of Eldraine').
+contains_spellsonly([H | T]) :-
+    spellsonly(H), !;
+    contains_spellsonly(T).
 
 % Concrete instantiations of the land/spell pattern
 landspell('Emeria\'s Call', w, [1, 0, 0, 0, 0, 0, 0]).
@@ -919,8 +984,10 @@ specialcast(NAME, YIELD, OLD_STATE, NEW_STATE, []) :-
     NAME == 'Street Wraith', cantrip('Street Wraith', YIELD, OLD_STATE, NEW_STATE);
 %    NAME == 'Gitaxian Probe', cantrip('Gitaxian Probe', YIELD, OLD_STATE, NEW_STATE). (banned)
     NAME == 'Chancellor of the Annex', chancellor_annex(YIELD, OLD_STATE, NEW_STATE);
-    NAME == 'Wild Cantor', cantor_unused(YIELD, OLD_STATE, NEW_STATE);
-    NAME == 'Tinder Wall', tinder_unused(YIELD, OLD_STATE, NEW_STATE);
+    NAME == 'Wild Cantor', alternate_version('Wild Cantor_unused', YIELD, OLD_STATE, NEW_STATE);
+    NAME == 'Tinder Wall', alternate_version('Tinder Wall_unused', YIELD, OLD_STATE, NEW_STATE);
+    NAME == 'Lotus Petal', alternate_version('Lotus Petal_unused', YIELD, OLD_STATE, NEW_STATE);
+    NAME == 'Lion\'s Eye Diamond', alternate_version('Lion\'s Eye Diamond_unused', YIELD, OLD_STATE, NEW_STATE);
     NAME == 'Once Upon a Time', once_upon_a_time(YIELD, OLD_STATE, NEW_STATE).
 specialcast(NAME, YIELD, OLD_STATE, NEW_STATE, [STEP]) :-
     (
@@ -1005,17 +1072,24 @@ chancellor(YIELD,
         [START_HAND, START_BOARD, START_MANA, START_GY, START_STORM, START_DECK, PROTECTION],
         [END_HAND, END_BOARD, END_MANA, END_GY, END_STORM, END_DECK, PROTECTION]).
 
-cantor_unused(YIELD,
+%cantor_unused(YIELD,
+%    [START_HAND, START_BOARD, START_MANA, START_GY, START_STORM, START_DECK, PROTECTION],
+%    [END_HAND, END_BOARD, END_MANA, END_GY, END_STORM, END_DECK, PROTECTION]) :-
+%    normalcast('Wild Cantor_unused', YIELD,
+%        [['Wild Cantor_unused'|START_HAND], START_BOARD, START_MANA, START_GY, START_STORM, START_DECK, PROTECTION],
+%        [END_HAND, END_BOARD, END_MANA, END_GY, END_STORM, END_DECK, PROTECTION]).
+%tinder_unused(YIELD,
+%    [START_HAND, START_BOARD, START_MANA, START_GY, START_STORM, START_DECK, PROTECTION],
+%    [END_HAND, END_BOARD, END_MANA, END_GY, END_STORM, END_DECK, PROTECTION]) :-
+%    normalcast('Tinder Wall_unused', YIELD,
+%        [['Tinder Wall_unused'|START_HAND], START_BOARD, START_MANA, START_GY, START_STORM, START_DECK, PROTECTION],
+%        [END_HAND, END_BOARD, END_MANA, END_GY, END_STORM, END_DECK, PROTECTION]).
+
+alternate_version(ALT_NAME, YIELD,
     [START_HAND, START_BOARD, START_MANA, START_GY, START_STORM, START_DECK, PROTECTION],
     [END_HAND, END_BOARD, END_MANA, END_GY, END_STORM, END_DECK, PROTECTION]) :-
-    normalcast('Wild Cantor_unused', YIELD,
-        [['Wild Cantor_unused'|START_HAND], START_BOARD, START_MANA, START_GY, START_STORM, START_DECK, PROTECTION],
-        [END_HAND, END_BOARD, END_MANA, END_GY, END_STORM, END_DECK, PROTECTION]).
-tinder_unused(YIELD,
-    [START_HAND, START_BOARD, START_MANA, START_GY, START_STORM, START_DECK, PROTECTION],
-    [END_HAND, END_BOARD, END_MANA, END_GY, END_STORM, END_DECK, PROTECTION]) :-
-    normalcast('Tinder Wall_unused', YIELD,
-        [['Tinder Wall_unused'|START_HAND], START_BOARD, START_MANA, START_GY, START_STORM, START_DECK, PROTECTION],
+    normalcast(ALT_NAME, YIELD,
+        [[ALT_NAME|START_HAND], START_BOARD, START_MANA, START_GY, START_STORM, START_DECK, PROTECTION],
         [END_HAND, END_BOARD, END_MANA, END_GY, END_STORM, END_DECK, PROTECTION]).
 
 culling(YIELD, START_STATE, END_STATE, STEPS) :-
@@ -1080,13 +1154,19 @@ sacrifice_creature_instant(CARDNAME, START_STATE, END_STATE, STEPS) :-
 
 sacrifice_bargain(CARDNAME,
     [HAND, START_BOARD, MANA, START_GY, STORM, DECK, PROTECTION],
-    [HAND, END_BOARD, MANA, [CARDNAME|START_GY], STORM, DECK, PROTECTION],
+    [HAND, END_BOARD, MANA, [CARDNAME|START_GY], STORM, DECK, END_PROTECTION],
     [SACRIFICE_STEP]) :-
     remove_first(CARDNAME, START_BOARD, END_BOARD),
     card(CARDNAME, DATA),
     list_to_assoc(DATA, CARD),
     get_assoc(types, CARD, TYPES),
     (member(token, TYPES); member(artifact, TYPES); member(enchantment, TYPES)),
+    (
+        get_assoc(protection, CARD, LOSE_PROTECTION),
+        END_PROTECTION is PROTECTION - LOSE_PROTECTION,
+        !;
+        END_PROTECTION is PROTECTION
+    ),
     atom_concat('sacrifice ', CARDNAME, SACRIFICE_STEP).
 
 spact(YIELD,

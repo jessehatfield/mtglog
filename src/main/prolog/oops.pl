@@ -113,6 +113,7 @@ informer(H1, B1, M1, G1, S1, D1, SEQUENCE, PROTECTION) :-
     % Then attempt it for real
     informer_mill(H1, B1, M1, G1, S1, D1, H2, B2, M2, G2, _, D2, [], SEQUENCE1, P1),
     informerCombo(H2, B2, D2, G2, M2, SEQUENCE1, SEQUENCE, P2),
+    not(contains_spellsonly(SEQUENCE)),
     PROTECTION is P1 + P2,
     !.
 informer_mill(H1, B1, M1, G1, S1, D1, H4, B3, M5, G3, S3, D3, SEQUENCE_PRIOR, SEQUENCE_FINAL, PROTECTION) :-
@@ -282,6 +283,7 @@ wish_informer(H1, B1, M1, G1, S1, D1, SEQUENCE, PROTECTION) :-
     % Then attempt it for real
     wish_informer_mill(H1, B1, M1, G1, S1, D1, 0, H2, B2, M2, G2, _, D2, SEQUENCE_MILL, P1),
     informerCombo(H2, B2, D2, G2, M2, SEQUENCE_MILL, SEQUENCE, P2),
+    not(contains_spellsonly(SEQUENCE)),
     PROTECTION is P1 + P2,
     !.
 wish_informer_mill(H1, B1, M1, G1, S1, D1, P1, H5, B4, M7, G4, S5, D4, P4, SEQUENCE) :-
@@ -332,6 +334,7 @@ ee_informer(H1, B1, M1, G1, S1, D1, SEQUENCE, PROTECTION) :-
     makemana([H4, B3, M4, G3, S3, D4, P3], [H5, B4, M5, G4, _, D5, P4], SEQUENCE4, SEQUENCE5),
     spendGeneric(1, M5, M6),
     informerCombo(H5, B4, D5, ['Undercity Informer'|G4], M6, SEQUENCE5, SEQUENCE, P5),
+    not(contains_spellsonly(SEQUENCE)),
     PROTECTION is P4 + P5,
     !.
 

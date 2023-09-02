@@ -6,7 +6,6 @@ load_oops :-
 
 run_oops_tests :-
     load_oops,
-    test_beseech,
     test_spend,
     test_powder_check,
     test_hand_1,
@@ -19,6 +18,8 @@ run_oops_tests :-
     test_culling,
     test_wish_led,
     test_etw,
+    test_beseech,
+    test_throne,
     test_makemana_goal(_, _).
 
 % Should be a simple win, but can take up to 5 minutes to process because of trivial choices
@@ -265,9 +266,27 @@ test_beseech :-
     LIBRARY = ['Balustrade Spy', 'Narcomoeba', 'Narcomoeba', 'Thassa\'s Oracle', 'Dread Return'],
     HAND = ['Beseech the Mirror', 'Dark Ritual', 'Agadeem\'s Awakening', 'Elvish Spirit Guide'],
     not(hand_wins_(HAND, LIBRARY, [], 0, 0)),
-    hand_wins_(['Chrome Mox'|HAND], LIBRARY, [], 0, 0),
     hand_wins_(['Mox Opal'|HAND], LIBRARY, [], 0, 0),
-    hand_wins_(['Lotus Petal'|HAND], LIBRARY, [], 0, 0).
+    hand_wins_(['Chrome Mox'|HAND], LIBRARY, [], 0, 0),
+    hand_wins_(['Lotus Petal'|HAND], LIBRARY, [], 0, 0),
+    hand_wins_(['Lion\'s Eye Diamond'|HAND], LIBRARY, [], 0, 0),
+    hand_wins_(['Shield Sphere'|HAND], LIBRARY, [], 0, 0),
+    not(hand_wins_(['Shuko'|HAND], LIBRARY, [], 0, 0)),
+    hand_wins_(['Simian Spirit Guide'|['Shuko'|HAND]], LIBRARY, [], 0, 0),
+    hand_wins_(['Leyline of Lifeforce'|HAND], LIBRARY, [], 0, 0),
+    not(hand_wins_(['Leyline of Lifeforce'|HAND], LIBRARY, [], 0, 1)),
+    HAND_2 = ['Beseech the Mirror', 'Defense Grid', 'Dark Ritual', 'Agadeem\'s Awakening', 'Elvish Spirit Guide', 'Dark Ritual'],
+    hand_wins_(HAND_2, LIBRARY, [], 0, 0),
+    not(hand_wins_(HAND_2, LIBRARY, [], 0, 1)).
+
+% Throne of Eldraine
+test_throne :-
+    LIBRARY = ['Narcomoeba', 'Narcomoeba', 'Thassa\'s Oracle', 'Dread Return'],
+    HAND = ['Throne of Eldraine', 'Simian Spirit Guide', 'Pyretic Ritual', 'Rite of Flame', 'Rite of Flame'],
+    hand_wins_(['Balustrade Spy'|HAND], LIBRARY, [], 0, 0),
+    not(hand_wins_(['Undercity Informer'|HAND], LIBRARY, [], 0, 0)),
+    hand_wins_(['Beseech the Mirror'|HAND], ['Balustrade Spy'|LIBRARY], [], 0, 0),
+    not(hand_wins_(['Beseech the Mirror'|HAND], ['Undercity Informer'|LIBRARY], [], 0, 0)).
 
 hand_wins_(HAND, LIBRARY, SB, MULLIGANS, PROTECTION) :-
     format('~w\n', [HAND]),

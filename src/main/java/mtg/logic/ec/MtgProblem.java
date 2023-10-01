@@ -236,7 +236,8 @@ public class MtgProblem extends StochasticProblem {
                                  final Deck deck,
                                  final int n,
                                  final MersenneTwisterFast rng) {
-        return prolog.simulateGames(objective, deck, n, rng);
+        int interval = n < 20 ? 0 : n / 20;
+        return prolog.simulateGames(objective, deck, n, rng, interval);
     }
 
     private void printResults(final SingleObjectivePrologProblem objective,
@@ -255,6 +256,14 @@ public class MtgProblem extends StochasticProblem {
                     + " wins with property '" + booleanVar
                     + "' (stddev=" + results.getStdDev(booleanVar)
                     + " ; p=" + results.getP(booleanVar) + ")");
+        }
+        for (final String categoricalVar : objective.getCategoricalOutputs()) {
+            final Map<String, Integer> distribution = results.getValueDistribution(categoricalVar);
+            for (final Map.Entry<String, Integer> entry : distribution.entrySet()) {
+                System.out.println("    " + entry.getValue()
+                        + " wins with " + categoricalVar
+                        + " == " + entry.getKey());
+            }
         }
         final int nMull = results.getNWithProperty("mulligan");
         final double avgMulls = results.getPropertySum("nMulligans") / ((double) nMull);

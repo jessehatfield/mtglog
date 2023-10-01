@@ -233,22 +233,24 @@ public class PrologEngine {
      * @param deck The deck to experiment with
      * @param n The number of hands to sample and test
      * @param rng The random number generator to use for shuffling
+     * @param printInterval If positive, print success rate every k trials
      * @return A Results object aggregating all the outputs of all the trials
      */
     public Results simulateGames(final SingleObjectivePrologProblem objective, final Deck deck,
-                                 int n, MersenneTwisterFast rng) {
+                                 final int n, final MersenneTwisterFast rng, final int printInterval) {
         Results aggregatedResults = new Results();
-        int interval = n < 20 ? 1 : n / 20;
         for (int i = 0; i < n; i++) {
             ResultSequence testResult = simulateGame(objective, deck, rng);
             for (ResultConsumer consumer : resultConsumers) {
                 consumer.consumeResult(objective, deck, testResult);
             }
             aggregatedResults.add(testResult.getFinalResult());
-            if ((i+1) < n && (i+1) % interval == 0) {
+            if (printInterval > 0 && (i+1) < n && (i+1) % printInterval == 0) {
                 System.err.println(aggregatedResults.getNSuccesses() + " / " + aggregatedResults.getNTotal() +  " successes...");
             }
         }
+        System.err.println(aggregatedResults.getNSuccesses() + " / " + aggregatedResults.getNTotal()
+                +  " total successes.");
         return aggregatedResults;
     }
 }

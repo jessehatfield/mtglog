@@ -26,5 +26,6 @@ public class SingleObjectivePrologProblemTest {
         Assert.assertTrue(oops.getParams().get("greedy_mulligans") instanceof Integer);
         Assert.assertEquals(0, oops.getParams().get("greedy_mulligans"));
         Assert.assertEquals(Collections.singletonList("isProtected"), oops.getBooleanOutputs());
+        Assert.assertEquals(Collections.singletonList("wincon"), oops.getCategoricalOutputs());
     }
 }

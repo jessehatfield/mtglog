@@ -9,57 +9,69 @@ play_oops_hand(HAND, LIBRARY, SB, MULLIGANS, INPUT_PARAMS, OUTPUTS) :-
     ; (GREEDY_MULLIGANS =< MULLIGANS, REQUIRED_PROTECTION is 0)),
     combination(HAND, MULLIGANS, BOTTOM, MULL_HAND),
     append(LIBRARY, BOTTOM, MULL_LIBRARY),
-    protected_win(MULL_HAND, MULL_LIBRARY, SB, REQUIRED_PROTECTION, 3, REQUIRED_WINCON, SEQ, PROTECTION),
+    protected_win(MULL_HAND, MULL_LIBRARY, SB, REQUIRED_PROTECTION, 3, REQUIRED_WINCON, SEQ, PROTECTION, WINCON),
     ((PROTECTION >= DESIRED_PROTECTION, IS_PROTECTED = true)
     ; PROTECTION < DESIRED_PROTECTION, IS_PROTECTED = false),
-    OUTPUTS = _{sequence:SEQ,protection:PROTECTION,keep:MULL_HAND,isProtected:IS_PROTECTED},
+    OUTPUTS = _{sequence:SEQ,protection:PROTECTION,keep:MULL_HAND,isProtected:IS_PROTECTED,wincon:WINCON},
     !.
 
-protected_win(HAND, DECK, SB, MIN_PROTECTION, TARGET_PROTECTION, REQUIRED_WINCON, SEQUENCE, TARGET_PROTECTION) :-
+protected_win(HAND, DECK, SB, MIN_PROTECTION, TARGET_PROTECTION, REQUIRED_WINCON, SEQUENCE, TARGET_PROTECTION, WINCON) :-
     prune_protection(TARGET_PROTECTION, HAND),
-    win_specific(HAND, DECK, SB, REQUIRED_WINCON, SEQUENCE, TARGET_PROTECTION),
+    win_specific(HAND, DECK, SB, REQUIRED_WINCON, SEQUENCE, TARGET_PROTECTION, WINCON),
     TARGET_PROTECTION >= MIN_PROTECTION.
-protected_win(HAND, DECK, SB, MIN_PROTECTION, TARGET_PROTECTION, REQUIRED_WINCON, SEQUENCE, BEST_PROTECTION) :-
+protected_win(HAND, DECK, SB, MIN_PROTECTION, TARGET_PROTECTION, REQUIRED_WINCON, SEQUENCE, BEST_PROTECTION, WINCON) :-
     TARGET_PROTECTION > 0,
     TARGET_PROTECTION > MIN_PROTECTION,
     NEW_TARGET is TARGET_PROTECTION-1,
-    protected_win(HAND, DECK, SB, MIN_PROTECTION, NEW_TARGET, REQUIRED_WINCON, SEQUENCE, BEST_PROTECTION).
-protected_win(HAND, DECK, SB, REQUIRED_WINCON, SEQUENCE, PROTECTION) :-
-    protected_win(HAND, DECK, SB, 0, 3, REQUIRED_WINCON, SEQUENCE, PROTECTION).
+    protected_win(HAND, DECK, SB, MIN_PROTECTION, NEW_TARGET, REQUIRED_WINCON, SEQUENCE, BEST_PROTECTION, WINCON).
+protected_win(HAND, DECK, SB, REQUIRED_WINCON, SEQUENCE, PROTECTION, WINCON) :-
+    protected_win(HAND, DECK, SB, 0, 3, REQUIRED_WINCON, SEQUENCE, PROTECTION, WINCON).
 
-win_specific(HAND, DECK, SB, any, SEQUENCE, TARGET_PROTECTION) :-
-    win(HAND, DECK, SB, SEQUENCE, TARGET_PROTECTION).
-win_specific(HAND, DECK, SB, oops, SEQUENCE, TARGET_PROTECTION) :-
-    win_oops(HAND, DECK, SB, SEQUENCE, TARGET_PROTECTION).
-win_specific(HAND, DECK, SB, empty, SEQUENCE, TARGET_PROTECTION) :-
-    win_empty(HAND, DECK, SB, SEQUENCE, TARGET_PROTECTION).
+win_specific(HAND, DECK, SB, any, SEQUENCE, TARGET_PROTECTION, WINCON) :-
+    win(HAND, DECK, SB, SEQUENCE, TARGET_PROTECTION, WINCON).
+win_specific(HAND, DECK, SB, oops, SEQUENCE, TARGET_PROTECTION, WINCON) :-
+    win_oops(HAND, DECK, SB, SEQUENCE, TARGET_PROTECTION, WINCON).
+win_specific(HAND, DECK, SB, empty, SEQUENCE, TARGET_PROTECTION, WINCON) :-
+    win_empty(HAND, DECK, SB, SEQUENCE, TARGET_PROTECTION, WINCON).
 
 win(HAND, SEQUENCE) :-
     win(HAND, [], SEQUENCE, _).
 win(HAND, SEQUENCE, PROTECTION) :-
     win(HAND, [], SEQUENCE, PROTECTION).
 win(HAND, DECK, SEQUENCE, PROTECTION) :-
-    win(HAND, DECK, [], SEQUENCE, PROTECTION).
-win(HAND, DECK, SB, SEQUENCE, PROTECTION) :-
-    informer(HAND, DECK, SEQUENCE, PROTECTION);
-    spy(HAND, DECK, SEQUENCE, PROTECTION);
-    breakfast(HAND, DECK, SEQUENCE, PROTECTION);
-    etw(HAND, DECK, SEQUENCE, STORM, PROTECTION), STORM >= 4, canpass(SEQUENCE);
-    belcher(HAND, DECK, SEQUENCE, PROTECTION);
-    wish_warrens(HAND, DECK, SB, SEQUENCE, STORM, PROTECTION), STORM >= 4, canpass(SEQUENCE);
-    wish_spy(HAND, DECK, SB, SEQUENCE, PROTECTION);
-    wish_informer(HAND, DECK, SB, SEQUENCE, PROTECTION);
-    ee_informer(HAND, DECK, SB, SEQUENCE, PROTECTION);
-    ee_spy(HAND, DECK, SB, SEQUENCE, PROTECTION).
-win_oops(HAND, DECK, SB, SEQUENCE, PROTECTION) :-
-    informer(HAND, DECK, SEQUENCE, PROTECTION);
-    spy(HAND, DECK, SEQUENCE, PROTECTION);
-    breakfast(HAND, DECK, SEQUENCE, PROTECTION);
-    wish_spy(HAND, DECK, SB, SEQUENCE, PROTECTION);
-    wish_informer(HAND, DECK, SB, SEQUENCE, PROTECTION).
-win_empty(HAND, DECK, SB, SEQUENCE, PROTECTION) :-
-    etw(HAND, DECK, SEQUENCE, STORM, PROTECTION), STORM >= 4, canpass(SEQUENCE);
+    win(HAND, DECK, [], SEQUENCE, PROTECTION, _).
+win(HAND, DECK, _, SEQUENCE, PROTECTION, informer) :-
+    informer(HAND, DECK, SEQUENCE, PROTECTION).
+win(HAND, DECK, _, SEQUENCE, PROTECTION, spy) :-
+    spy(HAND, DECK, SEQUENCE, PROTECTION).
+win(HAND, DECK, _, SEQUENCE, PROTECTION, 'beseech->spy') :-
+    beseech_spy(HAND, DECK, SEQUENCE, PROTECTION).
+win(HAND, DECK, _, SEQUENCE, PROTECTION, breakfast) :-
+    breakfast(HAND, DECK, SEQUENCE, PROTECTION).
+win(HAND, DECK, _, SEQUENCE, PROTECTION, empty) :-
+    etw(HAND, DECK, SEQUENCE, STORM, PROTECTION), STORM >= 4, canpass(SEQUENCE).
+win(HAND, DECK, _, SEQUENCE, PROTECTION, belcher) :-
+    belcher(HAND, DECK, SEQUENCE, PROTECTION).
+win(HAND, DECK, SB, SEQUENCE, PROTECTION, 'wish->empty') :-
     wish_warrens(HAND, DECK, SB, SEQUENCE, STORM, PROTECTION), STORM >= 4, canpass(SEQUENCE).
+win(HAND, DECK, SB, SEQUENCE, PROTECTION, 'wish->spy') :-
+    wish_spy(HAND, DECK, SB, SEQUENCE, PROTECTION).
+win(HAND, DECK, SB, SEQUENCE, PROTECTION, 'wish->informer') :-
+    wish_informer(HAND, DECK, SB, SEQUENCE, PROTECTION).
+win(HAND, DECK, SB, SEQUENCE, PROTECTION, 'ee->informer') :-
+    ee_informer(HAND, DECK, SB, SEQUENCE, PROTECTION).
+win(HAND, DECK, SB, SEQUENCE, PROTECTION, 'ee->spy') :-
+    ee_spy(HAND, DECK, SB, SEQUENCE, PROTECTION).
+
+win_oops(HAND, DECK, SB, SEQUENCE, PROTECTION, WINCON) :-
+    informer(HAND, DECK, SEQUENCE, PROTECTION), WINCON is 'Undercity Informer';
+    spy(HAND, DECK, SEQUENCE, PROTECTION), WINCON is 'Balustrade Spy';
+    breakfast(HAND, DECK, SEQUENCE, PROTECTION), WINCON is 'Breakfast';
+    wish_spy(HAND, DECK, SB, SEQUENCE, PROTECTION), WINCON is 'Wish->Spy';
+    wish_informer(HAND, DECK, SB, SEQUENCE, PROTECTION), WINCON is 'Wish->Informer'.
+win_empty(HAND, DECK, SB, SEQUENCE, PROTECTION, WINCON) :-
+    etw(HAND, DECK, SEQUENCE, STORM, PROTECTION), STORM >= 4, canpass(SEQUENCE), WINCON is 'Empty the Warrens';
+    wish_warrens(HAND, DECK, SB, SEQUENCE, STORM, PROTECTION), STORM >= 4, canpass(SEQUENCE), WINCON is 'Wish->Empty'.
 
 belcher(START_HAND, START_DECK, SEQUENCE, PROTECTION) :-
     belcher(START_HAND, [], [0,0,0,0,0,0,0], [], 0, START_DECK, SEQUENCE, PROTECTION).
@@ -112,6 +124,7 @@ informer(H1, B1, M1, G1, S1, D1, SEQUENCE, PROTECTION) :-
     % Then attempt it for real
     informer_mill(H1, B1, M1, G1, S1, D1, H2, B2, M2, G2, _, D2, [], SEQUENCE1, P1),
     informerCombo(H2, B2, D2, G2, M2, SEQUENCE1, SEQUENCE, P2),
+    not(contains_spellsonly(SEQUENCE)),
     PROTECTION is P1 + P2,
     !.
 informer_mill(H1, B1, M1, G1, S1, D1, H4, B3, M5, G3, S3, D3, SEQUENCE_PRIOR, SEQUENCE_FINAL, PROTECTION) :-
@@ -154,6 +167,36 @@ spy_mill(H1, B1, M1, G1, S1, D1, H3, B3, M3, G2, S2, D2, SEQUENCE_PRIOR, SEQUENC
 spy_mill(START_HAND, START_DECK, SEQUENCE, PROTECTION) :-
     member_or_tutor('Balustrade Spy', START_HAND, START_DECK),
     spy_mill(START_HAND, [0,0,0,0,0,0,0], [], 0, START_DECK, _, _, _, _, _, [], SEQUENCE, PROTECTION),
+    !.
+
+beseech_spy(START_HAND, START_DECK, SEQUENCE, PROTECTION) :-
+    beseech_spy(START_HAND, [], [0,0,0,0,0,0,0], [], 0, START_DECK, SEQUENCE, PROTECTION).
+beseech_spy(H1, B1, M1, G1, S1, D1, SEQUENCE, PROTECTION) :-
+    % Verify that its possible in the best case scenario for mana sequencing
+    member_or_tutor('Beseech the Mirror', H1, D1),
+    member('Balustrade Spy', D1),
+    prune(4, H1, B1, G1, M1),
+    canInformer(H1, G1, D1),
+    informerCombo(H1, ['Balustrade Spy'|B1], D1, G1, M1, [], _, _),
+    % Then attempt it for real
+    beseech_spy_mill(H1, B1, M1, G1, S1, D1, H2, B2, M2, G2, _, D2, [], SEQUENCE1, P1),
+    informerCombo(H2, B2, D2, G2, M2, SEQUENCE1, SEQUENCE, P2),
+    PROTECTION is P1 + P2,
+    !.
+beseech_spy_mill(H1, B1, M1, G1, S1, D1, H5, B6, M5, G5, S5, D5, SEQUENCE_PRIOR, SEQUENCE_FINAL, PROTECTION) :-
+    prune(4, H1, B1, G1, M1),
+    member('Balustrade Spy', D1),
+    % Make 1BBB mana, cast
+    makemana_goal('Beseech the Mirror', [H1, B1, M1, G1, S1, D1, 0], STATE2, SEQUENCE_PRIOR, SEQUENCE2),
+    remove_from_hand('Beseech the Mirror', STATE2, STATE3),
+    spend_([0, 0, 3, 0, 0, 0, 1], STATE3, STATE4),
+    beseech_bargain('Balustrade Spy', STATE4, [H5, B5, M5, G5, S5, D5, PROTECTION], SEQUENCE_SAC),
+    append(SEQUENCE2, SEQUENCE_SAC, SEQUENCE3),
+    append(SEQUENCE3, ['Balustrade Spy'], SEQUENCE_FINAL),
+    append(B5, ['Balustrade Spy'], B6).
+beseech_spy_mill(START_HAND, START_DECK, SEQUENCE, PROTECTION) :-
+    member_or_tutor('Beseech the Mirror', START_HAND, START_DECK),
+    beseech_spy_mill(START_HAND, [0,0,0,0,0,0,0], [], 0, START_DECK, _, _, _, _, _, [], SEQUENCE, PROTECTION),
     !.
 
 breakfast(START_HAND, START_DECK, SEQUENCE, PROTECTION) :-
@@ -251,6 +294,7 @@ wish_informer(H1, B1, M1, G1, S1, D1, SEQUENCE, PROTECTION) :-
     % Then attempt it for real
     wish_informer_mill(H1, B1, M1, G1, S1, D1, 0, H2, B2, M2, G2, _, D2, SEQUENCE_MILL, P1),
     informerCombo(H2, B2, D2, G2, M2, SEQUENCE_MILL, SEQUENCE, P2),
+    not(contains_spellsonly(SEQUENCE)),
     PROTECTION is P1 + P2,
     !.
 wish_informer_mill(H1, B1, M1, G1, S1, D1, P1, H5, B4, M7, G4, S5, D4, P4, SEQUENCE) :-
@@ -301,6 +345,7 @@ ee_informer(H1, B1, M1, G1, S1, D1, SEQUENCE, PROTECTION) :-
     makemana([H4, B3, M4, G3, S3, D4, P3], [H5, B4, M5, G4, _, D5, P4], SEQUENCE4, SEQUENCE5),
     spendGeneric(1, M5, M6),
     informerCombo(H5, B4, D5, ['Undercity Informer'|G4], M6, SEQUENCE5, SEQUENCE, P5),
+    not(contains_spellsonly(SEQUENCE)),
     PROTECTION is P4 + P5,
     !.
 

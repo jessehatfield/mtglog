@@ -25,6 +25,7 @@ public class MongoResultStore extends ResultStore {
     public static final String SUCCESS_FIELD = "success";
     public static final String MULLIGAN_COUNT_FIELD = "mulligans";
     public static final String BOOL_OUTPUT_FIELD = "properties";
+    public static final String CATEGORICAL_OUTPUT_FIELD = "categories";
 
     private final String connectionString;
     private final String databaseName;
@@ -74,17 +75,22 @@ public class MongoResultStore extends ResultStore {
             for (ResultSequence result : resultCache) {
                 final Results finalResult = result.getFinalResult();
                 final Document boolOutputs = new Document();
+                final Document categoricalOutputs = new Document();
                 final boolean isSuccess = finalResult.getNSuccesses() > 0;
                 if (isSuccess) {
                     for (String flag : objective.getBooleanOutputs()) {
                         boolOutputs.append(flag, finalResult.getBooleanMetadata(flag).get(0));
+                    }
+                    for (String key : objective.getCategoricalOutputs()) {
+                        categoricalOutputs.append(key, finalResult.getStringMetadata(key).get(0));
                     }
                 }
                 final Document testDocument = new Document(DECK_JOIN_FIELD, deckId)
                         .append(OBJECTIVE_JOIN_FIELD, objectiveId)
                         .append(SUCCESS_FIELD, isSuccess)
                         .append(MULLIGAN_COUNT_FIELD, finalResult.getMulliganCounts(0))
-                        .append(BOOL_OUTPUT_FIELD, boolOutputs);
+                        .append(BOOL_OUTPUT_FIELD, boolOutputs)
+                        .append(CATEGORICAL_OUTPUT_FIELD, categoricalOutputs);
                 tests.add(testDocument);
             }
             testCollection.insertMany(tests);

@@ -31,6 +31,7 @@ public class MultiObjectivePrologProblemTest {
         Assert.assertTrue(objectives.get(0).getParams().get("greedy_mulligans") instanceof Integer);
         Assert.assertEquals(0, objectives.get(0).getParams().get("greedy_mulligans"));
         Assert.assertEquals(Collections.singletonList("isProtected"), objectives.get(0).getBooleanOutputs());
+        Assert.assertEquals(Collections.singletonList("wincon"), objectives.get(0).getCategoricalOutputs());
         Assert.assertEquals("protectedWin", objectives.get(1).getName());
         Assert.assertEquals(4, objectives.get(1).getMaxMulligans());
         Assert.assertEquals("play_oops_hand", objectives.get(1).getPredicate());
@@ -63,6 +64,7 @@ public class MultiObjectivePrologProblemTest {
         Assert.assertTrue(objectives.get(0).getParams().get("greedy_mulligans") instanceof Integer);
         Assert.assertEquals(0, objectives.get(0).getParams().get("greedy_mulligans"));
         Assert.assertEquals(Collections.singletonList("isProtected"), objectives.get(0).getBooleanOutputs());
+        Assert.assertEquals(Collections.singletonList("wincon"), objectives.get(0).getCategoricalOutputs());
         final List<SecondaryObjective> secondaryObjectives = oops.getSecondaryObjectives();
         Assert.assertEquals(1, secondaryObjectives.size());
         Assert.assertEquals("protectedWin", secondaryObjectives.get(0).getName());

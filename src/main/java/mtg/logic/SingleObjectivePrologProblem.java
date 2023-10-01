@@ -120,6 +120,10 @@ public class SingleObjectivePrologProblem implements Serializable, PrologProblem
         return outputs.getOrDefault("boolean", Collections.emptyList());
     }
 
+    public List<String> getCategoricalOutputs() {
+        return outputs.getOrDefault("categorical", Collections.emptyList());
+    }
+
     /**
      * @return The name of a boolean property that needs to be true for a full
      *         success, or null if there is no such requirement

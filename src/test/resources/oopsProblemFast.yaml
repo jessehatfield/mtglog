@@ -18,6 +18,8 @@ objectives:
       outputs:
         boolean:
           - isProtected
+        categorical:
+          - wincon
 
 secondaryObjectives:
 

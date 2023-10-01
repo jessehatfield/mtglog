@@ -10,7 +10,7 @@ objectives:
 
     - name: win
       predicate: play_oops_hand
-      serumPoderPredicate: can_powder
+      serumPowderPredicate: can_powder
       maxMulligans: 3
       params:
         protection: 1
@@ -21,7 +21,7 @@ objectives:
 
     - name: protectedWin
       predicate: play_oops_hand
-      serumPoderPredicate: can_powder
+      serumPowderPredicate: can_powder
       maxMulligans: 4
       params:
         protection: 1
@@ -32,7 +32,7 @@ objectives:
 
     - name: optimisticWin
       predicate: play_oops_hand
-      serumPoderPredicate: can_powder
+      serumPowderPredicate: can_powder
       maxMulligans: 3
       params:
         protection: 1
@@ -43,7 +43,7 @@ objectives:
 
     - name: oops
       predicate: play_oops_hand
-      serumPoderPredicate: can_powder
+      serumPowderPredicate: can_powder
       maxMulligans: 3
       params:
         protection: 1
@@ -55,7 +55,7 @@ objectives:
 
     - name: empty
       predicate: play_oops_hand
-      serumPoderPredicate: can_powder
+      serumPowderPredicate: can_powder
       maxMulligans: 3
       params:
         protection: 1

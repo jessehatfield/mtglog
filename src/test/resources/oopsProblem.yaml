@@ -19,3 +19,5 @@ params:
 outputs:
   boolean:
     - isProtected
+  categorical:
+    - wincon

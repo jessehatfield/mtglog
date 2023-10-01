@@ -148,6 +148,18 @@ public class Results {
         return intMetadata.get(property).stream().reduce(Integer::sum).orElse(0);
     }
 
+    public Map<String, Integer> getValueDistribution(final String key) {
+        final Map<String, Integer> distribution = new LinkedHashMap<>();
+        if (!stringMetadata.containsKey(key)) {
+            throw new IllegalArgumentException("Results don't contain string property '"
+                    + key + "'. String properties found: " + stringMetadata);
+        }
+        for (final String value : stringMetadata.get(key)) {
+            distribution.put(value, distribution.getOrDefault(value, 0) + 1);
+        }
+        return distribution;
+    }
+
     public Map<String, Integer> getIntMetadata(final int i) {
         return intMetadata.entrySet().stream().collect(Collectors.toMap(
                 Map.Entry::getKey, e -> e.getValue().get(i)));

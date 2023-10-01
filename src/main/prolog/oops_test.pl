@@ -26,20 +26,20 @@ run_oops_tests :-
 test_hand_1 :-
     LIBRARY = ['UNKNOWN', 'Narcomoeba', 'Narcomoeba', 'Narcomoeba', 'Dread Return', 'Elvish Spirit Guide', 'Thassa\'s Oracle'],
     HAND = ['Simian Spirit Guide', 'Elvish Spirit Guide', 'Elvish Spirit Guide', 'Balustrade Spy', 'Lotus Petal', 'Elvish Spirit Guide', 'Lotus Petal'],
-    hand_wins_(HAND, LIBRARY, [], 0, 0).
+    hand_wins_(HAND, LIBRARY, [], 0, 0, spy).
 
 % Should be a simple loss if protection is required, but took several minutes in test run
 test_hand_2 :-
     LIBRARY = ['UNKNOWN', 'Narcomoeba', 'Narcomoeba', 'Narcomoeba', 'Dread Return', 'Elvish Spirit Guide', 'Thassa\'s Oracle'],
     HAND = ['Lion\'s Eye Diamond', 'Lotus Petal', 'Thoughtseize', 'Agadeem\'s Awakening', 'Summoner\'s Pact', 'Undercity Informer', 'Chrome Mox'],
     not(hand_wins_(HAND, LIBRARY, [], 0, 1)),
-    hand_wins_(HAND, LIBRARY, [], 0, 0).
+    hand_wins_(HAND, LIBRARY, [], 0, 0, informer).
 
 % Should be a win, can take over a minute
 test_hand_3 :-
     LIBRARY = ['UNKNOWN', 'Narcomoeba', 'Narcomoeba', 'Narcomoeba', 'Dread Return', 'Elvish Spirit Guide', 'Thassa\'s Oracle', 'Wild Cantor'],
     HAND = ['Undercity Informer', 'Sea Gate Restoration', 'Pact of Negation', 'Simian Spirit Guide', 'Elvish Spirit Guide', 'Summoner\'s Pact', 'Lion\'s Eye Diamond'],
-    hand_wins_(HAND, LIBRARY, [], 0, 0).
+    hand_wins_(HAND, LIBRARY, [], 0, 0, informer).
 
 % Should work if Narcomoeba+Oracle in hand isn't a problem: if the deck has Bridge+Therapy, if the
 % deck has a second Oracle, or if we took a mulligan; shouldn't work otherwise
@@ -47,9 +47,9 @@ test_hand_4 :-
     HAND = ['Narcomoeba', 'Thassa\'s Oracle', 'Lotus Petal', 'Lotus Petal', 'Undercity Informer', 'Cabal Ritual', 'Cabal Ritual'],
     not(hand_wins_(HAND, ['Narcomoeba', 'Narcomoeba', 'Narcomoeba', 'Dread Return', 'Elvish Spirit Guide'], [], 0, 0)),
     not(hand_wins_(HAND, ['Narcomoeba', 'Narcomoeba', 'Narcomoeba', 'Dread Return', 'Elvish Spirit Guide', 'Bridge from Below'], [], 0, 0)),
-    hand_wins_(HAND, ['Narcomoeba', 'Narcomoeba', 'Narcomoeba', 'Dread Return', 'Elvish Spirit Guide', 'Thassa\'s Oracle'], [], 0, 0),
-    hand_wins_(HAND, ['Narcomoeba', 'Narcomoeba', 'Narcomoeba', 'Dread Return', 'Elvish Spirit Guide'], [], 1, 0),
-    hand_wins_(HAND, ['Narcomoeba', 'Narcomoeba', 'Narcomoeba', 'Dread Return', 'Elvish Spirit Guide', 'Bridge from Below', 'Cabal Therapy'], [], 0, 0).
+    hand_wins_(HAND, ['Narcomoeba', 'Narcomoeba', 'Narcomoeba', 'Dread Return', 'Elvish Spirit Guide', 'Thassa\'s Oracle'], [], 0, 0, informer),
+    hand_wins_(HAND, ['Narcomoeba', 'Narcomoeba', 'Narcomoeba', 'Dread Return', 'Elvish Spirit Guide'], [], 1, 0, informer),
+    hand_wins_(HAND, ['Narcomoeba', 'Narcomoeba', 'Narcomoeba', 'Dread Return', 'Elvish Spirit Guide', 'Bridge from Below', 'Cabal Therapy'], [], 0, 0, informer).
 
 % Hand is a loss, but can take time because of multiple pacts, which could generate the proper CMC
 % AND the proper colors but not both
@@ -64,14 +64,14 @@ test_hand_6 :-
     HAND = ['Elvish Spirit Guide', 'Summoner\'s Pact', 'Dread Return', 'Simian Spirit Guide', 'Summoner\'s Pact', 'Undercity Informer', 'Chrome Mox'],
     LIBRARY = ['Narcomoeba', 'Narcomoeba', 'Narcomoeba', 'Narcomoeba', 'Elvish Spirit Guide', 'Thassa\'s Oracle', 'Cabal Therapy'],
     % Could only be a win if there were a second Dread Return
-    hand_wins_(HAND, ['Dread Return'|LIBRARY], [], 1, 0),
+    hand_wins_(HAND, ['Dread Return'|LIBRARY], [], 1, 0, informer),
     not(hand_wins_(HAND, LIBRARY, [], 1, 0)).
 
 % Should be a win, but was originally flagged as a loss
 test_hand_7 :-
     HAND = ['Lotus Petal', 'Narcomoeba', 'Dark Ritual', 'Chrome Mox', 'Balustrade Spy', 'Lotus Petal', 'Narcomoeba'],
     LIBRARY = ['Narcomoeba', 'Thassa\'s Oracle', 'Dread Return', 'Narcomoeba'],
-    hand_wins_(HAND, LIBRARY, [], 0, 0),
+    hand_wins_(HAND, LIBRARY, [], 0, 0, spy),
     % relies on Spy being a sacrificeable creature, so shouldn't work with Informer:
     H2 = ['Lotus Petal', 'Narcomoeba', 'Dark Ritual', 'Chrome Mox', 'Undercity Informer', 'Lotus Petal', 'Narcomoeba'],
     not(hand_wins_(H2, LIBRARY, [], 0, 0)).
@@ -80,17 +80,17 @@ test_hand_7 :-
 test_wish_led :-
     HAND = ['Elvish Spirit Guide', 'Living Wish', 'Lion\'s Eye Diamond', 'Elvish Spirit Guide', 'Simian Spirit Guide'],
     LIBRARY = ['Narcomoeba', 'Thassa\'s Oracle', 'Dread Return', 'Narcomoeba', 'Narcomoeba'],
-    hand_wins_(HAND, LIBRARY, ['Balustrade Spy'], 0, 0),
-    hand_wins_(['Chancellor of the Annex'|HAND], LIBRARY, ['Balustrade Spy'], 0, 1), % can add protection
-    hand_wins_(['Pact of Negation'|HAND], LIBRARY, ['Balustrade Spy'], 0, 0), % but can't cast Pact for protection
+    hand_wins_(HAND, LIBRARY, ['Balustrade Spy'], 0, 0, 'wish->spy'),
+    hand_wins_(['Chancellor of the Annex'|HAND], LIBRARY, ['Balustrade Spy'], 0, 1, 'wish->spy'), % can add protection
+    hand_wins_(['Pact of Negation'|HAND], LIBRARY, ['Balustrade Spy'], 0, 0, 'wish->spy'), % but can't cast Pact for protection
     not(hand_wins_(HAND, LIBRARY, [], 0, _)). % doesn't work without the sideboard
 
 % ETW with storm >= 4 should count as a protected win, unless it requires a Pact
 test_etw :-
     HAND = ['Lotus Petal', 'Rite of Flame', 'Mox Opal', 'Elvish Spirit Guide', 'Simian Spirit Guide', 'Empty the Warrens'],
     LIBRARY = ['Elvish Spirit Guide'],
-    hand_wins_(['Empty the Warrens'|HAND], LIBRARY, [], 0, 1), % one protection from ETW itself
-    hand_wins_(['Chancellor of the Annex'|HAND], LIBRARY, [], 0, 2), % can add protection
+    hand_wins_(['Empty the Warrens'|HAND], LIBRARY, [], 0, 1, empty), % one protection from ETW itself
+    hand_wins_(['Chancellor of the Annex'|HAND], LIBRARY, [], 0, 2, empty), % can add protection
     not(hand_wins_(['Pact of Negation'|HAND], LIBRARY, [], 0, 2)), % can't cast Pact for protection
     H2 = ['Lotus Petal', 'Rite of Flame', 'Mox Opal', 'Summoner\'s Pact', 'Simian Spirit Guide', 'Empty the Warrens', 'Empty the Warrens'],
     not(hand_wins_(H2, ['Elvish Spirit Guide'], [], 0, _)). % can't cast Pact for mana
@@ -101,24 +101,24 @@ test_culling :-
     LIBRARY = ['Narcomoeba', 'Thassa\'s Oracle', 'Dread Return', 'Narcomoeba', 'Narcomoeba'],
     not(hand_wins_(HAND_1, LIBRARY, [], 0, 0)),
     HAND_2 = ['Agadeem\'s Awakening', 'Elvish Spirit Guide', 'Elvish Spirit Guide', 'Burning-Tree Emissary', 'Undercity Informer', 'Culling the Weak'],
-    hand_wins_(HAND_2, LIBRARY, [], 0, 0),
+    hand_wins_(HAND_2, LIBRARY, [], 0, 0, informer),
     HAND_3 = ['Agadeem\'s Awakening', 'Grief', 'Bridge from Below', 'Undercity Informer', 'Culling the Weak'],
-    hand_wins_(HAND_3, LIBRARY, [], 0, 1),
+    hand_wins_(HAND_3, LIBRARY, [], 0, 1, informer),
     HAND_4 = ['Agadeem\'s Awakening', 'Wild Cantor', 'Elvish Spirit Guide', 'Undercity Informer', 'Culling the Weak'],
-    hand_wins_(HAND_4, LIBRARY, [], 0, 0),
+    hand_wins_(HAND_4, LIBRARY, [], 0, 0, informer),
     HAND_5 = ['Agadeem\'s Awakening', 'Summoner\'s Pact', 'Spiritmonger', 'Undercity Informer', 'Culling the Weak'],
-    hand_wins_(HAND_5, ['Endurance'|LIBRARY], [], 0, 0),
-    hand_wins_(HAND_5, ['Vine Dryad'|LIBRARY], [], 0, 0),
+    hand_wins_(HAND_5, ['Endurance'|LIBRARY], [], 0, 0, informer),
+    hand_wins_(HAND_5, ['Vine Dryad'|LIBRARY], [], 0, 0, informer),
     HAND_6 = ['Agadeem\'s Awakening', 'Summoner\'s Pact', 'Undercity Informer', 'Culling the Weak'],
     not(hand_wins_(HAND_6, ['Endurance'|['Quirion Sentinel'|['Vine Dryad'|LIBRARY]]], [], 0, 0)),
     HAND_7 = ['Agadeem\'s Awakening', 'Summoner\'s Pact', 'Spiritmonger', 'Undercity Informer', 'Culling the Weak', 'Quirion Sentinel'],
     not(hand_wins_(HAND_7, LIBRARY, [], 0, 0)),
     HAND_8 = ['Elvish Spirit Guide', 'Summoner\'s Pact', 'Elvish Spirit Guide', 'Undercity Informer', 'Culling the Weak'],
-    hand_wins_(HAND_8, ['Quirion Sentinel'|LIBRARY], [], 0, 0),
+    hand_wins_(HAND_8, ['Quirion Sentinel'|LIBRARY], [], 0, 0, informer),
     HAND_9 = ['Phyrexian Walker', 'Lotus Petal', 'Undercity Informer', 'Culling the Weak'],
-    hand_wins_(HAND_9, LIBRARY, [], 0, 0),
+    hand_wins_(HAND_9, LIBRARY, [], 0, 0, informer),
     HAND_10 = ['Shield Sphere', 'Mox Opal', 'Shield Sphere', 'Balustrade Spy', 'Culling the Weak'],
-    hand_wins_(HAND_10, LIBRARY, [], 0, 0),
+    hand_wins_(HAND_10, LIBRARY, [], 0, 0, spy),
     HAND_11 = ['Shield Sphere', 'Mox Opal', 'Elvish Spirit Guide', 'Balustrade Spy', 'Culling the Weak'],
     not(hand_wins_(HAND_11, LIBRARY, [], 0, 0)).
 
@@ -129,24 +129,24 @@ test_sacrifice :-
     not(hand_wins_(HAND_1, LIBRARY, [], 0, 0)),
     % Sacrifice gets enough mana from Vine Dryad, but not Endurance
     HAND_2 = ['Agadeem\'s Awakening', 'Vine Dryad', 'Spiritmonger', 'Undercity Informer', 'Sacrifice'],
-    hand_wins_(HAND_2, LIBRARY, [], 0, 0),
+    hand_wins_(HAND_2, LIBRARY, [], 0, 0, informer),
     HAND_3 = ['Agadeem\'s Awakening', 'Endurance', 'Spiritmonger', 'Undercity Informer', 'Sacrifice'],
     not(hand_wins_(HAND_3, LIBRARY, [], 0, 0)),
     % Burnt Offering gets enough mana from Vine Dryad, but not Endurance
     HAND_4 = ['Agadeem\'s Awakening', 'Vine Dryad', 'Spiritmonger', 'Undercity Informer', 'Burnt Offering'],
-    hand_wins_(HAND_4, LIBRARY, [], 0, 0),
+    hand_wins_(HAND_4, LIBRARY, [], 0, 0, informer),
     HAND_5 = ['Agadeem\'s Awakening', 'Endurance', 'Spiritmonger', 'Undercity Informer', 'Burnt Offering'],
     not(hand_wins_(HAND_5, LIBRARY, [], 0, 0)),
     % Endurance hands should work if given one more mana
-    hand_wins_(['Simian Spirit Guide'|HAND_3], LIBRARY, [], 0, 0),
-    hand_wins_(['Simian Spirit Guide'|HAND_5], LIBRARY, [], 0, 0),
+    hand_wins_(['Simian Spirit Guide'|HAND_3], LIBRARY, [], 0, 0, informer),
+    hand_wins_(['Simian Spirit Guide'|HAND_5], LIBRARY, [], 0, 0, informer),
     % Grief hands should also work
     HAND_6 = ['Agadeem\'s Awakening', 'Grief', 'Thoughtseize', 'Sacrifice', 'Balustrade Spy'],
     HAND_7 = ['Agadeem\'s Awakening', 'Grief', 'Thoughtseize', 'Burnt Offering', 'Balustrade Spy'],
     not(hand_wins_(HAND_6, LIBRARY, [], 0, 2)),
     not(hand_wins_(HAND_7, LIBRARY, [], 0, 2)),
-    hand_wins_(HAND_6, LIBRARY, [], 0, 1),
-    hand_wins_(HAND_7, LIBRARY, [], 0, 1),
+    hand_wins_(HAND_6, LIBRARY, [], 0, 1, spy),
+    hand_wins_(HAND_7, LIBRARY, [], 0, 1, spy),
     % But none of these should work without a card to pitch
     HAND_8 = ['Agadeem\'s Awakening', 'Grief', 'Vine Dryad', 'Sacrifice', 'Balustrade Spy'],
     HAND_9 = ['Agadeem\'s Awakening', 'Grief', 'Vine Dryad', 'Burnt Offering', 'Balustrade Spy'],
@@ -156,7 +156,7 @@ test_sacrifice :-
     HAND_10 = ['Lotus Petal', 'Vine Dryad', 'Summoner\'s Pact', 'Sacrifice', 'Empty the Warrens', 'Manamorphose'],
     HAND_11 = ['Lotus Petal', 'Vine Dryad', 'Summoner\'s Pact', 'Burnt Offering', 'Empty the Warrens', 'Manamorphose'],
     not(hand_wins_(HAND_10, LIBRARY, [], 0, _)),
-    hand_wins_(HAND_11, LIBRARY, [], 0, 1).
+    hand_wins_(HAND_11, LIBRARY, [], 0, 1, empty).
 
 % Eldritch Evolution with various creatures
 test_eldritch :-
@@ -166,21 +166,21 @@ test_eldritch :-
     HAND_1 = ['Elvish Spirit Guide', 'Simian Spirit Guide', 'Simian Spirit Guide', 'Burning-Tree Emissary', 'Eldritch Evolution'],
     not(hand_wins_(HAND_1, LIBRARY_1, [], 0, 0)),
     not(hand_wins_(HAND_1, LIBRARY_2, [], 0, 0)),
-    hand_wins_(HAND_1, LIBRARY_3, [], 0, 0),
+    hand_wins_(HAND_1, LIBRARY_3, [], 0, 0, 'ee->spy'),
     HAND_2 = ['Elvish Spirit Guide', 'Elvish Spirit Guide', 'Simian Spirit Guide', 'Elvish Spirit Guide', 'Tinder Wall', 'Eldritch Evolution'],
     not(hand_wins_(HAND_2, LIBRARY_1, [], 0, 0)),
     not(hand_wins_(HAND_2, LIBRARY_2, [], 0, 0)),
     not(hand_wins_(HAND_2, LIBRARY_3, [], 0, 0)),
     HAND_3 = ['Simian Spirit Guide'|HAND_2],
     not(hand_wins_(HAND_3, LIBRARY_1, [], 0, 0)),
-    hand_wins_(HAND_3, LIBRARY_2, [], 0, 0),
+    hand_wins_(HAND_3, LIBRARY_2, [], 0, 0, 'ee->informer'),
     not(hand_wins_(HAND_3, LIBRARY_3, [], 0, 0)),
     HAND_4 = ['Summoner\'s Pact', 'Elvish Spirit Guide', 'Chancellor of the Tangle', 'Simian Spirit Guide', 'Eldritch Evolution'],
     not(hand_wins_(HAND_4, LIBRARY_1, [], 0, 0)),
     not(hand_wins_(HAND_4, LIBRARY_2, [], 0, 0)),
     not(hand_wins_(HAND_4, LIBRARY_3, [], 0, 0)),
     LIBRARY_4 = ['Vine Dryad'|LIBRARY_3],
-    hand_wins_(HAND_4, LIBRARY_4, [], 0, 0).
+    hand_wins_(HAND_4, LIBRARY_4, [], 0, 0, 'ee->spy').
 
 % Hands with castable and uncastable pitch spells
 test_pitch :-
@@ -191,12 +191,12 @@ test_pitch :-
     HAND_2 = ['Balustrade Spy', 'Thassa\'s Oracle', 'Lotus Petal', 'Dark Ritual', 'Simian Spirit Guide', 'Misdirection'],
     HAND_3 = ['Balustrade Spy', 'Thassa\'s Oracle', 'Lotus Petal', 'Dark Ritual', 'Simian Spirit Guide', 'Unmask'],
     HAND_4 = ['Balustrade Spy', 'Thassa\'s Oracle', 'Lotus Petal', 'Dark Ritual', 'Simian Spirit Guide', 'Grief'],
-    hand_wins_(HAND_1, LIBRARY_1, [], 0, 1),
-    hand_wins_(HAND_2, LIBRARY_1, [], 0, 1),
+    hand_wins_(HAND_1, LIBRARY_1, [], 0, 1, spy),
+    hand_wins_(HAND_2, LIBRARY_1, [], 0, 1, spy),
     not(hand_wins_(HAND_3, LIBRARY_1, [], 0, 1)),
     not(hand_wins_(HAND_4, LIBRARY_1, [], 0, 1)),
-    hand_wins_(HAND_3, LIBRARY_1, [], 0, 0),
-    hand_wins_(HAND_4, LIBRARY_1, [], 0, 0),
+    hand_wins_(HAND_3, LIBRARY_1, [], 0, 0, spy),
+    hand_wins_(HAND_4, LIBRARY_1, [], 0, 0, spy),
     not(hand_wins_(HAND_1, LIBRARY_2, [], 0, _)),
     not(hand_wins_(HAND_2, LIBRARY_2, [], 0, _)),
     not(hand_wins_(HAND_3, LIBRARY_2, [], 0, _)),
@@ -205,28 +205,28 @@ test_pitch :-
     not(hand_wins_(HAND_2, LIBRARY_3, [], 0, 1)),
     not(hand_wins_(HAND_3, LIBRARY_3, [], 0, 1)),
     not(hand_wins_(HAND_4, LIBRARY_3, [], 0, 1)),
-    hand_wins_(HAND_1, LIBRARY_3, [], 0, 0),
-    hand_wins_(HAND_2, LIBRARY_3, [], 0, 0),
-    hand_wins_(HAND_3, LIBRARY_3, [], 0, 0),
-    hand_wins_(HAND_4, LIBRARY_3, [], 0, 0),
+    hand_wins_(HAND_1, LIBRARY_3, [], 0, 0, spy),
+    hand_wins_(HAND_2, LIBRARY_3, [], 0, 0, spy),
+    hand_wins_(HAND_3, LIBRARY_3, [], 0, 0, spy),
+    hand_wins_(HAND_4, LIBRARY_3, [], 0, 0, spy),
     HAND_5 = ['Balustrade Spy', 'Dread Return', 'Lotus Petal', 'Dark Ritual', 'Simian Spirit Guide', 'Force of Will'],
     HAND_6 = ['Balustrade Spy', 'Dread Return', 'Lotus Petal', 'Dark Ritual', 'Simian Spirit Guide', 'Misdirection'],
     HAND_7 = ['Balustrade Spy', 'Dread Return', 'Lotus Petal', 'Dark Ritual', 'Simian Spirit Guide', 'Unmask'],
     HAND_8 = ['Balustrade Spy', 'Dread Return', 'Lotus Petal', 'Dark Ritual', 'Simian Spirit Guide', 'Grief'],
     not(hand_wins_(HAND_5, LIBRARY_1, [], 0, 1)),
     not(hand_wins_(HAND_6, LIBRARY_1, [], 0, 1)),
-    hand_wins_(HAND_5, LIBRARY_1, [], 0, 0),
-    hand_wins_(HAND_6, LIBRARY_1, [], 0, 0),
-    hand_wins_(HAND_7, LIBRARY_1, [], 0, 1),
-    hand_wins_(HAND_8, LIBRARY_1, [], 0, 1),
+    hand_wins_(HAND_5, LIBRARY_1, [], 0, 0, spy),
+    hand_wins_(HAND_6, LIBRARY_1, [], 0, 0, spy),
+    hand_wins_(HAND_7, LIBRARY_1, [], 0, 1, spy),
+    hand_wins_(HAND_8, LIBRARY_1, [], 0, 1, spy),
     not(hand_wins_(HAND_5, LIBRARY_2, [], 0, 1)),
     not(hand_wins_(HAND_6, LIBRARY_2, [], 0, 1)),
     not(hand_wins_(HAND_7, LIBRARY_2, [], 0, 1)),
     not(hand_wins_(HAND_8, LIBRARY_2, [], 0, 1)),
-    hand_wins_(HAND_5, LIBRARY_2, [], 0, 0),
-    hand_wins_(HAND_6, LIBRARY_2, [], 0, 0),
-    hand_wins_(HAND_7, LIBRARY_2, [], 0, 0),
-    hand_wins_(HAND_8, LIBRARY_2, [], 0, 0),
+    hand_wins_(HAND_5, LIBRARY_2, [], 0, 0, spy),
+    hand_wins_(HAND_6, LIBRARY_2, [], 0, 0, spy),
+    hand_wins_(HAND_7, LIBRARY_2, [], 0, 0, spy),
+    hand_wins_(HAND_8, LIBRARY_2, [], 0, 0, spy),
     not(hand_wins_(HAND_5, LIBRARY_3, [], 0, _)),
     not(hand_wins_(HAND_6, LIBRARY_3, [], 0, _)),
     not(hand_wins_(HAND_7, LIBRARY_3, [], 0, _)),
@@ -235,13 +235,13 @@ test_pitch :-
     not(hand_wins_(HAND_9, LIBRARY_1, [], 0, 2)),
     not(hand_wins_(HAND_9, LIBRARY_2, [], 0, 2)),
     not(hand_wins_(HAND_9, LIBRARY_3, [], 0, 2)),
-    hand_wins_(HAND_9, LIBRARY_1, [], 0, 1),
+    hand_wins_(HAND_9, LIBRARY_1, [], 0, 1, spy),
     not(hand_wins_(HAND_9, LIBRARY_2, [], 0, 1)),
-    hand_wins_(HAND_9, LIBRARY_2, [], 0, 0),
+    hand_wins_(HAND_9, LIBRARY_2, [], 0, 0, spy),
     not(hand_wins_(HAND_9, LIBRARY_3, [], 0, _)),
-    hand_wins_(['The Mimeoplasm'|HAND_9], LIBRARY_1, [], 0, 2),
+    hand_wins_(['The Mimeoplasm'|HAND_9], LIBRARY_1, [], 0, 2, spy),
     not(hand_wins_(['The Mimeoplasm'|HAND_9], LIBRARY_2, [], 0, 2)),
-    hand_wins_(['The Mimeoplasm'|HAND_9], LIBRARY_2, [], 0, 1),
+    hand_wins_(['The Mimeoplasm'|HAND_9], LIBRARY_2, [], 0, 1, spy),
     not(hand_wins_(['The Mimeoplasm'|HAND_9], LIBRARY_3, [], 0, _)).
 
 % Once Upon a Time
@@ -252,13 +252,13 @@ test_once :-
     HAND_2 = ['Elvish Spirit Guide', 'Simian Spirit Guide', 'Undercity Informer', 'Lotus Petal', 'Once Upon a Time'],
     not(hand_wins_(HAND_1, LIBRARY_2, [], 0, 0)),
     not(hand_wins_(HAND_2, LIBRARY_1, [], 0, 0)),
-    hand_wins_(HAND_2, LIBRARY_2, [], 0, 0),
-    hand_wins_(HAND_1, LIBRARY_1, [], 0, 0),
+    hand_wins_(HAND_2, LIBRARY_2, [], 0, 0, informer),
+    hand_wins_(HAND_1, LIBRARY_1, [], 0, 0, spy),
     LIBRARY_PROTECT = ['Chancellor of the Tangle', 'Grief', 'Thassa\'s Oracle', 'Dread Return', 'Narcomoeba', 'Balustrade Spy', 'Narcomoeba', 'Narcomoeba'],
     HAND_3 = ['Elvish Spirit Guide', 'Dark Ritual', 'Agadeem\'s Awakening', 'Agadeem\'s Awakening', 'Balustrade Spy', 'Once Upon a Time'],
-    hand_wins_(HAND_3, LIBRARY_PROTECT, [], 0, 1),
+    hand_wins_(HAND_3, LIBRARY_PROTECT, [], 0, 1, spy),
     reverse(LIBRARY_PROTECT, LIBRARY_REVERSED),
-    hand_wins_(HAND_3, LIBRARY_REVERSED, [], 0, 0),
+    hand_wins_(HAND_3, LIBRARY_REVERSED, [], 0, 0, spy),
     not(hand_wins_(HAND_3, LIBRARY_REVERSED, [], 0, 1)).
 
 % Beseech the Mirror
@@ -266,33 +266,37 @@ test_beseech :-
     LIBRARY = ['Balustrade Spy', 'Narcomoeba', 'Narcomoeba', 'Thassa\'s Oracle', 'Dread Return'],
     HAND = ['Beseech the Mirror', 'Dark Ritual', 'Agadeem\'s Awakening', 'Elvish Spirit Guide'],
     not(hand_wins_(HAND, LIBRARY, [], 0, 0)),
-    hand_wins_(['Mox Opal'|HAND], LIBRARY, [], 0, 0),
-    hand_wins_(['Chrome Mox'|HAND], LIBRARY, [], 0, 0),
-    hand_wins_(['Lotus Petal'|HAND], LIBRARY, [], 0, 0),
-    hand_wins_(['Lion\'s Eye Diamond'|HAND], LIBRARY, [], 0, 0),
-    hand_wins_(['Shield Sphere'|HAND], LIBRARY, [], 0, 0),
+    hand_wins_(['Mox Opal'|HAND], LIBRARY, [], 0, 0, 'beseech->spy'),
+    hand_wins_(['Chrome Mox'|HAND], LIBRARY, [], 0, 0, 'beseech->spy'),
+    hand_wins_(['Lotus Petal'|HAND], LIBRARY, [], 0, 0, 'beseech->spy'),
+    hand_wins_(['Lion\'s Eye Diamond'|HAND], LIBRARY, [], 0, 0, 'beseech->spy'),
+    hand_wins_(['Shield Sphere'|HAND], LIBRARY, [], 0, 0, 'beseech->spy'),
     not(hand_wins_(['Shuko'|HAND], LIBRARY, [], 0, 0)),
-    hand_wins_(['Simian Spirit Guide'|['Shuko'|HAND]], LIBRARY, [], 0, 0),
-    hand_wins_(['Leyline of Lifeforce'|HAND], LIBRARY, [], 0, 0),
+    hand_wins_(['Simian Spirit Guide'|['Shuko'|HAND]], LIBRARY, [], 0, 0, 'beseech->spy'),
+    hand_wins_(['Leyline of Lifeforce'|HAND], LIBRARY, [], 0, 0, 'beseech->spy'),
     not(hand_wins_(['Leyline of Lifeforce'|HAND], LIBRARY, [], 0, 1)),
     HAND_2 = ['Beseech the Mirror', 'Defense Grid', 'Dark Ritual', 'Agadeem\'s Awakening', 'Elvish Spirit Guide', 'Dark Ritual'],
-    hand_wins_(HAND_2, LIBRARY, [], 0, 0),
+    hand_wins_(HAND_2, LIBRARY, [], 0, 0, 'beseech->spy'),
     not(hand_wins_(HAND_2, LIBRARY, [], 0, 1)).
 
 % Throne of Eldraine
 test_throne :-
     LIBRARY = ['Narcomoeba', 'Narcomoeba', 'Thassa\'s Oracle', 'Dread Return'],
     HAND = ['Throne of Eldraine', 'Simian Spirit Guide', 'Pyretic Ritual', 'Rite of Flame', 'Rite of Flame'],
-    hand_wins_(['Balustrade Spy'|HAND], LIBRARY, [], 0, 0),
+    hand_wins_(['Balustrade Spy'|HAND], LIBRARY, [], 0, 0, spy),
     not(hand_wins_(['Undercity Informer'|HAND], LIBRARY, [], 0, 0)),
-    hand_wins_(['Beseech the Mirror'|HAND], ['Balustrade Spy'|LIBRARY], [], 0, 0),
+    hand_wins_(['Beseech the Mirror'|HAND], ['Balustrade Spy'|LIBRARY], [], 0, 0, 'beseech->spy'),
     not(hand_wins_(['Beseech the Mirror'|HAND], ['Undercity Informer'|LIBRARY], [], 0, 0)).
 
-hand_wins_(HAND, LIBRARY, SB, MULLIGANS, PROTECTION) :-
+hand_wins_(HAND, LIBRARY, SB, MULLIGANS, PROTECTION, WINCON) :-
     format('~w\n', [HAND]),
     play_oops_hand(HAND, LIBRARY, SB, MULLIGANS, _{protection:1}, OUTPUTS),
     format(' -->~w (~wx protection)\n', [OUTPUTS.sequence, OUTPUTS.protection]),
-    PROTECTION is OUTPUTS.protection.
+    PROTECTION is OUTPUTS.protection,
+    WINCON = OUTPUTS.wincon.
+
+hand_wins_(HAND, LIBRARY, SB, MULLIGANS, PROTECTION) :-
+    hand_wins_(HAND, LIBRARY, SB, MULLIGANS, PROTECTION, _).
 
 % Goal-oriented mana generation should be relatively quick despite many trivial options
 test_makemana_goal(STATE, SEQUENCE) :-

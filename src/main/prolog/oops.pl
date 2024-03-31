@@ -9,30 +9,32 @@ play_oops_hand(HAND, LIBRARY, SB, MULLIGANS, INPUT_PARAMS, OUTPUTS) :-
     ; (GREEDY_MULLIGANS =< MULLIGANS, REQUIRED_PROTECTION is 0)),
     combination(HAND, MULLIGANS, BOTTOM, MULL_HAND),
     append(LIBRARY, BOTTOM, MULL_LIBRARY),
-    protected_win(MULL_HAND, MULL_LIBRARY, SB, REQUIRED_PROTECTION, 3, REQUIRED_WINCON, SEQ, PROTECTION, WINCON),
+    protected_win(MULL_HAND, MULL_LIBRARY, SB, REQUIRED_PROTECTION, 3, REQUIRED_WINCON, SEQ, PROTECTION, WINCON, EXTRAS),
     ((PROTECTION >= DESIRED_PROTECTION, IS_PROTECTED = true)
     ; PROTECTION < DESIRED_PROTECTION, IS_PROTECTED = false),
-    OUTPUTS = _{sequence:SEQ,protection:PROTECTION,keep:MULL_HAND,isProtected:IS_PROTECTED,wincon:WINCON},
+    OUTPUTS = EXTRAS.put(_{sequence:SEQ,protection:PROTECTION,keep:MULL_HAND,isProtected:IS_PROTECTED,wincon:WINCON}),
     !.
 
-protected_win(HAND, DECK, SB, MIN_PROTECTION, TARGET_PROTECTION, REQUIRED_WINCON, SEQUENCE, TARGET_PROTECTION, WINCON) :-
+protected_win(HAND, DECK, SB, MIN_PROTECTION, TARGET_PROTECTION, REQUIRED_WINCON, SEQUENCE, TARGET_PROTECTION, WINCON, EXTRAS) :-
     prune_protection(TARGET_PROTECTION, HAND),
-    win_specific(HAND, DECK, SB, REQUIRED_WINCON, SEQUENCE, TARGET_PROTECTION, WINCON),
+    win_specific(HAND, DECK, SB, REQUIRED_WINCON, SEQUENCE, TARGET_PROTECTION, WINCON, EXTRAS),
     TARGET_PROTECTION >= MIN_PROTECTION.
-protected_win(HAND, DECK, SB, MIN_PROTECTION, TARGET_PROTECTION, REQUIRED_WINCON, SEQUENCE, BEST_PROTECTION, WINCON) :-
+protected_win(HAND, DECK, SB, MIN_PROTECTION, TARGET_PROTECTION, REQUIRED_WINCON, SEQUENCE, BEST_PROTECTION, WINCON, EXTRAS) :-
     TARGET_PROTECTION > 0,
     TARGET_PROTECTION > MIN_PROTECTION,
     NEW_TARGET is TARGET_PROTECTION-1,
-    protected_win(HAND, DECK, SB, MIN_PROTECTION, NEW_TARGET, REQUIRED_WINCON, SEQUENCE, BEST_PROTECTION, WINCON).
+    protected_win(HAND, DECK, SB, MIN_PROTECTION, NEW_TARGET, REQUIRED_WINCON, SEQUENCE, BEST_PROTECTION, WINCON, EXTRAS).
 protected_win(HAND, DECK, SB, REQUIRED_WINCON, SEQUENCE, PROTECTION, WINCON) :-
     protected_win(HAND, DECK, SB, 0, 3, REQUIRED_WINCON, SEQUENCE, PROTECTION, WINCON).
 
-win_specific(HAND, DECK, SB, any, SEQUENCE, TARGET_PROTECTION, WINCON) :-
+win_specific(HAND, DECK, SB, any, SEQUENCE, TARGET_PROTECTION, WINCON, EXTRAS) :-
+    win(HAND, DECK, SB, SEQUENCE, TARGET_PROTECTION, WINCON, EXTRAS).
+win_specific(HAND, DECK, SB, any, SEQUENCE, TARGET_PROTECTION, WINCON, _{}) :-
     win(HAND, DECK, SB, SEQUENCE, TARGET_PROTECTION, WINCON).
-win_specific(HAND, DECK, SB, oops, SEQUENCE, TARGET_PROTECTION, WINCON) :-
-    win_oops(HAND, DECK, SB, SEQUENCE, TARGET_PROTECTION, WINCON).
-win_specific(HAND, DECK, SB, empty, SEQUENCE, TARGET_PROTECTION, WINCON) :-
-    win_empty(HAND, DECK, SB, SEQUENCE, TARGET_PROTECTION, WINCON).
+win_specific(HAND, DECK, SB, oops, SEQUENCE, TARGET_PROTECTION, WINCON, EXTRAS) :-
+    win_oops(HAND, DECK, SB, SEQUENCE, TARGET_PROTECTION, WINCON, EXTRAS).
+win_specific(HAND, DECK, SB, empty, SEQUENCE, TARGET_PROTECTION, WINCON, EXTRAS) :-
+    win_empty(HAND, DECK, SB, SEQUENCE, TARGET_PROTECTION, WINCON, EXTRAS).
 
 win(HAND, SEQUENCE) :-
     win(HAND, [], SEQUENCE, _).
@@ -44,8 +46,8 @@ win(HAND, DECK, _, SEQUENCE, PROTECTION, informer) :-
     informer(HAND, DECK, SEQUENCE, PROTECTION).
 win(HAND, DECK, _, SEQUENCE, PROTECTION, spy) :-
     spy(HAND, DECK, SEQUENCE, PROTECTION).
-win(HAND, DECK, _, SEQUENCE, PROTECTION, 'beseech->spy') :-
-    beseech_spy(HAND, DECK, SEQUENCE, PROTECTION).
+win(HAND, DECK, _, SEQUENCE, PROTECTION, destroy) :-
+    destroy(HAND, DECK, SEQUENCE, PROTECTION).
 win(HAND, DECK, _, SEQUENCE, PROTECTION, breakfast) :-
     breakfast(HAND, DECK, SEQUENCE, PROTECTION).
 win(HAND, DECK, _, SEQUENCE, PROTECTION, empty) :-
@@ -62,14 +64,17 @@ win(HAND, DECK, SB, SEQUENCE, PROTECTION, 'ee->informer') :-
     ee_informer(HAND, DECK, SB, SEQUENCE, PROTECTION).
 win(HAND, DECK, SB, SEQUENCE, PROTECTION, 'ee->spy') :-
     ee_spy(HAND, DECK, SB, SEQUENCE, PROTECTION).
+win(HAND, DECK, _, SEQUENCE, PROTECTION, 'beseech->spy', EXTRAS) :-
+    beseech_spy(HAND, DECK, SEQUENCE, PROTECTION, EXTRAS).
 
-win_oops(HAND, DECK, SB, SEQUENCE, PROTECTION, WINCON) :-
+win_oops(HAND, DECK, SB, SEQUENCE, PROTECTION, WINCON, _{}) :-
     informer(HAND, DECK, SEQUENCE, PROTECTION), WINCON is 'Undercity Informer';
     spy(HAND, DECK, SEQUENCE, PROTECTION), WINCON is 'Balustrade Spy';
+    destroy(HAND, DECK, SEQUENCE, PROTECTION), WINCON is 'Destroy the Evidence';
     breakfast(HAND, DECK, SEQUENCE, PROTECTION), WINCON is 'Breakfast';
     wish_spy(HAND, DECK, SB, SEQUENCE, PROTECTION), WINCON is 'Wish->Spy';
     wish_informer(HAND, DECK, SB, SEQUENCE, PROTECTION), WINCON is 'Wish->Informer'.
-win_empty(HAND, DECK, SB, SEQUENCE, PROTECTION, WINCON) :-
+win_empty(HAND, DECK, SB, SEQUENCE, PROTECTION, WINCON, _{}) :-
     etw(HAND, DECK, SEQUENCE, STORM, PROTECTION), STORM >= 4, canpass(SEQUENCE), WINCON is 'Empty the Warrens';
     wish_warrens(HAND, DECK, SB, SEQUENCE, STORM, PROTECTION), STORM >= 4, canpass(SEQUENCE), WINCON is 'Wish->Empty'.
 
@@ -169,9 +174,37 @@ spy_mill(START_HAND, START_DECK, SEQUENCE, PROTECTION) :-
     spy_mill(START_HAND, [0,0,0,0,0,0,0], [], 0, START_DECK, _, _, _, _, _, [], SEQUENCE, PROTECTION),
     !.
 
-beseech_spy(START_HAND, START_DECK, SEQUENCE, PROTECTION) :-
-    beseech_spy(START_HAND, [], [0,0,0,0,0,0,0], [], 0, START_DECK, SEQUENCE, PROTECTION).
-beseech_spy(H1, B1, M1, G1, S1, D1, SEQUENCE, PROTECTION) :-
+destroy(START_HAND, START_DECK, SEQUENCE, PROTECTION) :-
+    destroy(START_HAND, [], [0,0,0,0,0,0,0], [], 0, START_DECK, SEQUENCE, PROTECTION).
+destroy(H1, B1, M1, G1, S1, D1, SEQUENCE, PROTECTION) :-
+    % Verify that its possible in the best case scenario for mana sequencing
+    member_or_tutor('Destroy the Evidence', H1, D1),
+    type_threshold(1, land, H1),
+    prune(5, H1, B1, G1, M1),
+    canInformer(H1, G1, D1),
+    informerCombo(H1, ['Destroy the Evidence'|B1], D1, G1, M1, [], _, _),
+    % Then attempt it for real
+    destroy_mill(H1, B1, M1, G1, S1, D1, H2, B2, M2, G2, _, D2, [], SEQUENCE1, P1),
+    informerCombo(H2, B2, D2, G2, M2, SEQUENCE1, SEQUENCE, P2),
+    PROTECTION is P1 + P2,
+    !.
+destroy_mill(H1, B1, M1, G1, S1, D1, H3, B3, M3, G3, S2, D2, SEQUENCE_PRIOR, SEQUENCE_FINAL, PROTECTION) :-
+    prune(5, H1, B1, G1, M1),
+    % Make 4B mana, cast
+    makemana_goal('Destroy the Evidence', [H1, B1, M1, G1, S1, D1, 0], [H2, B2, M2, G2, S2, D2, PROTECTION], SEQUENCE_PRIOR, SEQUENCE2),
+    remove('Destroy the Evidence', H2, H3),
+    spend([0, 0, 1, 0, 0, 0, 4], M2, M3),
+    remove_first_type(land, B2, B3, REMOVED_LAND),
+    append(SEQUENCE2, ['Destroy the Evidence'], SEQUENCE_FINAL),
+    append(G2, [REMOVED_LAND, 'Destroy the Evidence'], G3).
+destroy_mill(START_HAND, START_DECK, SEQUENCE, PROTECTION) :-
+    member_or_tutor('Destroy the Evidence', START_HAND, START_DECK),
+    destroy_mill(START_HAND, [0,0,0,0,0,0,0], [], 0, START_DECK, _, _, _, _, _, [], SEQUENCE, PROTECTION),
+    !.
+
+beseech_spy(START_HAND, START_DECK, SEQUENCE, PROTECTION, EXTRAS) :-
+    beseech_spy(START_HAND, [], [0,0,0,0,0,0,0], [], 0, START_DECK, SEQUENCE, PROTECTION, EXTRAS).
+beseech_spy(H1, B1, M1, G1, S1, D1, SEQUENCE, PROTECTION, EXTRAS) :-
     % Verify that its possible in the best case scenario for mana sequencing
     member_or_tutor('Beseech the Mirror', H1, D1),
     member('Balustrade Spy', D1),
@@ -179,18 +212,19 @@ beseech_spy(H1, B1, M1, G1, S1, D1, SEQUENCE, PROTECTION) :-
     canInformer(H1, G1, D1),
     informerCombo(H1, ['Balustrade Spy'|B1], D1, G1, M1, [], _, _),
     % Then attempt it for real
-    beseech_spy_mill(H1, B1, M1, G1, S1, D1, H2, B2, M2, G2, _, D2, [], SEQUENCE1, P1),
+    beseech_spy_mill(H1, B1, M1, G1, S1, D1, H2, B2, M2, G2, _, D2, [], SEQUENCE1, P1, SACRIFICE),
     informerCombo(H2, B2, D2, G2, M2, SEQUENCE1, SEQUENCE, P2),
     PROTECTION is P1 + P2,
+    EXTRAS = _{bargain:SACRIFICE},
     !.
-beseech_spy_mill(H1, B1, M1, G1, S1, D1, H5, B6, M5, G5, S5, D5, SEQUENCE_PRIOR, SEQUENCE_FINAL, PROTECTION) :-
+beseech_spy_mill(H1, B1, M1, G1, S1, D1, H5, B6, M5, G5, S5, D5, SEQUENCE_PRIOR, SEQUENCE_FINAL, PROTECTION, SACRIFICE) :-
     prune(4, H1, B1, G1, M1),
     member('Balustrade Spy', D1),
     % Make 1BBB mana, cast
     makemana_goal('Beseech the Mirror', [H1, B1, M1, G1, S1, D1, 0], STATE2, SEQUENCE_PRIOR, SEQUENCE2),
     remove_from_hand('Beseech the Mirror', STATE2, STATE3),
     spend_([0, 0, 3, 0, 0, 0, 1], STATE3, STATE4),
-    beseech_bargain('Balustrade Spy', STATE4, [H5, B5, M5, G5, S5, D5, PROTECTION], SEQUENCE_SAC),
+    beseech_bargain('Balustrade Spy', STATE4, [H5, B5, M5, G5, S5, D5, PROTECTION], SEQUENCE_SAC, SACRIFICE),
     append(SEQUENCE2, SEQUENCE_SAC, SEQUENCE3),
     append(SEQUENCE3, ['Balustrade Spy'], SEQUENCE_FINAL),
     append(B5, ['Balustrade Spy'], B6).

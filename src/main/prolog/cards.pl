@@ -132,7 +132,8 @@ card('Rite of Flame', [
     types  - [],
     spell  - 1,
     board  - 0,
-    gy     - 1
+    gy     - 1,
+    restricted - true
 ]).
 card('Pyretic Ritual', [
     cost   - [0, 0, 0, 1, 0, 0, 1],
@@ -287,6 +288,28 @@ card('Throne of Eldraine', [
     board  - 1,
     gy     - 0
 ]).
+
+card('Pentad Prism', DATA) :-
+    (
+        YIELD = [0, 0, 0, 0, 0, 0, 5];
+        YIELD = [0, 0, 0, 0, 0, 0, 4];
+        YIELD = [0, 0, 0, 0, 0, 0, 3];
+        YIELD = [0, 0, 0, 0, 0, 0, 2];
+        YIELD = [0, 0, 0, 0, 0, 0, 1];
+        YIELD = [0, 0, 0, 0, 0, 0, 0]
+    ),
+    DATA = [
+        cost   - [0, 0, 0, 0, 0, 0, 2],
+        yield  - YIELD,
+        best   - [0, 0, 0, 0, 0, 0, 2],
+        net    - 0,
+        colors - [],
+        types  - [artifact],
+        spell  - 1,
+        board  - 1,
+        gy     - 0,
+        restricted - true
+    ].
 
 card('Manamorphose', [
     cost   - [0, 0, 0, 0, 0, 0, 1, 1],
@@ -518,6 +541,16 @@ card('Balustrade Spy', [
     spell  - -1,
     board  - 1,
     gy     - 0
+]).
+card('Destroy the Evidence', [
+    cost   - [0, 0, 1, 0, 0, 0, 4],
+    yield  - [0, 0, 0, 0, 0, 0, 0],
+    net    - 0,
+    colors - [b],
+    types  - [sorcery],
+    spell  - -1,
+    board  - 0,
+    gy     - 1
 ]).
 card('Cephalid Illusionist', [
     cost   - [0, 1, 0, 0, 0, 0, 1],
@@ -968,11 +1001,11 @@ free_permanent('Memnite', [artifact, creature], []).
 
 % Special rules for casting / making mana
 
-specialcast(NAME, YIELD, OLD_STATE, NEW_STATE, EXTRA_STEPS) :-
+specialcast(NAME, YIELD, OLD_STATE, NEW_STATE, _, EXTRA_STEPS) :-
     NAME == 'Culling the Weak', culling(YIELD, OLD_STATE, NEW_STATE, EXTRA_STEPS);
     NAME == 'Sacrifice', sacrifice(YIELD, OLD_STATE, NEW_STATE, EXTRA_STEPS);
     NAME == 'Burnt Offering', burnt_offering(YIELD, OLD_STATE, NEW_STATE, EXTRA_STEPS).
-specialcast(NAME, YIELD, OLD_STATE, NEW_STATE, []) :-
+specialcast(NAME, YIELD, OLD_STATE, NEW_STATE, _, []) :-
     NAME == 'Lion\'s Eye Diamond', led(YIELD, OLD_STATE, NEW_STATE);
     NAME == 'Cabal Ritual', cabal(YIELD, OLD_STATE, NEW_STATE);
     NAME == 'Chrome Mox', cmox(YIELD, OLD_STATE, NEW_STATE);
@@ -989,7 +1022,9 @@ specialcast(NAME, YIELD, OLD_STATE, NEW_STATE, []) :-
     NAME == 'Lotus Petal', alternate_version('Lotus Petal_unused', YIELD, OLD_STATE, NEW_STATE);
     NAME == 'Lion\'s Eye Diamond', alternate_version('Lion\'s Eye Diamond_unused', YIELD, OLD_STATE, NEW_STATE);
     NAME == 'Once Upon a Time', once_upon_a_time(YIELD, OLD_STATE, NEW_STATE).
-specialcast(NAME, YIELD, OLD_STATE, NEW_STATE, [STEP]) :-
+specialcast(NAME, YIELD, OLD_STATE, NEW_STATE, SPENT_MANA, []) :-
+    NAME == 'Pentad Prism', pentad(YIELD, SPENT_MANA, OLD_STATE, NEW_STATE).
+specialcast(NAME, YIELD, OLD_STATE, NEW_STATE, _, [STEP]) :-
     (
         NAME == 'Unmask', pitch('Unmask', b, YIELD, OLD_STATE, NEW_STATE, PITCH);
         NAME == 'Grief', pitch('Grief', b, YIELD, OLD_STATE, NEW_STATE, PITCH);
@@ -1146,7 +1181,7 @@ sacrifice_creature_instant(CARD_NAME,
     STEPS) :-
     (CARD_NAME = 'Grief' ; CARD_NAME = 'Endurance'),
     remove_first(CARD_NAME, START_HAND, NEXT_HAND),
-    specialcast(CARD_NAME, _, [NEXT_HAND, BOARD, MANA, GY, STORM, DECK, PROTECTION], END_STATE, CAST_STEPS),
+    specialcast(CARD_NAME, _, [NEXT_HAND, BOARD, MANA, GY, STORM, DECK, PROTECTION], END_STATE, _, CAST_STEPS),
     atom_concat('sacrifice ', CARD_NAME, SACRIFICE_STEP),
     append(CAST_STEPS, [SACRIFICE_STEP], STEPS).
 sacrifice_creature_instant(CARDNAME, START_STATE, END_STATE, STEPS) :-
@@ -1246,6 +1281,20 @@ once_upon_a_time(YIELD,
 %    remove_first(CARDNAME, TOP, MINUS_CHOSEN),
 %    append(REMAINDER, MINUS_CHOSEN, END_DECK).
 
+pentad([0, 0, 0, 0, 0, 0, NUM_COUNTERS], SPENT_MANA, START_STATE, END_STATE) :-
+    sunburst(SPENT_MANA, NUM_COUNTERS),
+    normalcast('Pentad Prism', [0, 0, 0, 0, 0, 0, NUM_COUNTERS], START_STATE, END_STATE).
+min(A, B, A) :- B >= A.
+min(A, B, B) :- A > B.
+sunburst([W, U, B, R, G, _, X | _ ], N) :-
+    min(W, 1, NW),
+    min(U, 1, NU),
+    min(B, 1, NB),
+    min(R, 1, NR),
+    min(G, 1, NG),
+    total([NW, NU, NB, NR, NG, X], TOTAL),
+    min(TOTAL, 5, N).
+
 beseech_nocast(YIELD,
     [START_HAND, START_BOARD, START_MANA, START_GY, START_STORM, START_DECK, PROTECTION],
     [[CARDNAME | NEXT_HAND], END_BOARD, END_MANA, END_GY, END_STORM, END_DECK, PROTECTION]) :-
@@ -1256,9 +1305,10 @@ beseech_nocast(YIELD,
 beseech_bargain(CARDNAME,
     START_STATE,
     [[CARDNAME | NEXT_HAND], END_BOARD, END_MANA, END_GY, END_STORM, END_DECK, PROTECTION],
-    ['Beseech the Mirror' | STEPS]) :-
+    ['Beseech the Mirror' | STEPS],
+    SACRIFICE) :-
     normalcast('Beseech the Mirror', _, START_STATE, CAST_STATE),
-    sacrifice_bargain(_, CAST_STATE, [NEXT_HAND, END_BOARD, END_MANA, END_GY, END_STORM, NEXT_DECK, PROTECTION], STEPS),
+    sacrifice_bargain(SACRIFICE, CAST_STATE, [NEXT_HAND, END_BOARD, END_MANA, END_GY, END_STORM, NEXT_DECK, PROTECTION], STEPS),
     remove_first(CARDNAME, NEXT_DECK, END_DECK).
 
 % Special rules for protection spells
@@ -1321,11 +1371,11 @@ metalcraft(HAND, BOARD) :-
     type_threshold(REMAINING, artifact, BOARD).
 type_threshold(0, _, _).
 type_threshold(N, TYPE, [CARDNAME|T]) :-
-    N < 1;
+    N >= 1,
     istype(CARDNAME, TYPE),
     M is N-1,
-    type_threshold(M, TYPE, T);
-    type_threshold(N, TYPE, T).
+    type_threshold(M, TYPE, T), !;
+    type_threshold(N, TYPE, T), !.
 type_max(N, _, []) :-
     N >= 0.
 type_max(N, TYPE, [CARDNAME|T]) :-
@@ -1346,11 +1396,11 @@ zone_type_count([H|T], TYPE, COUNT) :-
 
 % General rules for casting
 
-cast(NAME, YIELD, STEPS, OLD_STATE, NEW_STATE) :-
-    specialcast(NAME, YIELD, OLD_STATE, NEW_STATE, STEPS);
+cast(NAME, YIELD, STEPS, OLD_STATE, NEW_STATE, SPENT_MANA) :-
+    specialcast(NAME, YIELD, OLD_STATE, NEW_STATE, SPENT_MANA, STEPS);
     STEPS = [],
     not(only_special(NAME)),
-    (special_optional(NAME); not(specialcast(NAME, _, OLD_STATE, _, _))),
+    (special_optional(NAME); not(specialcast(NAME, _, OLD_STATE, _, _, _))),
     normalcast(NAME, YIELD, OLD_STATE, NEW_STATE).
 
 normalcast(NAME, YIELD,
@@ -1440,6 +1490,12 @@ remove_first(ITEM, [ITEM | T], T).
 remove_first(ITEM, [H | T], [H | REMOVED]) :-
     dif(ITEM, H),
     remove_first(ITEM, T, REMOVED).
+
+remove_first_type(TYPE, [CARDNAME | T], T, CARDNAME) :-
+    istype(CARDNAME, TYPE).
+remove_first_type(TYPE, [H | T], [H | REMOVED], CARDNAME) :-
+    not(istype(H, TYPE)),
+    remove_first_type(TYPE, T, REMOVED, CARDNAME).
 
 take(ITEM, [ITEM | T], T).
 take(ITEM, [H | T], [H | TAKEN]) :-

@@ -1,8 +1,7 @@
 load_oops :-
     consult('mana.pl'),
     consult('cards.pl'),
-    consult('oops.pl'),
-    consult('test.pl').
+    consult('oops.pl').
 
 run_oops_tests :-
     load_oops,
@@ -19,8 +18,11 @@ run_oops_tests :-
     test_wish_led,
     test_etw,
     test_beseech,
+    test_destroy,
     test_throne,
-    test_makemana_goal(_, _).
+    test_pentad,
+    test_makemana_goal(_, _),
+    !.
 
 % Should be a simple win, but can take up to 5 minutes to process because of trivial choices
 test_hand_1 :-
@@ -266,17 +268,17 @@ test_beseech :-
     LIBRARY = ['Balustrade Spy', 'Narcomoeba', 'Narcomoeba', 'Thassa\'s Oracle', 'Dread Return'],
     HAND = ['Beseech the Mirror', 'Dark Ritual', 'Agadeem\'s Awakening', 'Elvish Spirit Guide'],
     not(hand_wins_(HAND, LIBRARY, [], 0, 0)),
-    hand_wins_(['Mox Opal'|HAND], LIBRARY, [], 0, 0, 'beseech->spy'),
-    hand_wins_(['Chrome Mox'|HAND], LIBRARY, [], 0, 0, 'beseech->spy'),
-    hand_wins_(['Lotus Petal'|HAND], LIBRARY, [], 0, 0, 'beseech->spy'),
-    hand_wins_(['Lion\'s Eye Diamond'|HAND], LIBRARY, [], 0, 0, 'beseech->spy'),
-    hand_wins_(['Shield Sphere'|HAND], LIBRARY, [], 0, 0, 'beseech->spy'),
+    hand_wins_(['Mox Opal'|HAND], LIBRARY, [], 0, 0, 'beseech->spy', _{bargain: 'Mox Opal'}),
+    hand_wins_(['Chrome Mox'|HAND], LIBRARY, [], 0, 0, 'beseech->spy', _{bargain: 'Chrome Mox'}),
+    hand_wins_(['Lotus Petal'|HAND], LIBRARY, [], 0, 0, 'beseech->spy', _{bargain: 'Lotus Petal_unused'}),
+    hand_wins_(['Lion\'s Eye Diamond'|HAND], LIBRARY, [], 0, 0, 'beseech->spy', _{bargain: 'Lion\'s Eye Diamond_unused'}),
+    hand_wins_(['Shield Sphere'|HAND], LIBRARY, [], 0, 0, 'beseech->spy', _{bargain: 'Shield Sphere'}),
     not(hand_wins_(['Shuko'|HAND], LIBRARY, [], 0, 0)),
-    hand_wins_(['Simian Spirit Guide'|['Shuko'|HAND]], LIBRARY, [], 0, 0, 'beseech->spy'),
-    hand_wins_(['Leyline of Lifeforce'|HAND], LIBRARY, [], 0, 0, 'beseech->spy'),
+    hand_wins_(['Simian Spirit Guide'|['Shuko'|HAND]], LIBRARY, [], 0, 0, 'beseech->spy', _{bargain: 'Shuko'}),
+    hand_wins_(['Leyline of Lifeforce'|HAND], LIBRARY, [], 0, 0, 'beseech->spy', _{bargain: 'Leyline of Lifeforce'}),
     not(hand_wins_(['Leyline of Lifeforce'|HAND], LIBRARY, [], 0, 1)),
     HAND_2 = ['Beseech the Mirror', 'Defense Grid', 'Dark Ritual', 'Agadeem\'s Awakening', 'Elvish Spirit Guide', 'Dark Ritual'],
-    hand_wins_(HAND_2, LIBRARY, [], 0, 0, 'beseech->spy'),
+    hand_wins_(HAND_2, LIBRARY, [], 0, 0, 'beseech->spy', _{bargain: 'Defense Grid'}),
     not(hand_wins_(HAND_2, LIBRARY, [], 0, 1)).
 
 % Throne of Eldraine
@@ -288,15 +290,54 @@ test_throne :-
     hand_wins_(['Beseech the Mirror'|HAND], ['Balustrade Spy'|LIBRARY], [], 0, 0, 'beseech->spy'),
     not(hand_wins_(['Beseech the Mirror'|HAND], ['Undercity Informer'|LIBRARY], [], 0, 0)).
 
-hand_wins_(HAND, LIBRARY, SB, MULLIGANS, PROTECTION, WINCON) :-
+% Pentad Prism
+test_pentad :-
+    LIBRARY = ['Narcomoeba', 'Narcomoeba', 'Thassa\'s Oracle', 'Dread Return'],
+    HAND = ['Pentad Prism', 'Balustrade Spy', 'Simian Spirit Guide', 'Rite of Flame'],
+    not(hand_wins_(['Rite of Flame'|HAND], LIBRARY, [], 0, 0)),
+    hand_wins_(['Simian Spirit Guide'|['Rite of Flame'|HAND]], LIBRARY, [], 0, 0, spy),
+    hand_wins_(['Elvish Spirit Guide'|['Elvish Spirit Guide'|HAND]], LIBRARY, [], 0, 0, spy),
+    HAND2 = ['Pentad Prism', 'Balustrade Spy', 'Narcomoeba', 'Chrome Mox', 'Dark Ritual', 'Chancellor of the Tangle'],
+    hand_wins_(HAND2, LIBRARY, [], 0, 0, spy),
+    HANDB = ['Pentad Prism', 'Beseech the Mirror', 'Simian Spirit Guide', 'Elvish Spirit Guide', 'Elvish Spirit Guide', 'Lotus Petal'],
+    hand_wins_(HANDB, ['Balustrade Spy'|LIBRARY], [], 0, 0, 'beseech->spy'),
+    HANDB2 = ['Beseech the Mirror', 'Pentad Prism', 'Dark Ritual', 'Agadeem\'s Awakening'],
+    not(hand_wins_(['Cabal Ritual'|HANDB2], ['Balustrade Spy'|LIBRARY], [], 0, 0)),
+    hand_wins_(['Dark Ritual'|HANDB2], ['Balustrade Spy'|LIBRARY], [], 0, 0, 'beseech->spy'),
+    HANDB3 = ['Beseech the Mirror', 'Pentad Prism', 'Simian Spirit Guide', 'Elvish Spirit Guide', 'Chrome Mox', 'Narcomoeba'],
+    not(hand_wins_(['Emeria\'s Call'|HANDB3], ['Balustrade Spy'|LIBRARY], [], 0, 0)),
+    hand_wins_(['Agadeem\'s Awakening'|HANDB3], ['Balustrade Spy'|LIBRARY], [], 0, 0, 'beseech->spy').
+
+% Destroy the Evidence
+test_destroy :-
+    LIBRARY = ['Narcomoeba', 'Narcomoeba', 'Thassa\'s Oracle', 'Dread Return'],
+    HAND = ['Dark Ritual', 'Lotus Petal', 'Destroy the Evidence'],
+    not(hand_wins_(['Agadeem\'s Awakening'|HAND], ['Narcomoeba'|LIBRARY], [], 0, 0)),
+    not(hand_wins_(['Lotus Petal'|['Agadeem\'s Awakening'|HAND]], LIBRARY, [], 0, 0)),
+    not(hand_wins_(['Lotus Petal'|['Elvish Spirit Guide'|HAND]], ['Narcomoeba'|LIBRARY], [], 0, 0)),
+    hand_wins_(['Lotus Petal'|['Agadeem\'s Awakening'|HAND]], ['Narcomoeba'|LIBRARY], [], 0, 0, destroy),
+    hand_wins_(['Lotus Petal'|['Sea Gate Restoration'|HAND]], ['Narcomoeba'|LIBRARY], [], 0, 0, destroy).
+
+hand_wins_(HAND, LIBRARY, SB, MULLIGANS, PROTECTION, WINCON, REQUIRED_OUTPUTS) :-
     format('~w\n', [HAND]),
     play_oops_hand(HAND, LIBRARY, SB, MULLIGANS, _{protection:1}, OUTPUTS),
     format(' -->~w (~wx protection)\n', [OUTPUTS.sequence, OUTPUTS.protection]),
     PROTECTION is OUTPUTS.protection,
-    WINCON = OUTPUTS.wincon.
+    WINCON = OUTPUTS.wincon,
+    subdict(REQUIRED_OUTPUTS, OUTPUTS).
+
+hand_wins_(HAND, LIBRARY, SB, MULLIGANS, PROTECTION, WINCON) :-
+    hand_wins_(HAND, LIBRARY, SB, MULLIGANS, PROTECTION, WINCON, _{}).
 
 hand_wins_(HAND, LIBRARY, SB, MULLIGANS, PROTECTION) :-
     hand_wins_(HAND, LIBRARY, SB, MULLIGANS, PROTECTION, _).
+
+subdict(DICT_A, DICT_B) :-
+    is_dict(DICT_A),
+    is_dict(DICT_B),
+    dict_pairs(DICT_A, _, PAIRS_A),
+    dict_pairs(DICT_B, _, PAIRS_B),
+    subset(PAIRS_A, PAIRS_B).
 
 % Goal-oriented mana generation should be relatively quick despite many trivial options
 test_makemana_goal(STATE, SEQUENCE) :-

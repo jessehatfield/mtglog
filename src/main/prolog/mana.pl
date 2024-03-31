@@ -13,9 +13,11 @@ makemana([START_HAND, START_BOARD, START_MANA, START_GY, START_STORM, START_DECK
     get_assoc(cost, CARD, COST),
     remove_first(NAME, START_HAND, NEXT_HAND),
     spend(COST, START_MANA, NEXT_MANA),
+    diff_mana(START_MANA, NEXT_MANA, SPENT_MANA),
     cast(NAME, YIELD, EXTRA_STEPS,
     	[NEXT_HAND, START_BOARD, NEXT_MANA, START_GY, START_STORM, START_DECK, START_PROTECTION],
-    	[CAST_HAND, CAST_BOARD, CAST_MANA, CAST_GY, CAST_STORM, CAST_DECK, CAST_PROTECTION]),
+    	[CAST_HAND, CAST_BOARD, CAST_MANA, CAST_GY, CAST_STORM, CAST_DECK, CAST_PROTECTION],
+        SPENT_MANA),
     append(PRIOR_SEQUENCE, [NAME|EXTRA_STEPS], CAST_SEQUENCE),
     addmana(YIELD, CAST_MANA, RESULT_MANA),
     makemana([CAST_HAND, CAST_BOARD, RESULT_MANA, CAST_GY, CAST_STORM, CAST_DECK, CAST_PROTECTION],
@@ -75,9 +77,11 @@ makemana_goal(TARGET_CARD_NAME,
     list_to_assoc(DATA, CARD),
     get_assoc(cost, CARD, COST),
     spend(COST, START_MANA, NEXT_MANA),
+    diff_mana(START_MANA, NEXT_MANA, SPENT_MANA),
     cast(NAME, YIELD, EXTRA_STEPS,
     	[NEXT_HAND, START_BOARD, NEXT_MANA, START_GY, START_STORM, START_DECK, START_PROTECTION],
-    	[CAST_HAND, CAST_BOARD, CAST_MANA, CAST_GY, CAST_STORM, CAST_DECK, CAST_PROTECTION]),
+    	[CAST_HAND, CAST_BOARD, CAST_MANA, CAST_GY, CAST_STORM, CAST_DECK, CAST_PROTECTION],
+        SPENT_MANA),
     append(PRIOR_SEQUENCE, [NAME|EXTRA_STEPS], INTERMEDIATE_SEQUENCE),
     addmana(YIELD, CAST_MANA, RESULT_MANA),
     makemana_goal(TARGET_CARD_NAME,
@@ -349,6 +353,16 @@ spendHybrid(N, START_MANA, END_MANA) :-
     M is N - 1,
     spendHybrid(M, M2, END_MANA).
 noColorless([_, _, _, _, _, 0 | _]).
+
+% Get the exact mana spent
+diff_mana([], [], []).
+diff_mana([H|T], [], [H|T]).
+diff_mana([H | T1], [H | T2], [0 | T3]) :-
+    diff_mana(T1, T2, T3).
+diff_mana([H1 | T1], [H2 | T2], [H3 | T3]) :-
+    H1 > H2,
+    H3 is H1 - H2,
+    diff_mana(T1, T2, T3).
 
 spendArbitraryHybrid(0, START_MANA, START_MANA).
 spendArbitraryHybrid(N, START_MANA, END_MANA) :-

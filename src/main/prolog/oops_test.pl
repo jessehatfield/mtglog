@@ -19,6 +19,7 @@ run_oops_tests :-
     test_etw,
     test_beseech,
     test_destroy,
+    test_dirge,
     test_throne,
     test_pentad,
     test_makemana_goal(_, _),
@@ -317,6 +318,16 @@ test_destroy :-
     not(hand_wins_(['Lotus Petal'|['Elvish Spirit Guide'|HAND]], ['Narcomoeba'|LIBRARY], [], 0, 0)),
     hand_wins_(['Lotus Petal'|['Agadeem\'s Awakening'|HAND]], ['Narcomoeba'|LIBRARY], [], 0, 0, destroy),
     hand_wins_(['Lotus Petal'|['Sea Gate Restoration'|HAND]], ['Narcomoeba'|LIBRARY], [], 0, 0, destroy).
+
+% Lively Dirge
+test_dirge :-
+    LIBRARY = ['Narcomoeba', 'Narcomoeba', 'Thassa\'s Oracle', 'Dread Return'],
+    HAND = ['Dark Ritual', 'Lotus Petal', 'Lively Dirge'],
+    not(hand_wins_(['Agadeem\'s Awakening'|HAND], ['Balustrade Spy'|LIBRARY], [], 0, 0)),
+    not(hand_wins_(['Lotus Petal'|['Agadeem\'s Awakening'|HAND]], LIBRARY, [], 0, 0)),
+    not(hand_wins_(['Lotus Petal'|['Elvish Spirit Guide'|HAND]], ['Narcomoeba'|LIBRARY], [], 0, 0)),
+    hand_wins_(['Lotus Petal'|['Agadeem\'s Awakening'|HAND]], ['Balustrade Spy'|LIBRARY], [], 0, 0, dirge),
+    hand_wins_(['Grim Monolith'|['Elvish Spirit Guide'|HAND]], ['Balustrade Spy'|LIBRARY], [], 0, 0, dirge).
 
 hand_wins_(HAND, LIBRARY, SB, MULLIGANS, PROTECTION, WINCON, REQUIRED_OUTPUTS) :-
     format('~w\n', [HAND]),

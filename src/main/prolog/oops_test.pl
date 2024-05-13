@@ -350,10 +350,38 @@ test_dirge :-
     hand_wins_(['Lotus Petal'|['Agadeem\'s Awakening'|HAND]], ['Balustrade Spy'|LIBRARY], [], 0, 0, 'Lively Dirge'),
     hand_wins_(['Grim Monolith'|['Elvish Spirit Guide'|HAND]], ['Balustrade Spy'|LIBRARY], [], 0, 0, 'Lively Dirge').
 
+test_entomb :-
+    format("\nTest various combinations of Entomb effect -> Reanimate effect\n", []),
+    NO_SPY = ['Narcomoeba', 'Narcomoeba', 'Thassa\'s Oracle', 'Dread Return'],
+    LIBRARY = ['Balustrade Spy' | NO_SPY],
+    ENTOMB_REANIMATE_HAND = ['Lotus Petal', 'Entomb', 'Reanimate'],
+    not(hand_wins_(ENTOMB_REANIMATE_HAND, LIBRARY, [], 0, 0)),
+    not(hand_wins_(['Elvish Spirit Guide' | ENTOMB_REANIMATE_HAND], LIBRARY, [], 0, 0)),
+    not(hand_wins_(['Lotus Petal'|ENTOMB_REANIMATE_HAND], NO_SPY, [], 0, 0)),
+    hand_wins_(['Lotus Petal'|ENTOMB_REANIMATE_HAND], LIBRARY, [], 0, 0, "Entomb->Reanimate"),
+    DIRGE_REANIMATE_HAND = ['Elvish Spirit Guide', 'Simian Spirit Guide', 'Lively Dirge', 'Reanimate'],
+    not(hand_wins_(DIRGE_REANIMATE_HAND, LIBRARY, [], 0, 0)),
+    not(hand_wins_(['Lotus Petal' | DIRGE_REANIMATE_HAND], LIBRARY, [], 0, 0)),
+    not(hand_wins_(['Elvish Spirit Guide' | ['Lotus Petal' | DIRGE_REANIMATE_HAND ]], LIBRARY, [], 0, 0)),
+    not(hand_wins_(['Agadeem\'s Awakening' | ['Lotus Petal' | DIRGE_REANIMATE_HAND ]], NO_SPY, [], 0, 0)),
+    hand_wins_(['Agadeem\'s Awakening' | ['Lotus Petal' | DIRGE_REANIMATE_HAND ]], LIBRARY, [], 0, 0, "Lively Dirge->Reanimate"),
+    BA_REANIMATE_HAND = ['Elvish Spirit Guide', 'Simian Spirit Guide', 'Buried Alive', 'Reanimate'],
+    not(hand_wins_(BA_REANIMATE_HAND, LIBRARY, [], 0, 0)),
+    not(hand_wins_(['Lotus Petal' | BA_REANIMATE_HAND], LIBRARY, [], 0, 0)),
+    not(hand_wins_(['Elvish Spirit Guide' | ['Lotus Petal' | BA_REANIMATE_HAND ]], LIBRARY, [], 0, 0)),
+    not(hand_wins_(['Agadeem\'s Awakening' | ['Lotus Petal' | BA_REANIMATE_HAND ]], NO_SPY, [], 0, 0)),
+    hand_wins_(['Agadeem\'s Awakening' | ['Lotus Petal' | BA_REANIMATE_HAND ]], LIBRARY, [], 0, 0, "Buried Alive->Reanimate"),
+    UG_REANIMATE_HAND = ['Unmarked Grave', 'Elvish Spirit Guide', 'Reanimate'],
+    not(hand_wins_(UG_REANIMATE_HAND, LIBRARY, [], 0, 0)),
+    not(hand_wins_(['Lotus Petal' | UG_REANIMATE_HAND], LIBRARY, [], 0, 0)),
+    not(hand_wins_(['Elvish Spirit Guide' | ['Lotus Petal' | UG_REANIMATE_HAND ]], LIBRARY, [], 0, 0)),
+    not(hand_wins_(['Agadeem\'s Awakening' | ['Lotus Petal' | UG_REANIMATE_HAND ]], NO_SPY, [], 0, 0)),
+    hand_wins_(['Agadeem\'s Awakening' | ['Lotus Petal' | UG_REANIMATE_HAND ]], LIBRARY, [], 0, 0, "Unmarked Grave->Reanimate").
+
 hand_wins_(HAND, LIBRARY, SB, MULLIGANS, PROTECTION, WINCON, REQUIRED_OUTPUTS) :-
     format('~w\n', [HAND]),
     play_oops_hand(HAND, LIBRARY, SB, MULLIGANS, _{protection:1}, OUTPUTS),
-    format(' -->~w (~wx protection)\n', [OUTPUTS.sequence, OUTPUTS.protection]),
+    format(' -->~w (~wx protection, win with ~w)\n', [OUTPUTS.sequence, OUTPUTS.protection, OUTPUTS.wincon]),
     PROTECTION is OUTPUTS.protection,
     WINCON = OUTPUTS.wincon,
     subdict(REQUIRED_OUTPUTS, OUTPUTS).

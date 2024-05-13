@@ -8,6 +8,8 @@
 % Finale of Devastation
 % Once Upon a Time
 % discard + reanimate?
+% Dirge + Reanimate
+% Poxwalkers
 
 % Placeholder
 card('Unknown', [
@@ -485,8 +487,20 @@ card('Beseech the Mirror', [
     gy     - 1,
     restricted - true
 ]).
-card('Lively Dirge', [
-    cost   - [0, 0, 1, 0, 0, 0, 4],
+card('Entomb', [
+    cost   - [0, 0, 1, 0, 0, 0, 0],
+    yield  - [0, 0, 0, 0, 0, 0, 0],
+    net    - 0,
+    colors - [b],
+    types  - [instant],
+    spell  - 1,
+    board  - 0,
+    gy     - 1,
+    cmc    - 1,
+    roles  - [entomb]
+]).
+card('Buried Alive', [
+    cost   - [0, 0, 1, 0, 0, 0, 2],
     yield  - [0, 0, 0, 0, 0, 0, 0],
     net    - 0,
     colors - [b],
@@ -494,7 +508,45 @@ card('Lively Dirge', [
     spell  - 1,
     board  - 0,
     gy     - 1,
-    cmc    - 2
+    cmc    - 3,
+    roles  - [entomb]
+]).
+card('Unmarked Grave', [
+    cost   - [0, 0, 1, 0, 0, 0, 1],
+    yield  - [0, 0, 0, 0, 0, 0, 0],
+    net    - 0,
+    colors - [b],
+    types  - [sorcery],
+    spell  - 1,
+    board  - 0,
+    gy     - 1,
+    cmc    - 2,
+    roles  - [entomb]
+]).
+
+card('Reanimate', [
+    cost   - [0, 0, 1, 0, 0, 0, 0],
+    yield  - [0, 0, 0, 0, 0, 0, 0],
+    net    - 0,
+    colors - [b],
+    types  - [sorcery],
+    spell  - 1,
+    board  - 0,
+    gy     - 1,
+    cmc    - 1,
+    roles  - [animate]
+]).
+card('Animate Dead', [
+    cost   - [0, 0, 1, 0, 0, 0, 1],
+    yield  - [0, 0, 0, 0, 0, 0, 0],
+    net    - 0,
+    colors - [b],
+    types  - [enchantment],
+    spell  - 1,
+    board  - 1,
+    gy     - 0,
+    cmc    - 2,
+    roles  - [animate]
 ]).
 
 % Generic land/spell pattern
@@ -969,6 +1021,37 @@ card('Chancellor of the Annex_used', [
     gy     - 0
 ]).
 
+% (Effectively) modal cards whose properties change in different modes
+card(CARDNAME, DATA) :- card(CARDNAME, DATA, base).
+
+card('Lively Dirge', [
+    cost   - [0, 0, 1, 0, 0, 0, 0],
+    yield  - [0, 0, 0, 0, 0, 0, 0],
+    net    - 0,
+    colors - [b],
+    types  - [sorcery],
+    spell  - 1,
+    board  - 0,
+    gy     - 1,
+    cmc    - 1,
+    roles  - [entomb, animate]
+], base).
+card('Lively Dirge', [
+    cost   - [0, 0, 1, 0, 0, 0, 2],
+    cmc    - 3,
+    roles  - [entomb]
+], entomb).
+card('Lively Dirge', [
+    cost   - [0, 0, 1, 0, 0, 0, 3],
+    cmc    - 4,
+    roles  - [animate]
+], animate).
+card('Lively Dirge', [
+    cost   - [0, 0, 1, 0, 0, 0, 4],
+    cmc    - 5,
+    roles  - [entomb, animate]
+], win).
+
 card_key_value_default(CARDNAME, KEY, VALUE, DEFAULT) :-
     card(CARDNAME, DATA),
     carddata_key_value_default(DATA, KEY, VALUE, DEFAULT).
@@ -1171,6 +1254,7 @@ cmc(CARDNAME, CMC) :-
             total(COST, CMC)
         )
     ).
+
 
 sacrifice_creature(CARDNAME,
     [HAND, START_BOARD, MANA, START_GY, STORM, DECK, PROTECTION],
@@ -1560,6 +1644,30 @@ tutors_for_('Once Upon a Time', TARGET_NAME, TARGET_ASSOC, DECK) :-
     in_first_n(TARGET_NAME, DECK, 5),
     get_assoc(types, TARGET_ASSOC, TYPES),
     (member(creature, TYPES); member(land, TYPES)).
+
+has_role(CARDNAME, ROLE) :-
+    card(CARDNAME, DATA),
+    list_to_assoc(DATA, ASSOC),
+    get_assoc(roles, ASSOC, ROLES),
+    member(ROLE, ROLES).
+
+card_property(CARDNAME, MODE, PROPERTY, VALUE) :-
+    % if the card isn't modal, get the default value
+    not(card(CARDNAME, _, _)),
+    card(CARDNAME, DATA),
+    list_to_assoc(DATA, ASSOC),
+    get_assoc(PROPERTY, ASSOC, VALUE);
+    % if it is modal, use the right mode
+    card(CARDNAME, DATA, MODE),
+    list_to_assoc(DATA, ASSOC),
+    (
+        get_assoc(PROPERTY, ASSOC, VALUE);
+        % but if this mode doesn't specify the property, use the default mode
+        not(get_assoc(PROPERTY, ASSOC, _)),
+        card(CARDNAME, BASE_DATA, base),
+        list_to_assoc(BASE_DATA, BASE_ASSOC),
+        get_assoc(PROPERTY, BASE_ASSOC, VALUE)
+    ).
 
 in_first_n(H, [H|_], N) :-
     N > 0.

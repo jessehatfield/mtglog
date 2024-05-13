@@ -42,26 +42,25 @@ nocastlast([]).
 nocastlast([H | T]) :-
     not(castlast(H)), nocastlast(T).
 
-makemana_goal(TARGET_CARD_NAME, START_STATE, START_STATE, PRIOR_SEQUENCE, PRIOR_SEQUENCE) :-
+makemana_goal(TARGET_CARD_NAME, START_STATE, END_STATE, PRIOR_SEQUENCE, TOTAL_SEQUENCE) :-
+    makemana_goal(TARGET_CARD_NAME, default, START_STATE, END_STATE, PRIOR_SEQUENCE, TOTAL_SEQUENCE).
+
+makemana_goal(TARGET_CARD_NAME, TARGET_MODE, START_STATE, START_STATE, PRIOR_SEQUENCE, PRIOR_SEQUENCE) :-
     check_timing(TARGET_CARD_NAME, PRIOR_SEQUENCE),
     state_hand(START_STATE, HAND),
     member(TARGET_CARD_NAME, HAND),
     % Require that we have the mana to cast the card
-    card(TARGET_CARD_NAME, TARGET_CARD_DATA),
-    list_to_assoc(TARGET_CARD_DATA, TARGET_CARD),
-    get_assoc(cost, TARGET_CARD, TARGET_COST),
+    card_property(TARGET_CARD_NAME, TARGET_MODE, cost, TARGET_COST),
     state_mana(START_STATE, START_MANA),
     spend(TARGET_COST, START_MANA, _).
-makemana_goal(TARGET_CARD_NAME,
+makemana_goal(TARGET_CARD_NAME, TARGET_MODE,
         [START_HAND, START_BOARD, START_MANA, START_GY, START_STORM, START_DECK, START_PROTECTION],
 	[END_HAND, END_BOARD, END_MANA, END_GY, END_STORM, END_DECK, END_PROTECTION],
         PRIOR_SEQUENCE,
 	COMBINED_SEQUENCE) :-
     % Verify that we have the target and could theoretically get the mana and colors to cast it
     member_or_tutor(TARGET_CARD_NAME, START_HAND, START_DECK),
-    card(TARGET_CARD_NAME, TARGET_CARD_DATA),
-    list_to_assoc(TARGET_CARD_DATA, TARGET_CARD),
-    get_assoc(cost, TARGET_CARD, TARGET_COST),
+    card_property(TARGET_CARD_NAME, TARGET_MODE, cost, TARGET_COST),
     total(TARGET_COST, TARGET_CMC),
     prune(TARGET_CMC, START_HAND, START_BOARD, START_GY, START_MANA),
     total_color_gain(START_HAND, COLORED_MANA_HAND),
@@ -84,7 +83,7 @@ makemana_goal(TARGET_CARD_NAME,
         SPENT_MANA),
     append(PRIOR_SEQUENCE, [NAME|EXTRA_STEPS], INTERMEDIATE_SEQUENCE),
     addmana(YIELD, CAST_MANA, RESULT_MANA),
-    makemana_goal(TARGET_CARD_NAME,
+    makemana_goal(TARGET_CARD_NAME, TARGET_MODE,
         [CAST_HAND, CAST_BOARD, RESULT_MANA, CAST_GY, CAST_STORM, CAST_DECK, CAST_PROTECTION],
 	[END_HAND, END_BOARD, END_MANA, END_GY, END_STORM, END_DECK, END_PROTECTION],
         INTERMEDIATE_SEQUENCE,
@@ -387,9 +386,22 @@ spendArbitrary([W, U, B, R, G, C, GENERIC], START_MANA, END_MANA) :-
 spend_(MANA, [H, B, M1, G, S, D, P], [H, B, M2, G, S, D, P]) :- spend(MANA, M1, M2).
 remove_from_hand(CARDNAME, [H1, B, M, G, S, D, P], [H2, B, M, G, S, D, P]) :- remove_first(CARDNAME, H1, H2).
 remove_from_deck(CARDNAME, [H, B, M, G, S, D1, P], [H, B, M, G, S, D2, P]) :- remove_first(CARDNAME, D1, D2).
+remove_from_grave(CARDNAME, [H, B, M, G1, S, D, P], [H, B, M, G2, S, D, P]) :- remove_first(CARDNAME, G1, G2).
 add_to_hand(CARDNAME, [H, B, M, G, S, D, P], [[CARDNAME|H], B, M, G, S, D, P]).
 add_to_board(CARDNAME, [H, B, M, G, S, D, P], [H, [CARDNAME|B], M, G, S, D, P]).
 add_to_grave(CARDNAME, [H, B, M, G, S, D, P], [H, B, M, [CARDNAME|G], S, D, P]).
 add_to_deck(CARDNAME, [H, B, M, G, S, D, P], [H, B, M, G, S, [CARDNAME|D], P]).
 prune_(MANA, [H, B, M, G, _, _, _]) :- prune(MANA, H, B, G, M).
 increment_storm([H, B, M, G, S1, D, P], [H, B, M, G, S2, D, P]) :- S2 is S1 + 1.
+deck_to_board(CARDNAME, STATE1, STATE3) :- remove_from_deck(CARDNAME, STATE1, STATE2), add_to_board(CARDNAME, STATE2, STATE3).
+deck_to_grave(CARDNAME, STATE1, STATE3) :- remove_from_deck(CARDNAME, STATE1, STATE2), add_to_grave(CARDNAME, STATE2, STATE3).
+hand_to_grave(CARDNAME, STATE1, STATE3) :- remove_from_hand(CARDNAME, STATE1, STATE2), add_to_grave(CARDNAME, STATE2, STATE3).
+grave_to_board(CARDNAME, STATE1, STATE3) :- remove_from_grave(CARDNAME, STATE1, STATE2), add_to_board(CARDNAME, STATE2, STATE3).
+
+in_hand(CARDNAME, [HAND, _, _, _, _, _, _]) :- member(CARDNAME, HAND).
+hand_or_tutor(CARDNAME, [HAND, _, _, _, _, DECK, _]) :- member_or_tutor(CARDNAME, HAND, DECK).
+in_deck(CARDNAME, [_, _, _, _, _, DECK, _]) :- member(CARDNAME, DECK).
+
+role_in_hand(STATE, ROLE, CARDNAME) :-
+    in_hand(CARDNAME, STATE),
+    has_role(CARDNAME, ROLE).

@@ -50,6 +50,8 @@ win(HAND, DECK, _, SEQUENCE, PROTECTION, 'Destroy the Evidence') :-
     destroy(HAND, DECK, SEQUENCE, PROTECTION).
 win(HAND, DECK, _, SEQUENCE, PROTECTION, 'Lively Dirge') :-
     dirge_spy(HAND, DECK, SEQUENCE, PROTECTION).
+win(HAND, DECK, _, SEQUENCE, PROTECTION, WINCON) :-
+    entomb_reanimate(HAND, DECK, SEQUENCE, PROTECTION, WINCON).
 win(HAND, DECK, _, SEQUENCE, PROTECTION, breakfast) :-
     breakfast(HAND, DECK, SEQUENCE, PROTECTION).
 win(HAND, DECK, _, SEQUENCE, PROTECTION, 'Empty the Warrens') :-
@@ -75,13 +77,14 @@ win_oops(HAND, DECK, SB, SEQUENCE, PROTECTION, WINCON, _{}) :-
         'Balustrade Spy',
         'Destroy the Evidence',
         'Lively Dirge',
-        'Dirge->Spy',
         'Breakfast',
         'Wish->Spy',
         'Wish->Informer',
         'Beseech->Spy',
-        'Dirge->Reanimate',
+        'Entomb->Reanimate',
+        'Lively Dirge->Reanimate',
         'Thoughtseize->Reanimate',
+        'Unmask->Reanimate'
     ], WINCON),
     (
         win(HAND, DECK, SB, SEQUENCE, PROTECTION, WINCON);
@@ -266,7 +269,7 @@ dirge_spy_mill(STATE1, STATE_FINAL, SEQUENCE_PRIOR, SEQUENCE_FINAL) :-
     % STATE1 == [H1, B1, M1, G1, S1, D1, P1]
     prune_(5, STATE1),
     % Make 4B mana, cast
-    makemana_goal('Lively Dirge', STATE1, STATE2, SEQUENCE_PRIOR, SEQUENCE2),
+    makemana_goal('Lively Dirge', win, STATE1, STATE2, SEQUENCE_PRIOR, SEQUENCE2),
     remove_from_hand('Lively Dirge', STATE2, STATE3),
     spend_([0, 0, 1, 0, 0, 0, 4], STATE3, STATE4),
     remove_from_deck('Balustrade Spy', STATE4, STATE5),
@@ -274,6 +277,43 @@ dirge_spy_mill(STATE1, STATE_FINAL, SEQUENCE_PRIOR, SEQUENCE_FINAL) :-
     add_to_grave('Lively Dirge', STATE6, STATE7),
     increment_storm(STATE7, STATE_FINAL),
     append(SEQUENCE2, ['Lively Dirge->Balustrade Spy'], SEQUENCE_FINAL).
+
+entomb_reanimate(START_HAND, START_DECK, SEQUENCE, PROTECTION, WINCON) :-
+    entomb_reanimate([START_HAND, [], [0,0,0,0,0,0,0], [], 0, START_DECK, 0], SEQUENCE, PROTECTION, WINCON).
+entomb_reanimate(START_STATE, SEQUENCE, PROTECTION, WINCON) :-
+    % Check that the pieces exist in hand
+    role_in_hand(START_STATE, entomb, ENTOMB),
+    role_in_hand(START_STATE, animate, ANIMATE),
+    in_deck('Balustrade Spy', START_STATE),
+    % Check for the total mana optimistically
+    card_property(ENTOMB, entomb, cmc, ENTOMB_CMC),
+    card_property(ANIMATE, animate, cmc, ANIMATE_CMC),
+    REQUIRED_CMC is ENTOMB_CMC + ANIMATE_CMC,
+    prune_(REQUIRED_CMC, START_STATE),
+    % Check that the combo would work if we could get the Spy in play
+    canInformer(START_STATE),
+    add_to_board('Balustrade Spy', START_STATE, HYPOTHETICAL_STATE),
+    informerCombo(HYPOTHETICAL_STATE, [], _, _),
+    % Then look for actual sequences to generate the mana and combo
+    card_property(ENTOMB, entomb, cost, ENTOMB_COST),
+    card_property(ANIMATE, animate, cost, ANIMATE_COST),
+    makemana_goal(ENTOMB, entomb, START_STATE, STATE2, [], SEQUENCE1),
+    spend_(ENTOMB_COST, STATE2, STATE3),
+    deck_to_grave('Balustrade Spy', STATE3, STATE4),
+    hand_to_grave(ENTOMB, STATE4, STATE5),
+    append(SEQUENCE1, [ENTOMB], ENTOMB_SEQUENCE),
+    makemana_goal(ANIMATE, animate, STATE5, STATE6, [], SEQUENCE2),
+    spend_(ANIMATE_COST, STATE6, STATE7),
+    grave_to_board('Balustrade Spy', STATE7, STATE8),
+    hand_to_grave(ANIMATE, STATE8, STATE9),
+    append(SEQUENCE2, [ANIMATE], ANIMATE_SEQUENCE),
+    append(ENTOMB_SEQUENCE, ANIMATE_SEQUENCE, SEQUENCE3),
+    append(SEQUENCE3, ['->Balustrade Spy'], MILL_SEQUENCE),
+    informerCombo(STATE9, MILL_SEQUENCE, SEQUENCE, P2),
+    state_protection(START_STATE, P1),
+    PROTECTION is P1 + P2,
+    string_concat(ENTOMB, '->', ENTOMB_PART),
+    string_concat(ENTOMB_PART, ANIMATE, WINCON).
 
 breakfast(START_HAND, START_DECK, SEQUENCE, PROTECTION) :-
     breakfast(START_HAND, [], [0,0,0,0,0,0,0], [], 0, START_DECK, SEQUENCE, PROTECTION).
@@ -452,6 +492,9 @@ ee_spy(H1, B1, M1, G1, S1, D1, SEQUENCE, PROTECTION) :-
     PROTECTION is P3 + P4,
     !.
 
+informerCombo([HAND, BOARD, MANA, GRAVEYARD, _, LIBRARY, _], PRIOR_SEQUENCE, TOTAL_SEQUENCE, PROTECTION) :-
+    informerCombo(HAND, BOARD, LIBRARY, GRAVEYARD, MANA, PRIOR_SEQUENCE, TOTAL_SEQUENCE, PROTECTION).
+
 informerCombo(HAND, BOARD, LIBRARY, START_GY, MANA, PRIOR_SEQUENCE, TOTAL_SEQUENCE, PROTECTION) :-
     zone_type_count(BOARD, creature, START_CREATURES),
     informerCombo(HAND, BOARD, LIBRARY, START_GY, MANA, START_CREATURES, PRIOR_SEQUENCE, TOTAL_SEQUENCE, PROTECTION).
@@ -513,6 +556,7 @@ finalize(STATE, STATE, SEQ, SEQ).
 canInformer(HAND, GY, DECK) :-
     haveCard('Dread Return', [HAND, GY, DECK]),
     haveCard('Thassa\'s Oracle', [HAND, GY, DECK]).
+canInformer([HAND, _, _, GY, _, DECK, _]) :- canInformer(HAND, GY, DECK).
 
 haveCard(NAME, [H | T]) :-
     member(NAME, H);

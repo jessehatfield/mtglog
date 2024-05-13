@@ -387,3 +387,9 @@ spendArbitrary([W, U, B, R, G, C, GENERIC], START_MANA, END_MANA) :-
 spend_(MANA, [H, B, M1, G, S, D, P], [H, B, M2, G, S, D, P]) :- spend(MANA, M1, M2).
 remove_from_hand(CARDNAME, [H1, B, M, G, S, D, P], [H2, B, M, G, S, D, P]) :- remove_first(CARDNAME, H1, H2).
 remove_from_deck(CARDNAME, [H, B, M, G, S, D1, P], [H, B, M, G, S, D2, P]) :- remove_first(CARDNAME, D1, D2).
+add_to_hand(CARDNAME, [H, B, M, G, S, D, P], [[CARDNAME|H], B, M, G, S, D, P]).
+add_to_board(CARDNAME, [H, B, M, G, S, D, P], [H, [CARDNAME|B], M, G, S, D, P]).
+add_to_grave(CARDNAME, [H, B, M, G, S, D, P], [H, B, M, [CARDNAME|G], S, D, P]).
+add_to_deck(CARDNAME, [H, B, M, G, S, D, P], [H, B, M, G, S, [CARDNAME|D], P]).
+prune_(MANA, [H, B, M, G, _, _, _]) :- prune(MANA, H, B, G, M).
+increment_storm([H, B, M, G, S1, D, P], [H, B, M, G, S2, D, P]) :- S2 is S1 + 1.

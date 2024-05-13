@@ -1,7 +1,3 @@
-% To test:
-% Mox Opal
-% land/spells
-
 % To implement:
 % Land Grant
 % make Manamorphose draw a card (doesn't it already?)
@@ -11,6 +7,7 @@
 % Casting the land/spells (e.g. Turntimber Symbiosis)
 % Finale of Devastation
 % Once Upon a Time
+% discard + reanimate?
 
 % Placeholder
 card('Unknown', [
@@ -487,6 +484,17 @@ card('Beseech the Mirror', [
     board  - 0,
     gy     - 1,
     restricted - true
+]).
+card('Lively Dirge', [
+    cost   - [0, 0, 1, 0, 0, 0, 4],
+    yield  - [0, 0, 0, 0, 0, 0, 0],
+    net    - 0,
+    colors - [b],
+    types  - [sorcery],
+    spell  - 1,
+    board  - 0,
+    gy     - 1,
+    cmc    - 2
 ]).
 
 % Generic land/spell pattern

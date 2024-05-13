@@ -48,6 +48,8 @@ win(HAND, DECK, _, SEQUENCE, PROTECTION, spy) :-
     spy(HAND, DECK, SEQUENCE, PROTECTION).
 win(HAND, DECK, _, SEQUENCE, PROTECTION, destroy) :-
     destroy(HAND, DECK, SEQUENCE, PROTECTION).
+win(HAND, DECK, _, SEQUENCE, PROTECTION, dirge) :-
+    dirge_spy(HAND, DECK, SEQUENCE, PROTECTION).
 win(HAND, DECK, _, SEQUENCE, PROTECTION, breakfast) :-
     breakfast(HAND, DECK, SEQUENCE, PROTECTION).
 win(HAND, DECK, _, SEQUENCE, PROTECTION, empty) :-
@@ -71,6 +73,7 @@ win_oops(HAND, DECK, SB, SEQUENCE, PROTECTION, WINCON, _{}) :-
     informer(HAND, DECK, SEQUENCE, PROTECTION), WINCON is 'Undercity Informer';
     spy(HAND, DECK, SEQUENCE, PROTECTION), WINCON is 'Balustrade Spy';
     destroy(HAND, DECK, SEQUENCE, PROTECTION), WINCON is 'Destroy the Evidence';
+    dirge_spy(HAND, DECK, SEQUENCE, PROTECTION), WINCON is 'Lively Dirge';
     breakfast(HAND, DECK, SEQUENCE, PROTECTION), WINCON is 'Breakfast';
     wish_spy(HAND, DECK, SB, SEQUENCE, PROTECTION), WINCON is 'Wish->Spy';
     wish_informer(HAND, DECK, SB, SEQUENCE, PROTECTION), WINCON is 'Wish->Informer'.
@@ -232,6 +235,33 @@ beseech_spy_mill(START_HAND, START_DECK, SEQUENCE, PROTECTION) :-
     member_or_tutor('Beseech the Mirror', START_HAND, START_DECK),
     beseech_spy_mill(START_HAND, [0,0,0,0,0,0,0], [], 0, START_DECK, _, _, _, _, _, [], SEQUENCE, PROTECTION),
     !.
+
+dirge_spy(START_HAND, START_DECK, SEQUENCE, PROTECTION) :-
+    dirge_spy(START_HAND, [], [0,0,0,0,0,0,0], [], 0, START_DECK, SEQUENCE, PROTECTION).
+dirge_spy(H1, B1, M1, G1, S1, D1, SEQUENCE, PROTECTION) :-
+    % Verify that its possible in the best case scenario for mana sequencing
+    member_or_tutor('Lively Dirge', H1, D1),
+    member('Balustrade Spy', D1),
+    prune(5, H1, B1, G1, M1),
+    canInformer(H1, G1, D1),
+    informerCombo(H1, ['Balustrade Spy'|B1], D1, G1, M1, [], _, _),
+    % Then attempt it for real
+    dirge_spy_mill([H1, B1, M1, G1, S1, D1, 0], [H2, B2, M2, G2, _, D2, P1], [], SEQUENCE1),
+    informerCombo(H2, B2, D2, G2, M2, SEQUENCE1, SEQUENCE, P2),
+    PROTECTION is P1 + P2,
+    !.
+dirge_spy_mill(STATE1, STATE_FINAL, SEQUENCE_PRIOR, SEQUENCE_FINAL) :-
+    % STATE1 == [H1, B1, M1, G1, S1, D1, P1]
+    prune_(5, STATE1),
+    % Make 4B mana, cast
+    makemana_goal('Lively Dirge', STATE1, STATE2, SEQUENCE_PRIOR, SEQUENCE2),
+    remove_from_hand('Lively Dirge', STATE2, STATE3),
+    spend_([0, 0, 1, 0, 0, 0, 4], STATE3, STATE4),
+    remove_from_deck('Balustrade Spy', STATE4, STATE5),
+    add_to_board('Balustrade Spy', STATE5, STATE6),
+    add_to_grave('Lively Dirge', STATE6, STATE7),
+    increment_storm(STATE7, STATE_FINAL),
+    append(SEQUENCE2, ['Lively Dirge->Balustrade Spy'], SEQUENCE_FINAL).
 
 breakfast(START_HAND, START_DECK, SEQUENCE, PROTECTION) :-
     breakfast(START_HAND, [], [0,0,0,0,0,0,0], [], 0, START_DECK, SEQUENCE, PROTECTION).

@@ -70,13 +70,25 @@ win(HAND, DECK, _, SEQUENCE, PROTECTION, 'Beseech->Spy', METADATA) :-
     beseech_spy(HAND, DECK, SEQUENCE, PROTECTION, METADATA).
 
 win_oops(HAND, DECK, SB, SEQUENCE, PROTECTION, WINCON, _{}) :-
-    informer(HAND, DECK, SEQUENCE, PROTECTION), WINCON is 'Undercity Informer';
-    spy(HAND, DECK, SEQUENCE, PROTECTION), WINCON is 'Balustrade Spy';
-    destroy(HAND, DECK, SEQUENCE, PROTECTION), WINCON is 'Destroy the Evidence';
-    dirge_spy(HAND, DECK, SEQUENCE, PROTECTION), WINCON is 'Lively Dirge';
-    breakfast(HAND, DECK, SEQUENCE, PROTECTION), WINCON is 'Breakfast';
-    wish_spy(HAND, DECK, SB, SEQUENCE, PROTECTION), WINCON is 'Wish->Spy';
-    wish_informer(HAND, DECK, SB, SEQUENCE, PROTECTION), WINCON is 'Wish->Informer'.
+    member([
+        'Undercity Informer',
+        'Balustrade Spy',
+        'Destroy the Evidence',
+        'Lively Dirge',
+        'Dirge->Spy',
+        'Breakfast',
+        'Wish->Spy',
+        'Wish->Informer',
+        'Beseech->Spy',
+        'Dirge->Reanimate',
+        'Thoughtseize->Reanimate',
+    ], WINCON),
+    (
+        win(HAND, DECK, SB, SEQUENCE, PROTECTION, WINCON);
+        win(HAND, DECK, SB, SEQUENCE, PROTECTION, WINCON, _)
+    ),
+    !.
+
 win_empty(HAND, DECK, SB, SEQUENCE, PROTECTION, WINCON, _{}) :-
     etw(HAND, DECK, SEQUENCE, STORM, PROTECTION), STORM >= 4, canpass(SEQUENCE), WINCON is 'Empty the Warrens';
     wish_warrens(HAND, DECK, SB, SEQUENCE, STORM, PROTECTION), STORM >= 4, canpass(SEQUENCE), WINCON is 'Wish->Empty'.

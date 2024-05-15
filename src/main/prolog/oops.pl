@@ -52,6 +52,8 @@ win(HAND, DECK, _, SEQUENCE, PROTECTION, 'Lively Dirge') :-
     dirge_spy(HAND, DECK, SEQUENCE, PROTECTION).
 win(HAND, DECK, _, SEQUENCE, PROTECTION, WINCON) :-
     entomb_reanimate(HAND, DECK, SEQUENCE, PROTECTION, WINCON).
+win(HAND, DECK, _, SEQUENCE, PROTECTION, WINCON) :-
+    discard_reanimate(HAND, DECK, SEQUENCE, PROTECTION, WINCON).
 win(HAND, DECK, _, SEQUENCE, PROTECTION, breakfast) :-
     breakfast(HAND, DECK, SEQUENCE, PROTECTION).
 win(HAND, DECK, _, SEQUENCE, PROTECTION, 'Empty the Warrens') :-
@@ -314,6 +316,67 @@ entomb_reanimate(START_STATE, SEQUENCE, PROTECTION, WINCON) :-
     PROTECTION is P1 + P2,
     string_concat(ENTOMB, '->', ENTOMB_PART),
     string_concat(ENTOMB_PART, ANIMATE, WINCON).
+
+discard_reanimate(START_HAND, START_DECK, SEQUENCE, PROTECTION, WINCON) :-
+    discard_reanimate([START_HAND, [], [0,0,0,0,0,0,0], [], 0, START_DECK, 0], SEQUENCE, PROTECTION, WINCON).
+discard_reanimate(START_STATE, SEQUENCE, PROTECTION, WINCON) :-
+    % Check that the pieces exist in hand
+    role_in_hand(START_STATE, self_discard, DISCARD),
+    role_in_hand(START_STATE, animate, ANIMATE),
+    first_in_hand(['Balustrade Spy', 'Undercity Informer'], START_STATE, SPY),
+    % Check for the total mana optimistically
+    card_property_default(DISCARD, self_discard, cmc, 0, DISCARD_CMC),
+    card_property(ANIMATE, animate, cmc, ANIMATE_CMC),
+    (
+        SPY = 'Balustrade Spy',
+        REQUIRED_CMC is DISCARD_CMC + ANIMATE_CMC,
+        prune_(REQUIRED_CMC, START_STATE);
+        SPY = 'Undercity Informer',
+        REQUIRED_CMC is DISCARD_CMC + ANIMATE_CMC + 1,
+        prune_(REQUIRED_CMC, START_STATE)
+    ),
+    % Check that the combo would work if we could get the Spy/Informer in play
+    canInformer(START_STATE),
+    (
+        SPY = 'Balustrade Spy',
+        add_to_board(SPY, START_STATE, HYPOTHETICAL_STATE),
+        informerCombo(HYPOTHETICAL_STATE, [], _, _);
+        SPY = 'Undercity Informer',
+        informerCombo(START_STATE, [], _, _)
+    ),
+    % Then look for actual sequences to generate the mana and combo
+    card_property_default(DISCARD, self_discard, cost, [0, 0, 0, 0, 0, 0, 0], DISCARD_COST),
+    card_property(ANIMATE, animate, cost, ANIMATE_COST),
+    makemana_goal(DISCARD, self_discard, START_STATE, STATE2, [], SEQUENCE1),
+    spend_(DISCARD_COST, STATE2, STATE3),
+    remove_from_hand(DISCARD, STATE3, STATE4),
+    cast(DISCARD, _, SEQUENCE_CAST_DISCARD, STATE4, STATE5, _),
+    hand_to_grave(SPY, STATE5, STATE6),
+    atomic_list_concat([DISCARD, ' self (', SPY, ')'], DISCARD_STEP),
+    append(SEQUENCE1, [DISCARD_STEP], DISCARD_SEQUENCE_PARTIAL),
+    append(DISCARD_SEQUENCE_PARTIAL, SEQUENCE_CAST_DISCARD, DISCARD_SEQUENCE),
+    makemana_goal(ANIMATE, animate, STATE6, STATE7, [], SEQUENCE2),
+    spend_(ANIMATE_COST, STATE7, STATE8),
+    remove_from_hand(ANIMATE, STATE8, STATE9),
+    cast(ANIMATE, _, SEQUENCE_CAST_ANIMATE, STATE9, STATE10, _),
+    grave_to_board(SPY, STATE10, STATE11),
+    append(SEQUENCE2, [ANIMATE|SEQUENCE_CAST_ANIMATE], ANIMATE_SEQUENCE),
+    append(DISCARD_SEQUENCE, ANIMATE_SEQUENCE, SEQUENCE3),
+    (
+        % If we reanimated a Spy, mill happens automatically
+        SPY = 'Balustrade Spy',
+        MILL_STATE = STATE11,
+        MILL_SEQUENCE = SEQUENCE3;
+        % If the best we could do was Informer, make 1 more mana and activate
+        SPY = 'Undercity Informer',
+        makemana_cost_goal([0,0,0,0,0,0,1], [], STATE11, REANIMATE_STATE, SEQUENCE3, ACTIVATE_SEQUENCE),
+        spend_generic(1, REANIMATE_STATE, MILL_STATE),
+        append(ACTIVATE_SEQUENCE, ['activate'], MILL_SEQUENCE)
+    ),
+    informerCombo(MILL_STATE, MILL_SEQUENCE, SEQUENCE, P2),
+    state_protection(START_STATE, P1),
+    PROTECTION is P1 + P2,
+    atomic_list_concat([DISCARD_STEP, '->', ANIMATE], WINCON).
 
 breakfast(START_HAND, START_DECK, SEQUENCE, PROTECTION) :-
     breakfast(START_HAND, [], [0,0,0,0,0,0,0], [], 0, START_DECK, SEQUENCE, PROTECTION).

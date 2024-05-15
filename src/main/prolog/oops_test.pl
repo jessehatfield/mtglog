@@ -21,6 +21,8 @@ fast_tests :-
     time(test_hand_2),
     time(test_hand_3),
     time(test_hand_4),
+    time(test_entomb),
+    time(test_discard_animate),
     time(test_culling),
     time(test_wish_led),
     time(test_etw),
@@ -377,6 +379,23 @@ test_entomb :-
     not(hand_wins_(['Elvish Spirit Guide' | ['Lotus Petal' | UG_REANIMATE_HAND ]], LIBRARY, [], 0, 0)),
     not(hand_wins_(['Agadeem\'s Awakening' | ['Lotus Petal' | UG_REANIMATE_HAND ]], NO_SPY, [], 0, 0)),
     hand_wins_(['Agadeem\'s Awakening' | ['Lotus Petal' | UG_REANIMATE_HAND ]], LIBRARY, [], 0, 0, "Unmarked Grave->Reanimate").
+
+test_discard_animate :-
+    format("\nTest various combinations of self-discard -> Reanimate effect\n", []),
+    LIBRARY = ['Narcomoeba', 'Narcomoeba', 'Thassa\'s Oracle', 'Dread Return'],
+    HAND_1 = ['Thoughtseize', 'Lotus Petal', 'Dark Ritual', 'Reanimate'],
+    not(hand_wins_(HAND_1, LIBRARY, [], 0, 0)),
+    hand_wins_(['Balustrade Spy' | HAND_1], LIBRARY, [], 0, 0),
+    not(hand_wins_(['Balustrade Spy' | HAND_1], LIBRARY, [], 0, 1)),
+    not(hand_wins_(['Undercity Informer' | HAND_1], LIBRARY, [], 0, 0)),
+    hand_wins_(['Undercity Informer' | HAND_1], ['Narcomoeba' | LIBRARY], [], 0, 0),
+    HAND_2 = ['Balustrade Spy', 'Agadeem\'s Awakening', 'Elvish Spirit Guide', 'Animate Dead'],
+    not(hand_wins_(['Reanimate' | HAND_2], LIBRARY, [], 0, 0)),
+    not(hand_wins_(['Unmask' | HAND_2], LIBRARY, [], 0, 0)),
+    not(hand_wins_(['Grief' | ['Undercity Informer' | HAND_2]], LIBRARY, [], 0, 0)),
+    hand_wins_(['Lotus Petal' | ['Cabal Therapy' | HAND_2]], LIBRARY, [], 0, 0),
+    hand_wins_(['Unmask' | ['Undercity Informer' | HAND_2]], LIBRARY, [], 0, 0),
+    not(hand_wins_(['Unmask' | ['Undercity Informer' | HAND_2]], LIBRARY, [], 0, 1)).
 
 hand_wins_(HAND, LIBRARY, SB, MULLIGANS, PROTECTION, WINCON, REQUIRED_OUTPUTS) :-
     format('~w\n', [HAND]),

@@ -7,8 +7,6 @@
 % Casting the land/spells (e.g. Turntimber Symbiosis)
 % Finale of Devastation
 % Once Upon a Time
-% discard + reanimate?
-% Dirge + Reanimate
 % Poxwalkers
 
 % Placeholder
@@ -715,7 +713,8 @@ card('Cabal Therapy', [
     spell  - 1,
     board  - 0,
     gy     - 1,
-    protection - 1
+    protection - 1,
+    roles - [self_discard]
 ]).
 card('Lingering Souls', [
     cost   - [1, 0, 0, 0, 0, 0, 2],
@@ -804,7 +803,8 @@ card('Unmask', [
     board  - 0,
     gy     - 1,
     protection - 1,
-    restricted - true
+    restricted - true,
+    roles - [self_discard]
 ]).
 card('Grief', [
     cost   - [0, 0, 0, 0, 0, 0, 0],
@@ -865,6 +865,7 @@ card('Leyline of the Void', [
 ]).
 card('Thoughtseize', [
     cost   - [0, 0, 1, 0, 0, 0, 0],
+    cmc    - 1,
     yield  - [0, 0, 0, 0, 0, 0, 0],
     net    - 0,
     colors - [b],
@@ -872,7 +873,8 @@ card('Thoughtseize', [
     spell  - 1,
     board  - 0,
     gy     - 1,
-    protection - 1
+    protection - 1,
+    roles - [self_discard]
 ]).
 card('Veil of Summer', [
     cost   - [0, 0, 0, 0, 1, 0, 0],
@@ -1632,6 +1634,11 @@ member_or_tutor(CARDNAME, HAND, LIBRARY) :-
     member(TUTOR, HAND), tutors_for(TUTOR, CARDNAME, LIBRARY), member(CARDNAME, LIBRARY)),
     !.
 
+all_member_or_tutor([], _, _).
+all_member_or_tutor([H|T], HAND, DECK) :-
+    member_or_tutor(H, HAND, DECK),
+    all_member_or_tutor(T, HAND, DECK).
+
 tutors_for(TUTOR_NAME, TARGET_NAME, DECK) :-
     card(TARGET_NAME, DATA),
     list_to_assoc(DATA, TARGET_ASSOC),
@@ -1655,8 +1662,8 @@ has_role(CARDNAME, ROLE) :-
 
 card_property(CARDNAME, MODE, PROPERTY, VALUE) :-
     % if the card isn't modal, get the default value
-    not(card(CARDNAME, _, _)),
     card(CARDNAME, DATA),
+    not(card(CARDNAME, _, _)),
     list_to_assoc(DATA, ASSOC),
     get_assoc(PROPERTY, ASSOC, VALUE);
     % if it is modal, use the right mode
@@ -1670,6 +1677,11 @@ card_property(CARDNAME, MODE, PROPERTY, VALUE) :-
         list_to_assoc(BASE_DATA, BASE_ASSOC),
         get_assoc(PROPERTY, BASE_ASSOC, VALUE)
     ).
+
+card_property_default(CARDNAME, MODE, PROPERTY, _, VALUE) :-
+    card_property(CARDNAME, MODE, PROPERTY, VALUE).
+card_property_default(CARDNAME, MODE, PROPERTY, DEFAULT, DEFAULT) :-
+    not(card_property(CARDNAME, MODE, PROPERTY, _)).
 
 in_first_n(H, [H|_], N) :-
     N > 0.

@@ -1083,6 +1083,8 @@ landspell('Sea Gate Restoration', u, [0, 1, 0, 0, 0, 0, 0]).
 landspell('Agadeem\'s Awakening', b, [0, 0, 1, 0, 0, 0, 0]).
 landspell('Shatterskull Smashing', r, [0, 0, 0, 1, 0, 0, 0]).
 landspell('Turntimber Symbiosis', g, [0, 0, 0, 0, 1, 0, 0]).
+landspell('Boggart Trawler', b, [0, 0, 1, 0, 0, 0, 0]).
+landspell('Sink into Stupor', u, [0, 1, 0, 0, 0, 0, 0]).
 
 % Concrete instantiations of the free permanent pattern
 free_permanent('Shield Sphere', [artifact, creature], []).

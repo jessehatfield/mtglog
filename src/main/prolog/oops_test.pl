@@ -46,8 +46,8 @@ test_hand_1 :-
     HAND = ['Simian Spirit Guide', 'Elvish Spirit Guide', 'Elvish Spirit Guide', 'Balustrade Spy', 'Lotus Petal', 'Elvish Spirit Guide', 'Lotus Petal'],
     hand_wins_(HAND, LIBRARY, [], 0, 0, 'Balustrade Spy').
 
-% Should work if Narcomoeba+Oracle in hand isn't a problem: if the deck has Bridge+Therapy, if the
-% deck has a second Oracle, or if we took a mulligan; shouldn't work otherwise
+% Should work if Narcomoeba+Oracle in hand isn't a problem: if the deck has Bridge+Therapy or Poxwalkers+Therapy,
+% if the deck has a second Oracle, or if we took a mulligan; shouldn't work otherwise
 test_hand_2 :-
     format("\nTest case 2: basic configurations involving Oracle in hand\n", []),
     HAND = ['Narcomoeba', 'Thassa\'s Oracle', 'Lotus Petal', 'Lotus Petal', 'Undercity Informer', 'Cabal Ritual', 'Cabal Ritual'],
@@ -55,7 +55,18 @@ test_hand_2 :-
     not(hand_wins_(HAND, ['Narcomoeba', 'Narcomoeba', 'Narcomoeba', 'Dread Return', 'Elvish Spirit Guide', 'Bridge from Below'], [], 0, 0)),
     hand_wins_(HAND, ['Narcomoeba', 'Narcomoeba', 'Narcomoeba', 'Dread Return', 'Elvish Spirit Guide', 'Thassa\'s Oracle'], [], 0, 0, 'Undercity Informer'),
     hand_wins_(HAND, ['Narcomoeba', 'Narcomoeba', 'Narcomoeba', 'Dread Return', 'Elvish Spirit Guide'], [], 1, 0, 'Undercity Informer'),
-    hand_wins_(HAND, ['Narcomoeba', 'Narcomoeba', 'Narcomoeba', 'Dread Return', 'Elvish Spirit Guide', 'Bridge from Below', 'Cabal Therapy'], [], 0, 0, 'Undercity Informer').
+    hand_wins_(HAND, ['Narcomoeba', 'Narcomoeba', 'Narcomoeba', 'Dread Return', 'Elvish Spirit Guide', 'Bridge from Below', 'Cabal Therapy'], [], 0, 0, 'Undercity Informer'),
+    hand_wins_(HAND, ['Narcomoeba', 'Narcomoeba', 'Narcomoeba', 'Dread Return', 'Elvish Spirit Guide', 'Poxwalkers', 'Cabal Therapy'], [], 0, 0, 'Undercity Informer'),
+    not(hand_wins_(HAND, ['Narcomoeba', 'Dread Return', 'Elvish Spirit Guide', 'Poxwalkers', 'Bridge from Below', 'Cabal Therapy'], [], 0, 0)),
+    not(hand_wins_(HAND, ['Narcomoeba', 'Dread Return', 'Elvish Spirit Guide', 'Poxwalkers', 'Cabal Therapy', 'Cabal Therapy'], [], 0, 0)),
+    not(hand_wins_(HAND, ['Narcomoeba', 'Dread Return', 'Elvish Spirit Guide', 'Cabal Therapy', 'Bridge from Below', 'Cabal Therapy'], [], 0, 0)),
+    hand_wins_(HAND, ['Narcomoeba', 'Dread Return', 'Elvish Spirit Guide', 'Poxwalkers', 'Bridge from Below', 'Poxwalkers', 'Cabal Therapy'], [], 0, 0, 'Undercity Informer'),
+    hand_wins_(HAND, ['Narcomoeba', 'Dread Return', 'Elvish Spirit Guide', 'Poxwalkers', 'Bridge from Below', 'Bridge from Below', 'Cabal Therapy'], [], 0, 0, 'Undercity Informer'),
+    hand_wins_(HAND, ['Narcomoeba', 'Dread Return', 'Elvish Spirit Guide', 'Poxwalkers', 'Bridge from Below', 'Cabal Therapy', 'Cabal Therapy'], [], 0, 0, 'Undercity Informer'),
+    not(hand_wins_(HAND, ['Narcomoeba', 'Dread Return', 'Elvish Spirit Guide', 'Bridge from Below', 'Bridge from Below', 'Cabal Therapy'], [], 0, 0)),
+    not(hand_wins_(HAND, ['Narcomoeba', 'Narcomoeba', 'Dread Return', 'Elvish Spirit Guide', 'Bridge from Below', 'Cabal Therapy'], [], 0, 0)),
+    hand_wins_(HAND, ['Narcomoeba', 'Narcomoeba', 'Dread Return', 'Elvish Spirit Guide', 'Bridge from Below', 'Bridge from Below', 'Cabal Therapy'], [], 0, 0, 'Undercity Informer'),
+    hand_wins_(HAND, ['Narcomoeba', 'Dread Return', 'Elvish Spirit Guide', 'Bridge from Below', 'Bridge from Below', 'Bridge from Below', 'Cabal Therapy'], [], 0, 0, 'Undercity Informer').
 
 % Should be a loss (after 1 mulligan), but some optimizations resulted in incorrectly labeling it a win
 test_hand_3 :-

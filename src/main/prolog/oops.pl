@@ -561,11 +561,13 @@ informerCombo([HAND, BOARD, MANA, GRAVEYARD, _, LIBRARY, _], PRIOR_SEQUENCE, TOT
 informerCombo(HAND, BOARD, LIBRARY, START_GY, MANA, PRIOR_SEQUENCE, TOTAL_SEQUENCE, PROTECTION) :-
     zone_type_count(BOARD, creature, START_CREATURES),
     informerCombo(HAND, BOARD, LIBRARY, START_GY, MANA, START_CREATURES, PRIOR_SEQUENCE, TOTAL_SEQUENCE, PROTECTION).
-informerCombo(HAND, BOARD, LIBRARY, START_GY, MANA, START_CREATURES, PRIOR_SEQUENCE, TOTAL_SEQUENCE, PROTECTION) :-
+informerCombo(HAND, START_BOARD, LIBRARY, START_GY, MANA, START_CREATURES, PRIOR_SEQUENCE, TOTAL_SEQUENCE, PROTECTION) :-
     % Mill the deck and make Narcomoebas
-    count('Narcomoeba', LIBRARY, MOEBAS),
-    CREATURES is START_CREATURES + MOEBAS,
-    append(START_GY, LIBRARY, GY),
+    count('Narcomoeba', LIBRARY, N_MOEBAS),
+    CREATURES is START_CREATURES + N_MOEBAS,
+    append(START_GY, LIBRARY, GY_TRIGGER),
+    remove_all('Narcomoeba', GY_TRIGGER, GY, MOEBAS),
+    append(START_BOARD, MOEBAS, BOARD),
     informer_win(HAND, BOARD, GY, MANA, CREATURES, PRIOR_SEQUENCE, TOTAL_SEQUENCE, PROTECTION),
     !.
 informer_win(HAND, BOARD, GY, MANA, CREATURES, PRIOR_SEQUENCE, TOTAL_SEQUENCE, PROTECTION) :-
@@ -574,8 +576,9 @@ informer_win(HAND, BOARD, GY, MANA, CREATURES, PRIOR_SEQUENCE, TOTAL_SEQUENCE, P
 informer_win_dr(HAND, BOARD, GY, MANA, CREATURES, PRIOR_SEQUENCE, TOTAL_SEQUENCE, PROTECTION) :-
     % Do anything we might need to before DR. In addition to total number of
     % creatures, track how many are tokens (should be zero at this point).
-    flashback(HAND, GY, MANA, CREATURES, 0,
-        NEXT_HAND, NEXT_GY, NEXT_MANA, NEXT_CREATURES, _,
+    flashback(
+        HAND, BOARD, GY, MANA, CREATURES, 0,
+        NEXT_HAND, NEXT_BOARD, NEXT_GY, NEXT_MANA, NEXT_CREATURES, _,
         FLASHBACK_SEQUENCE),
     % Cast Dread Return and win the game
     NEXT_CREATURES > 2,
@@ -583,7 +586,7 @@ informer_win_dr(HAND, BOARD, GY, MANA, CREATURES, PRIOR_SEQUENCE, TOTAL_SEQUENCE
     member('Thassa\'s Oracle', NEXT_GY),
     append(PRIOR_SEQUENCE, FLASHBACK_SEQUENCE, S3),
     append(S3, ['DR->Oracle'], INTERMEDIATE_SEQUENCE),
-    finalize([NEXT_HAND, BOARD, NEXT_MANA, NEXT_GY, 0, [], 0], [_, _, _, _, _, _, PROTECTION], INTERMEDIATE_SEQUENCE, TOTAL_SEQUENCE, _).
+    finalize([NEXT_HAND, NEXT_BOARD, NEXT_MANA, NEXT_GY, 0, [], 0], [_, _, _, _, _, _, PROTECTION], INTERMEDIATE_SEQUENCE, TOTAL_SEQUENCE, _).
 informer_win_cast(H1, B1, G1, M1, PRIOR_SEQUENCE, TOTAL_SEQUENCE, PROTECTION) :-
     % Cast the win condition from your hand instead
     member('Thassa\'s Oracle', H1),
@@ -631,58 +634,75 @@ library_contains_win(_, LIBRARY) :-
     member('Thassa\'s Oracle', LIBRARY),
     count('Narcomoeba', LIBRARY, MOEBAS),
     count('Bridge from Below', LIBRARY, BRIDGES),
+    count('Poxwalkers', LIBRARY, POXWALKERS),
     count('Cabal Therapy', LIBRARY, THERAPIES),
     (
         MOEBAS >= 3;
-        MOEBAS == 2, BRIDGES >= 2, THERAPIES >= 1;
-        MOEBAS == 1, BRIDGES >= 3, THERAPIES >= 1
+        MOEBAS == 2, BRIDGES + POXWALKERS >= 2, THERAPIES >= 1;
+        MOEBAS == 1, BRIDGES + POXWALKERS >= 3, THERAPIES >= 1;
+        MOEBAS == 1, BRIDGES == 1, POXWALKERS == 1, THERAPIES >= 2
     ).
 
-flashback(HAND, GY, MANA, CREATURES, TOKENS, HAND, GY, MANA, CREATURES, TOKENS, []).
-flashback(HAND, GY, MANA, CREATURES, TOKENS, END_HAND, END_GY, END_MANA, END_CREATURES, END_TOKENS, SEQUENCE) :-
+sacrifice_creature('Poxwalkers', BOARD, NEXT_BOARD) :-
+    take('Poxwalkers', BOARD, NEXT_BOARD).
+sacrifice_creature(CREATURE, BOARD, NEXT_BOARD) :-
+    dif('Poxwalkers', CREATURE),
+    remove_first_type(creature, BOARD, NEXT_BOARD, CREATURE).
+
+flashback(HAND, BOARD, GY, MANA, CREATURES, TOKENS, HAND, BOARD, GY, MANA, CREATURES, TOKENS, []).
+flashback(HAND, BOARD, GY, MANA, CREATURES, TOKENS, END_HAND, END_BOARD, END_GY, END_MANA, END_CREATURES, END_TOKENS, SEQUENCE) :-
     % Bring back a Phantasmagorian
     member('Phantasmagorian', GY),
     take(X, HAND, H2),
     take(Y, H2, H3),
     take(Z, H3, H4),
     append(GY, [X, Y, Z], NEXT_GY),
-    flashback(['Phantasmagorian'|H4], NEXT_GY, MANA, CREATURES, TOKENS,
-        END_HAND, END_GY, END_MANA, END_CREATURES, END_TOKENS, S2),
+    flashback(['Phantasmagorian'|H4], BOARD, NEXT_GY, BOARD, MANA, CREATURES, TOKENS,
+        END_HAND, END_BOARD, END_GY, END_MANA, END_CREATURES, END_TOKENS, S2),
     SEQUENCE = ['Phantasmagorian' | S2];
 
-    % Flashback a Cabal Therapy with a non-token, get a Bridge token
-    remove('Cabal Therapy', GY, NEXT_GY),
-    member('Bridge from Below', GY),
+    % Flashback a Cabal Therapy with a non-token, get Bridge tokens and Poxwalkers
+    remove('Cabal Therapy', GY, GY2),
+    count('Bridge from Below', GY2, BRIDGES),
+    sacrifice_creature(SACRIFICE, BOARD, B2),
+    append(GY2, [SACRIFICE], GY3),
+    count('Poxwalkers', GY3, N_POXWALKERS),
     CREATURES > 0,
     CREATURES > TOKENS,
-    NEXT_TOKENS is TOKENS + 1,
+    NEXT_TOKENS is TOKENS + BRIDGES,
+    NEXT_CREATURES is CREATURES + BRIDGES + N_POXWALKERS - 1,
+    remove_all('Poxwalkers', GY3, GY4, POXWALKERS),
+    append(B2, POXWALKERS, NEXT_BOARD),
     remove_all(_, HAND, NEXT_HAND, REMOVED),
-    append(NEXT_GY, REMOVED, FINAL_GY),
-    flashback(NEXT_HAND, FINAL_GY, MANA, CREATURES, NEXT_TOKENS,
-        END_HAND, END_GY, END_MANA, END_CREATURES, END_TOKENS, S2),
+    append(GY4, REMOVED, NEXT_GY),
+    flashback(NEXT_HAND, NEXT_BOARD, NEXT_GY, MANA, NEXT_CREATURES, NEXT_TOKENS,
+        END_HAND, END_BOARD, END_GY, END_MANA, END_CREATURES, END_TOKENS, S2),
     SEQUENCE = ['Cabal Therapy' | S2];
 
-    % Flashback a Cabal Therapy with a non-token, don't get a Bridge token
-    remove('Cabal Therapy', GY, NEXT_GY),
-    CREATURES > 0,
-    CREATURES > TOKENS,
-    NEXT_CREATURES is CREATURES - 1,
-    remove_all(_, HAND, NEXT_HAND, REMOVED),
-    append(NEXT_GY, REMOVED, FINAL_GY),
-    flashback(NEXT_HAND, FINAL_GY, MANA, NEXT_CREATURES, TOKENS,
-        END_HAND, END_GY, END_MANA, END_CREATURES, END_TOKENS, S2),
-    SEQUENCE = ['Cabal Therapy' | S2];
+    % Flashback a Cabal Therapy with a non-token, get Poxwalkers
+    %remove('Cabal Therapy', GY, NEXT_GY),
+    %CREATURES > 0,
+    %CREATURES > TOKENS,
+    %NEXT_CREATURES is CREATURES - 1,
+    %remove_all(_, HAND, NEXT_HAND, REMOVED),
+    %append(NEXT_GY, REMOVED, FINAL_GY),
+    %flashback(NEXT_HAND, FINAL_GY, MANA, NEXT_CREATURES, TOKENS,
+    %    END_HAND, END_BOARD, END_GY, END_MANA, END_CREATURES, END_TOKENS, S2),
+    %SEQUENCE = ['Cabal Therapy' | S2];
 
-    % Flashback a Cabal Therapy with a token
-    remove('Cabal Therapy', GY, NEXT_GY),
+    % Flashback a Cabal Therapy with a token, get Poxwalkers
+    remove('Cabal Therapy', GY, GY2),
+    count('Poxwalkers', GY2, N_POXWALKERS),
     CREATURES > 0,
     TOKENS > 0,
-    NEXT_CREATURES is CREATURES - 1,
+    NEXT_CREATURES is CREATURES + N_POXWALKERS - 1,
     NEXT_TOKENS is TOKENS - 1,
+    remove_all('Poxwalkers', GY2, GY3, POXWALKERS),
+    append(BOARD, POXWALKERS, NEXT_BOARD),
     remove_all(_, HAND, NEXT_HAND, REMOVED),
-    append(NEXT_GY, REMOVED, FINAL_GY),
-    flashback(NEXT_HAND, FINAL_GY, MANA, NEXT_CREATURES, NEXT_TOKENS,
-        END_HAND, END_GY, END_MANA, END_CREATURES, END_TOKENS, S2),
+    append(GY3, REMOVED, NEXT_GY),
+    flashback(NEXT_HAND, NEXT_BOARD, NEXT_GY, MANA, NEXT_CREATURES, NEXT_TOKENS,
+        END_HAND, END_BOARD, END_GY, END_MANA, END_CREATURES, END_TOKENS, S2),
     SEQUENCE = ['Cabal Therapy' | S2];
 
     % Flashback a Lingering Souls
@@ -691,8 +711,8 @@ flashback(HAND, GY, MANA, CREATURES, TOKENS, END_HAND, END_GY, END_MANA, END_CRE
     SEQUENCE = ['Lingering Souls'],
     NEXT_CREATURES = CREATURES + 2,
     NEXT_TOKENS = TOKENS + 2,
-    flashback(HAND, NEXT_GY, NEXT_MANA, NEXT_CREATURES, NEXT_TOKENS,
-        END_HAND, END_GY, END_MANA, END_CREATURES, END_TOKENS, S2),
+    flashback(HAND, BOARD, NEXT_GY, NEXT_MANA, NEXT_CREATURES, NEXT_TOKENS,
+        END_HAND, END_BOARD, END_GY, END_MANA, END_CREATURES, END_TOKENS, S2),
     SEQUENCE = ['Lingering Souls' | S2].
 
 remove_all(_, [], [], []).

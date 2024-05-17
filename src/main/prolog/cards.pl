@@ -3,11 +3,10 @@
 % make Manamorphose draw a card (doesn't it already?)
 % Wish for mana?
 % Cast creatures just for Dread Return (have we done that yet?)
-% Multiple Bridge from Below
 % Casting the land/spells (e.g. Turntimber Symbiosis)
 % Finale of Devastation
 % Once Upon a Time
-% Poxwalkers
+% LED + non-targeting Reanimate
 
 % Placeholder
 card('Unknown', [

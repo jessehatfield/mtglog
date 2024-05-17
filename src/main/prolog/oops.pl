@@ -9,32 +9,32 @@ play_oops_hand(HAND, LIBRARY, SB, MULLIGANS, INPUT_PARAMS, OUTPUTS) :-
     ; (GREEDY_MULLIGANS =< MULLIGANS, REQUIRED_PROTECTION is 0)),
     combination(HAND, MULLIGANS, BOTTOM, MULL_HAND),
     append(LIBRARY, BOTTOM, MULL_LIBRARY),
-    protected_win(MULL_HAND, MULL_LIBRARY, SB, REQUIRED_PROTECTION, 3, REQUIRED_WINCON, SEQ, PROTECTION, WINCON, EXTRAS),
+    protected_win(MULL_HAND, MULL_LIBRARY, SB, REQUIRED_PROTECTION, 3, REQUIRED_WINCON, SEQ, PROTECTION, WINCON, METADATA),
     ((PROTECTION >= DESIRED_PROTECTION, IS_PROTECTED = true)
     ; PROTECTION < DESIRED_PROTECTION, IS_PROTECTED = false),
-    OUTPUTS = EXTRAS.put(_{sequence:SEQ,protection:PROTECTION,keep:MULL_HAND,isProtected:IS_PROTECTED,wincon:WINCON}),
+    OUTPUTS = METADATA.put(_{sequence:SEQ,protection:PROTECTION,keep:MULL_HAND,isProtected:IS_PROTECTED,wincon:WINCON}),
     !.
 
-protected_win(HAND, DECK, SB, MIN_PROTECTION, TARGET_PROTECTION, REQUIRED_WINCON, SEQUENCE, TARGET_PROTECTION, WINCON, EXTRAS) :-
+protected_win(HAND, DECK, SB, MIN_PROTECTION, TARGET_PROTECTION, REQUIRED_WINCON, SEQUENCE, TARGET_PROTECTION, WINCON, METADATA) :-
     prune_protection(TARGET_PROTECTION, HAND),
-    win_specific(HAND, DECK, SB, REQUIRED_WINCON, SEQUENCE, TARGET_PROTECTION, WINCON, EXTRAS),
+    win_specific(HAND, DECK, SB, REQUIRED_WINCON, SEQUENCE, TARGET_PROTECTION, WINCON, METADATA),
     TARGET_PROTECTION >= MIN_PROTECTION.
-protected_win(HAND, DECK, SB, MIN_PROTECTION, TARGET_PROTECTION, REQUIRED_WINCON, SEQUENCE, BEST_PROTECTION, WINCON, EXTRAS) :-
+protected_win(HAND, DECK, SB, MIN_PROTECTION, TARGET_PROTECTION, REQUIRED_WINCON, SEQUENCE, BEST_PROTECTION, WINCON, METADATA) :-
     TARGET_PROTECTION > 0,
     TARGET_PROTECTION > MIN_PROTECTION,
     NEW_TARGET is TARGET_PROTECTION-1,
-    protected_win(HAND, DECK, SB, MIN_PROTECTION, NEW_TARGET, REQUIRED_WINCON, SEQUENCE, BEST_PROTECTION, WINCON, EXTRAS).
+    protected_win(HAND, DECK, SB, MIN_PROTECTION, NEW_TARGET, REQUIRED_WINCON, SEQUENCE, BEST_PROTECTION, WINCON, METADATA).
 protected_win(HAND, DECK, SB, REQUIRED_WINCON, SEQUENCE, PROTECTION, WINCON) :-
     protected_win(HAND, DECK, SB, 0, 3, REQUIRED_WINCON, SEQUENCE, PROTECTION, WINCON).
 
-win_specific(HAND, DECK, SB, any, SEQUENCE, TARGET_PROTECTION, WINCON, EXTRAS) :-
-    win(HAND, DECK, SB, SEQUENCE, TARGET_PROTECTION, WINCON, EXTRAS).
+win_specific(HAND, DECK, SB, any, SEQUENCE, TARGET_PROTECTION, WINCON, METADATA) :-
+    win(HAND, DECK, SB, SEQUENCE, TARGET_PROTECTION, WINCON, METADATA).
 win_specific(HAND, DECK, SB, any, SEQUENCE, TARGET_PROTECTION, WINCON, _{}) :-
     win(HAND, DECK, SB, SEQUENCE, TARGET_PROTECTION, WINCON).
-win_specific(HAND, DECK, SB, oops, SEQUENCE, TARGET_PROTECTION, WINCON, EXTRAS) :-
-    win_oops(HAND, DECK, SB, SEQUENCE, TARGET_PROTECTION, WINCON, EXTRAS).
-win_specific(HAND, DECK, SB, empty, SEQUENCE, TARGET_PROTECTION, WINCON, EXTRAS) :-
-    win_empty(HAND, DECK, SB, SEQUENCE, TARGET_PROTECTION, WINCON, EXTRAS).
+win_specific(HAND, DECK, SB, oops, SEQUENCE, TARGET_PROTECTION, WINCON, METADATA) :-
+    win_oops(HAND, DECK, SB, SEQUENCE, TARGET_PROTECTION, WINCON, METADATA).
+win_specific(HAND, DECK, SB, empty, SEQUENCE, TARGET_PROTECTION, WINCON, METADATA) :-
+    win_empty(HAND, DECK, SB, SEQUENCE, TARGET_PROTECTION, WINCON, METADATA).
 
 win(HAND, SEQUENCE) :-
     win(HAND, [], SEQUENCE, _).
@@ -42,38 +42,58 @@ win(HAND, SEQUENCE, PROTECTION) :-
     win(HAND, [], SEQUENCE, PROTECTION).
 win(HAND, DECK, SEQUENCE, PROTECTION) :-
     win(HAND, DECK, [], SEQUENCE, PROTECTION, _).
-win(HAND, DECK, _, SEQUENCE, PROTECTION, informer) :-
+win(HAND, DECK, _, SEQUENCE, PROTECTION, 'Undercity Informer') :-
     informer(HAND, DECK, SEQUENCE, PROTECTION).
-win(HAND, DECK, _, SEQUENCE, PROTECTION, spy) :-
+win(HAND, DECK, _, SEQUENCE, PROTECTION, 'Balustrade Spy') :-
     spy(HAND, DECK, SEQUENCE, PROTECTION).
-win(HAND, DECK, _, SEQUENCE, PROTECTION, destroy) :-
+win(HAND, DECK, _, SEQUENCE, PROTECTION, 'Destroy the Evidence') :-
     destroy(HAND, DECK, SEQUENCE, PROTECTION).
+win(HAND, DECK, _, SEQUENCE, PROTECTION, 'Lively Dirge') :-
+    dirge_spy(HAND, DECK, SEQUENCE, PROTECTION).
+win(HAND, DECK, _, SEQUENCE, PROTECTION, WINCON) :-
+    entomb_reanimate(HAND, DECK, SEQUENCE, PROTECTION, WINCON).
+win(HAND, DECK, _, SEQUENCE, PROTECTION, WINCON) :-
+    discard_reanimate(HAND, DECK, SEQUENCE, PROTECTION, WINCON).
 win(HAND, DECK, _, SEQUENCE, PROTECTION, breakfast) :-
     breakfast(HAND, DECK, SEQUENCE, PROTECTION).
-win(HAND, DECK, _, SEQUENCE, PROTECTION, empty) :-
+win(HAND, DECK, _, SEQUENCE, PROTECTION, 'Empty the Warrens') :-
     etw(HAND, DECK, SEQUENCE, STORM, PROTECTION), STORM >= 4, canpass(SEQUENCE).
 win(HAND, DECK, _, SEQUENCE, PROTECTION, belcher) :-
     belcher(HAND, DECK, SEQUENCE, PROTECTION).
-win(HAND, DECK, SB, SEQUENCE, PROTECTION, 'wish->empty') :-
+win(HAND, DECK, SB, SEQUENCE, PROTECTION, 'Wish->Empty') :-
     wish_warrens(HAND, DECK, SB, SEQUENCE, STORM, PROTECTION), STORM >= 4, canpass(SEQUENCE).
-win(HAND, DECK, SB, SEQUENCE, PROTECTION, 'wish->spy') :-
+win(HAND, DECK, SB, SEQUENCE, PROTECTION, 'Wish->Spy') :-
     wish_spy(HAND, DECK, SB, SEQUENCE, PROTECTION).
-win(HAND, DECK, SB, SEQUENCE, PROTECTION, 'wish->informer') :-
+win(HAND, DECK, SB, SEQUENCE, PROTECTION, 'Wish->Informer') :-
     wish_informer(HAND, DECK, SB, SEQUENCE, PROTECTION).
-win(HAND, DECK, SB, SEQUENCE, PROTECTION, 'ee->informer') :-
+win(HAND, DECK, SB, SEQUENCE, PROTECTION, 'Eldritch->Informer') :-
     ee_informer(HAND, DECK, SB, SEQUENCE, PROTECTION).
-win(HAND, DECK, SB, SEQUENCE, PROTECTION, 'ee->spy') :-
+win(HAND, DECK, SB, SEQUENCE, PROTECTION, 'Eldritch->Spy') :-
     ee_spy(HAND, DECK, SB, SEQUENCE, PROTECTION).
-win(HAND, DECK, _, SEQUENCE, PROTECTION, 'beseech->spy', EXTRAS) :-
-    beseech_spy(HAND, DECK, SEQUENCE, PROTECTION, EXTRAS).
+win(HAND, DECK, _, SEQUENCE, PROTECTION, 'Beseech->Spy', METADATA) :-
+    beseech_spy(HAND, DECK, SEQUENCE, PROTECTION, METADATA).
 
 win_oops(HAND, DECK, SB, SEQUENCE, PROTECTION, WINCON, _{}) :-
-    informer(HAND, DECK, SEQUENCE, PROTECTION), WINCON is 'Undercity Informer';
-    spy(HAND, DECK, SEQUENCE, PROTECTION), WINCON is 'Balustrade Spy';
-    destroy(HAND, DECK, SEQUENCE, PROTECTION), WINCON is 'Destroy the Evidence';
-    breakfast(HAND, DECK, SEQUENCE, PROTECTION), WINCON is 'Breakfast';
-    wish_spy(HAND, DECK, SB, SEQUENCE, PROTECTION), WINCON is 'Wish->Spy';
-    wish_informer(HAND, DECK, SB, SEQUENCE, PROTECTION), WINCON is 'Wish->Informer'.
+    member([
+        'Undercity Informer',
+        'Balustrade Spy',
+        'Destroy the Evidence',
+        'Lively Dirge',
+        'Breakfast',
+        'Wish->Spy',
+        'Wish->Informer',
+        'Beseech->Spy',
+        'Entomb->Reanimate',
+        'Lively Dirge->Reanimate',
+        'Thoughtseize->Reanimate',
+        'Unmask->Reanimate'
+    ], WINCON),
+    (
+        win(HAND, DECK, SB, SEQUENCE, PROTECTION, WINCON);
+        win(HAND, DECK, SB, SEQUENCE, PROTECTION, WINCON, _)
+    ),
+    !.
+
 win_empty(HAND, DECK, SB, SEQUENCE, PROTECTION, WINCON, _{}) :-
     etw(HAND, DECK, SEQUENCE, STORM, PROTECTION), STORM >= 4, canpass(SEQUENCE), WINCON is 'Empty the Warrens';
     wish_warrens(HAND, DECK, SB, SEQUENCE, STORM, PROTECTION), STORM >= 4, canpass(SEQUENCE), WINCON is 'Wish->Empty'.
@@ -232,6 +252,131 @@ beseech_spy_mill(START_HAND, START_DECK, SEQUENCE, PROTECTION) :-
     member_or_tutor('Beseech the Mirror', START_HAND, START_DECK),
     beseech_spy_mill(START_HAND, [0,0,0,0,0,0,0], [], 0, START_DECK, _, _, _, _, _, [], SEQUENCE, PROTECTION),
     !.
+
+dirge_spy(START_HAND, START_DECK, SEQUENCE, PROTECTION) :-
+    dirge_spy(START_HAND, [], [0,0,0,0,0,0,0], [], 0, START_DECK, SEQUENCE, PROTECTION).
+dirge_spy(H1, B1, M1, G1, S1, D1, SEQUENCE, PROTECTION) :-
+    % Verify that its possible in the best case scenario for mana sequencing
+    member_or_tutor('Lively Dirge', H1, D1),
+    member('Balustrade Spy', D1),
+    prune(5, H1, B1, G1, M1),
+    canInformer(H1, G1, D1),
+    informerCombo(H1, ['Balustrade Spy'|B1], D1, G1, M1, [], _, _),
+    % Then attempt it for real
+    dirge_spy_mill([H1, B1, M1, G1, S1, D1, 0], [H2, B2, M2, G2, _, D2, P1], [], SEQUENCE1),
+    informerCombo(H2, B2, D2, G2, M2, SEQUENCE1, SEQUENCE, P2),
+    PROTECTION is P1 + P2,
+    !.
+dirge_spy_mill(STATE1, STATE_FINAL, SEQUENCE_PRIOR, SEQUENCE_FINAL) :-
+    % STATE1 == [H1, B1, M1, G1, S1, D1, P1]
+    prune_(5, STATE1),
+    % Make 4B mana, cast
+    makemana_goal('Lively Dirge', win, STATE1, STATE2, SEQUENCE_PRIOR, SEQUENCE2),
+    remove_from_hand('Lively Dirge', STATE2, STATE3),
+    spend_([0, 0, 1, 0, 0, 0, 4], STATE3, STATE4),
+    remove_from_deck('Balustrade Spy', STATE4, STATE5),
+    add_to_board('Balustrade Spy', STATE5, STATE6),
+    add_to_grave('Lively Dirge', STATE6, STATE7),
+    increment_storm(STATE7, STATE_FINAL),
+    append(SEQUENCE2, ['Lively Dirge->Balustrade Spy'], SEQUENCE_FINAL).
+
+entomb_reanimate(START_HAND, START_DECK, SEQUENCE, PROTECTION, WINCON) :-
+    entomb_reanimate([START_HAND, [], [0,0,0,0,0,0,0], [], 0, START_DECK, 0], SEQUENCE, PROTECTION, WINCON).
+entomb_reanimate(START_STATE, SEQUENCE, PROTECTION, WINCON) :-
+    % Check that the pieces exist in hand
+    role_in_hand(START_STATE, entomb, ENTOMB),
+    role_in_hand(START_STATE, animate, ANIMATE),
+    in_deck('Balustrade Spy', START_STATE),
+    % Check for the total mana optimistically
+    card_property(ENTOMB, entomb, cmc, ENTOMB_CMC),
+    card_property(ANIMATE, animate, cmc, ANIMATE_CMC),
+    REQUIRED_CMC is ENTOMB_CMC + ANIMATE_CMC,
+    prune_(REQUIRED_CMC, START_STATE),
+    % Check that the combo would work if we could get the Spy in play
+    canInformer(START_STATE),
+    add_to_board('Balustrade Spy', START_STATE, HYPOTHETICAL_STATE),
+    informerCombo(HYPOTHETICAL_STATE, [], _, _),
+    % Then look for actual sequences to generate the mana and combo
+    card_property(ENTOMB, entomb, cost, ENTOMB_COST),
+    card_property(ANIMATE, animate, cost, ANIMATE_COST),
+    makemana_goal(ENTOMB, entomb, START_STATE, STATE2, [], SEQUENCE1),
+    spend_(ENTOMB_COST, STATE2, STATE3),
+    deck_to_grave('Balustrade Spy', STATE3, STATE4),
+    hand_to_grave(ENTOMB, STATE4, STATE5),
+    append(SEQUENCE1, [ENTOMB], ENTOMB_SEQUENCE),
+    makemana_goal(ANIMATE, animate, STATE5, STATE6, [], SEQUENCE2),
+    spend_(ANIMATE_COST, STATE6, STATE7),
+    grave_to_board('Balustrade Spy', STATE7, STATE8),
+    hand_to_grave(ANIMATE, STATE8, STATE9),
+    append(SEQUENCE2, [ANIMATE], ANIMATE_SEQUENCE),
+    append(ENTOMB_SEQUENCE, ANIMATE_SEQUENCE, SEQUENCE3),
+    append(SEQUENCE3, ['->Balustrade Spy'], MILL_SEQUENCE),
+    informerCombo(STATE9, MILL_SEQUENCE, SEQUENCE, P2),
+    state_protection(START_STATE, P1),
+    PROTECTION is P1 + P2,
+    string_concat(ENTOMB, '->', ENTOMB_PART),
+    string_concat(ENTOMB_PART, ANIMATE, WINCON).
+
+discard_reanimate(START_HAND, START_DECK, SEQUENCE, PROTECTION, WINCON) :-
+    discard_reanimate([START_HAND, [], [0,0,0,0,0,0,0], [], 0, START_DECK, 0], SEQUENCE, PROTECTION, WINCON).
+discard_reanimate(START_STATE, SEQUENCE, PROTECTION, WINCON) :-
+    % Check that the pieces exist in hand
+    role_in_hand(START_STATE, self_discard, DISCARD),
+    role_in_hand(START_STATE, animate, ANIMATE),
+    first_in_hand(['Balustrade Spy', 'Undercity Informer'], START_STATE, SPY),
+    % Check for the total mana optimistically
+    card_property_default(DISCARD, self_discard, cmc, 0, DISCARD_CMC),
+    card_property(ANIMATE, animate, cmc, ANIMATE_CMC),
+    (
+        SPY = 'Balustrade Spy',
+        REQUIRED_CMC is DISCARD_CMC + ANIMATE_CMC,
+        prune_(REQUIRED_CMC, START_STATE);
+        SPY = 'Undercity Informer',
+        REQUIRED_CMC is DISCARD_CMC + ANIMATE_CMC + 1,
+        prune_(REQUIRED_CMC, START_STATE)
+    ),
+    % Check that the combo would work if we could get the Spy/Informer in play
+    canInformer(START_STATE),
+    (
+        SPY = 'Balustrade Spy',
+        add_to_board(SPY, START_STATE, HYPOTHETICAL_STATE),
+        informerCombo(HYPOTHETICAL_STATE, [], _, _);
+        SPY = 'Undercity Informer',
+        informerCombo(START_STATE, [], _, _)
+    ),
+    % Then look for actual sequences to generate the mana and combo
+    card_property_default(DISCARD, self_discard, cost, [0, 0, 0, 0, 0, 0, 0], DISCARD_COST),
+    card_property(ANIMATE, animate, cost, ANIMATE_COST),
+    makemana_goal(DISCARD, self_discard, START_STATE, STATE2, [], SEQUENCE1),
+    spend_(DISCARD_COST, STATE2, STATE3),
+    remove_from_hand(DISCARD, STATE3, STATE4),
+    cast(DISCARD, _, SEQUENCE_CAST_DISCARD, STATE4, STATE5, _),
+    hand_to_grave(SPY, STATE5, STATE6),
+    atomic_list_concat([DISCARD, ' self (', SPY, ')'], DISCARD_STEP),
+    append(SEQUENCE1, [DISCARD_STEP], DISCARD_SEQUENCE_PARTIAL),
+    append(DISCARD_SEQUENCE_PARTIAL, SEQUENCE_CAST_DISCARD, DISCARD_SEQUENCE),
+    makemana_goal(ANIMATE, animate, STATE6, STATE7, [], SEQUENCE2),
+    spend_(ANIMATE_COST, STATE7, STATE8),
+    remove_from_hand(ANIMATE, STATE8, STATE9),
+    cast(ANIMATE, _, SEQUENCE_CAST_ANIMATE, STATE9, STATE10, _),
+    grave_to_board(SPY, STATE10, STATE11),
+    append(SEQUENCE2, [ANIMATE|SEQUENCE_CAST_ANIMATE], ANIMATE_SEQUENCE),
+    append(DISCARD_SEQUENCE, ANIMATE_SEQUENCE, SEQUENCE3),
+    (
+        % If we reanimated a Spy, mill happens automatically
+        SPY = 'Balustrade Spy',
+        MILL_STATE = STATE11,
+        MILL_SEQUENCE = SEQUENCE3;
+        % If the best we could do was Informer, make 1 more mana and activate
+        SPY = 'Undercity Informer',
+        makemana_cost_goal([0,0,0,0,0,0,1], [], STATE11, REANIMATE_STATE, SEQUENCE3, ACTIVATE_SEQUENCE),
+        spend_generic(1, REANIMATE_STATE, MILL_STATE),
+        append(ACTIVATE_SEQUENCE, ['activate'], MILL_SEQUENCE)
+    ),
+    informerCombo(MILL_STATE, MILL_SEQUENCE, SEQUENCE, P2),
+    state_protection(START_STATE, P1),
+    PROTECTION is P1 + P2,
+    atomic_list_concat([DISCARD_STEP, '->', ANIMATE], WINCON).
 
 breakfast(START_HAND, START_DECK, SEQUENCE, PROTECTION) :-
     breakfast(START_HAND, [], [0,0,0,0,0,0,0], [], 0, START_DECK, SEQUENCE, PROTECTION).
@@ -410,14 +555,19 @@ ee_spy(H1, B1, M1, G1, S1, D1, SEQUENCE, PROTECTION) :-
     PROTECTION is P3 + P4,
     !.
 
+informerCombo([HAND, BOARD, MANA, GRAVEYARD, _, LIBRARY, _], PRIOR_SEQUENCE, TOTAL_SEQUENCE, PROTECTION) :-
+    informerCombo(HAND, BOARD, LIBRARY, GRAVEYARD, MANA, PRIOR_SEQUENCE, TOTAL_SEQUENCE, PROTECTION).
+
 informerCombo(HAND, BOARD, LIBRARY, START_GY, MANA, PRIOR_SEQUENCE, TOTAL_SEQUENCE, PROTECTION) :-
     zone_type_count(BOARD, creature, START_CREATURES),
     informerCombo(HAND, BOARD, LIBRARY, START_GY, MANA, START_CREATURES, PRIOR_SEQUENCE, TOTAL_SEQUENCE, PROTECTION).
-informerCombo(HAND, BOARD, LIBRARY, START_GY, MANA, START_CREATURES, PRIOR_SEQUENCE, TOTAL_SEQUENCE, PROTECTION) :-
+informerCombo(HAND, START_BOARD, LIBRARY, START_GY, MANA, START_CREATURES, PRIOR_SEQUENCE, TOTAL_SEQUENCE, PROTECTION) :-
     % Mill the deck and make Narcomoebas
-    count('Narcomoeba', LIBRARY, MOEBAS),
-    CREATURES is START_CREATURES + MOEBAS,
-    append(START_GY, LIBRARY, GY),
+    count('Narcomoeba', LIBRARY, N_MOEBAS),
+    CREATURES is START_CREATURES + N_MOEBAS,
+    append(START_GY, LIBRARY, GY_TRIGGER),
+    remove_all('Narcomoeba', GY_TRIGGER, GY, MOEBAS),
+    append(START_BOARD, MOEBAS, BOARD),
     informer_win(HAND, BOARD, GY, MANA, CREATURES, PRIOR_SEQUENCE, TOTAL_SEQUENCE, PROTECTION),
     !.
 informer_win(HAND, BOARD, GY, MANA, CREATURES, PRIOR_SEQUENCE, TOTAL_SEQUENCE, PROTECTION) :-
@@ -426,8 +576,9 @@ informer_win(HAND, BOARD, GY, MANA, CREATURES, PRIOR_SEQUENCE, TOTAL_SEQUENCE, P
 informer_win_dr(HAND, BOARD, GY, MANA, CREATURES, PRIOR_SEQUENCE, TOTAL_SEQUENCE, PROTECTION) :-
     % Do anything we might need to before DR. In addition to total number of
     % creatures, track how many are tokens (should be zero at this point).
-    flashback(HAND, GY, MANA, CREATURES, 0,
-        NEXT_HAND, NEXT_GY, NEXT_MANA, NEXT_CREATURES, _,
+    flashback(
+        HAND, BOARD, GY, MANA, CREATURES, 0,
+        NEXT_HAND, NEXT_BOARD, NEXT_GY, NEXT_MANA, NEXT_CREATURES, _,
         FLASHBACK_SEQUENCE),
     % Cast Dread Return and win the game
     NEXT_CREATURES > 2,
@@ -435,7 +586,7 @@ informer_win_dr(HAND, BOARD, GY, MANA, CREATURES, PRIOR_SEQUENCE, TOTAL_SEQUENCE
     member('Thassa\'s Oracle', NEXT_GY),
     append(PRIOR_SEQUENCE, FLASHBACK_SEQUENCE, S3),
     append(S3, ['DR->Oracle'], INTERMEDIATE_SEQUENCE),
-    finalize([NEXT_HAND, BOARD, NEXT_MANA, NEXT_GY, 0, [], 0], [_, _, _, _, _, _, PROTECTION], INTERMEDIATE_SEQUENCE, TOTAL_SEQUENCE, _).
+    finalize([NEXT_HAND, NEXT_BOARD, NEXT_MANA, NEXT_GY, 0, [], 0], [_, _, _, _, _, _, PROTECTION], INTERMEDIATE_SEQUENCE, TOTAL_SEQUENCE, _).
 informer_win_cast(H1, B1, G1, M1, PRIOR_SEQUENCE, TOTAL_SEQUENCE, PROTECTION) :-
     % Cast the win condition from your hand instead
     member('Thassa\'s Oracle', H1),
@@ -471,6 +622,7 @@ finalize(STATE, STATE, SEQ, SEQ).
 canInformer(HAND, GY, DECK) :-
     haveCard('Dread Return', [HAND, GY, DECK]),
     haveCard('Thassa\'s Oracle', [HAND, GY, DECK]).
+canInformer([HAND, _, _, GY, _, DECK, _]) :- canInformer(HAND, GY, DECK).
 
 haveCard(NAME, [H | T]) :-
     member(NAME, H);
@@ -482,58 +634,75 @@ library_contains_win(_, LIBRARY) :-
     member('Thassa\'s Oracle', LIBRARY),
     count('Narcomoeba', LIBRARY, MOEBAS),
     count('Bridge from Below', LIBRARY, BRIDGES),
+    count('Poxwalkers', LIBRARY, POXWALKERS),
     count('Cabal Therapy', LIBRARY, THERAPIES),
     (
         MOEBAS >= 3;
-        MOEBAS == 2, BRIDGES >= 2, THERAPIES >= 1;
-        MOEBAS == 1, BRIDGES >= 3, THERAPIES >= 1
+        MOEBAS == 2, BRIDGES + POXWALKERS >= 2, THERAPIES >= 1;
+        MOEBAS == 1, BRIDGES + POXWALKERS >= 3, THERAPIES >= 1;
+        MOEBAS == 1, BRIDGES == 1, POXWALKERS == 1, THERAPIES >= 2
     ).
 
-flashback(HAND, GY, MANA, CREATURES, TOKENS, HAND, GY, MANA, CREATURES, TOKENS, []).
-flashback(HAND, GY, MANA, CREATURES, TOKENS, END_HAND, END_GY, END_MANA, END_CREATURES, END_TOKENS, SEQUENCE) :-
+sacrifice_creature('Poxwalkers', BOARD, NEXT_BOARD) :-
+    take('Poxwalkers', BOARD, NEXT_BOARD).
+sacrifice_creature(CREATURE, BOARD, NEXT_BOARD) :-
+    dif('Poxwalkers', CREATURE),
+    remove_first_type(creature, BOARD, NEXT_BOARD, CREATURE).
+
+flashback(HAND, BOARD, GY, MANA, CREATURES, TOKENS, HAND, BOARD, GY, MANA, CREATURES, TOKENS, []).
+flashback(HAND, BOARD, GY, MANA, CREATURES, TOKENS, END_HAND, END_BOARD, END_GY, END_MANA, END_CREATURES, END_TOKENS, SEQUENCE) :-
     % Bring back a Phantasmagorian
     member('Phantasmagorian', GY),
     take(X, HAND, H2),
     take(Y, H2, H3),
     take(Z, H3, H4),
     append(GY, [X, Y, Z], NEXT_GY),
-    flashback(['Phantasmagorian'|H4], NEXT_GY, MANA, CREATURES, TOKENS,
-        END_HAND, END_GY, END_MANA, END_CREATURES, END_TOKENS, S2),
+    flashback(['Phantasmagorian'|H4], BOARD, NEXT_GY, BOARD, MANA, CREATURES, TOKENS,
+        END_HAND, END_BOARD, END_GY, END_MANA, END_CREATURES, END_TOKENS, S2),
     SEQUENCE = ['Phantasmagorian' | S2];
 
-    % Flashback a Cabal Therapy with a non-token, get a Bridge token
-    remove('Cabal Therapy', GY, NEXT_GY),
-    member('Bridge from Below', GY),
+    % Flashback a Cabal Therapy with a non-token, get Bridge tokens and Poxwalkers
+    remove('Cabal Therapy', GY, GY2),
+    count('Bridge from Below', GY2, BRIDGES),
+    sacrifice_creature(SACRIFICE, BOARD, B2),
+    append(GY2, [SACRIFICE], GY3),
+    count('Poxwalkers', GY3, N_POXWALKERS),
     CREATURES > 0,
     CREATURES > TOKENS,
-    NEXT_TOKENS is TOKENS + 1,
+    NEXT_TOKENS is TOKENS + BRIDGES,
+    NEXT_CREATURES is CREATURES + BRIDGES + N_POXWALKERS - 1,
+    remove_all('Poxwalkers', GY3, GY4, POXWALKERS),
+    append(B2, POXWALKERS, NEXT_BOARD),
     remove_all(_, HAND, NEXT_HAND, REMOVED),
-    append(NEXT_GY, REMOVED, FINAL_GY),
-    flashback(NEXT_HAND, FINAL_GY, MANA, CREATURES, NEXT_TOKENS,
-        END_HAND, END_GY, END_MANA, END_CREATURES, END_TOKENS, S2),
+    append(GY4, REMOVED, NEXT_GY),
+    flashback(NEXT_HAND, NEXT_BOARD, NEXT_GY, MANA, NEXT_CREATURES, NEXT_TOKENS,
+        END_HAND, END_BOARD, END_GY, END_MANA, END_CREATURES, END_TOKENS, S2),
     SEQUENCE = ['Cabal Therapy' | S2];
 
-    % Flashback a Cabal Therapy with a non-token, don't get a Bridge token
-    remove('Cabal Therapy', GY, NEXT_GY),
-    CREATURES > 0,
-    CREATURES > TOKENS,
-    NEXT_CREATURES is CREATURES - 1,
-    remove_all(_, HAND, NEXT_HAND, REMOVED),
-    append(NEXT_GY, REMOVED, FINAL_GY),
-    flashback(NEXT_HAND, FINAL_GY, MANA, NEXT_CREATURES, TOKENS,
-        END_HAND, END_GY, END_MANA, END_CREATURES, END_TOKENS, S2),
-    SEQUENCE = ['Cabal Therapy' | S2];
+    % Flashback a Cabal Therapy with a non-token, get Poxwalkers
+    %remove('Cabal Therapy', GY, NEXT_GY),
+    %CREATURES > 0,
+    %CREATURES > TOKENS,
+    %NEXT_CREATURES is CREATURES - 1,
+    %remove_all(_, HAND, NEXT_HAND, REMOVED),
+    %append(NEXT_GY, REMOVED, FINAL_GY),
+    %flashback(NEXT_HAND, FINAL_GY, MANA, NEXT_CREATURES, TOKENS,
+    %    END_HAND, END_BOARD, END_GY, END_MANA, END_CREATURES, END_TOKENS, S2),
+    %SEQUENCE = ['Cabal Therapy' | S2];
 
-    % Flashback a Cabal Therapy with a token
-    remove('Cabal Therapy', GY, NEXT_GY),
+    % Flashback a Cabal Therapy with a token, get Poxwalkers
+    remove('Cabal Therapy', GY, GY2),
+    count('Poxwalkers', GY2, N_POXWALKERS),
     CREATURES > 0,
     TOKENS > 0,
-    NEXT_CREATURES is CREATURES - 1,
+    NEXT_CREATURES is CREATURES + N_POXWALKERS - 1,
     NEXT_TOKENS is TOKENS - 1,
+    remove_all('Poxwalkers', GY2, GY3, POXWALKERS),
+    append(BOARD, POXWALKERS, NEXT_BOARD),
     remove_all(_, HAND, NEXT_HAND, REMOVED),
-    append(NEXT_GY, REMOVED, FINAL_GY),
-    flashback(NEXT_HAND, FINAL_GY, MANA, NEXT_CREATURES, NEXT_TOKENS,
-        END_HAND, END_GY, END_MANA, END_CREATURES, END_TOKENS, S2),
+    append(GY3, REMOVED, NEXT_GY),
+    flashback(NEXT_HAND, NEXT_BOARD, NEXT_GY, MANA, NEXT_CREATURES, NEXT_TOKENS,
+        END_HAND, END_BOARD, END_GY, END_MANA, END_CREATURES, END_TOKENS, S2),
     SEQUENCE = ['Cabal Therapy' | S2];
 
     % Flashback a Lingering Souls
@@ -542,8 +711,8 @@ flashback(HAND, GY, MANA, CREATURES, TOKENS, END_HAND, END_GY, END_MANA, END_CRE
     SEQUENCE = ['Lingering Souls'],
     NEXT_CREATURES = CREATURES + 2,
     NEXT_TOKENS = TOKENS + 2,
-    flashback(HAND, NEXT_GY, NEXT_MANA, NEXT_CREATURES, NEXT_TOKENS,
-        END_HAND, END_GY, END_MANA, END_CREATURES, END_TOKENS, S2),
+    flashback(HAND, BOARD, NEXT_GY, NEXT_MANA, NEXT_CREATURES, NEXT_TOKENS,
+        END_HAND, END_BOARD, END_GY, END_MANA, END_CREATURES, END_TOKENS, S2),
     SEQUENCE = ['Lingering Souls' | S2].
 
 remove_all(_, [], [], []).

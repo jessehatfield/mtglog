@@ -26,16 +26,16 @@ Rite of Flame > Pyretic Ritual > Desperate Ritual
 Grim Monolith
 Tinder Wall
 
-//5 different lands that don't count as lands
-4 Agadeem's Awakening
+//5 colors of land that don't count as lands
+4 Agadeem's Awakening > Boggart Trawler
 Emeria's Call
-Sea Gate Restoration
+Sea Gate Restoration > Sink into Stupor
 Shatterskull Smashing
 Turntimber Symbiosis
 
 //protection spells organized by color
 1-4 Cabal Therapy > Thoughtseize
-Grief > Unmask
+Unmask > Grief
 Pact of Negation > Force of Will > Misdirection
 Chancellor of the Annex > Silence > Orim's Chant
 Leyline of Lifeforce > Veil of Summer
@@ -48,6 +48,8 @@ Empty the Warrens
 //misc
 Bridge from Below
 Serum Powder
+Poxwalkers
+Reanimate
 
 //things requiring sacrifices
 Culling the Weak
@@ -63,3 +65,6 @@ Priest of Urabrask
 Vine Dryad > Endurance
 Shield Sphere > Phyrexian Walker > Memnite > Ornithopter
 Leyline of the Void > Leyline of Sanctity
+
+//tutors for win conditions
+Lively Dirge

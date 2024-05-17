@@ -1,16 +1,12 @@
-% To test:
-% Mox Opal
-% land/spells
-
 % To implement:
 % Land Grant
 % make Manamorphose draw a card (doesn't it already?)
 % Wish for mana?
 % Cast creatures just for Dread Return (have we done that yet?)
-% Multiple Bridge from Below
 % Casting the land/spells (e.g. Turntimber Symbiosis)
 % Finale of Devastation
 % Once Upon a Time
+% LED + non-targeting Reanimate
 
 % Placeholder
 card('Unknown', [
@@ -488,6 +484,67 @@ card('Beseech the Mirror', [
     gy     - 1,
     restricted - true
 ]).
+card('Entomb', [
+    cost   - [0, 0, 1, 0, 0, 0, 0],
+    yield  - [0, 0, 0, 0, 0, 0, 0],
+    net    - 0,
+    colors - [b],
+    types  - [instant],
+    spell  - 1,
+    board  - 0,
+    gy     - 1,
+    cmc    - 1,
+    roles  - [entomb]
+]).
+card('Buried Alive', [
+    cost   - [0, 0, 1, 0, 0, 0, 2],
+    yield  - [0, 0, 0, 0, 0, 0, 0],
+    net    - 0,
+    colors - [b],
+    types  - [sorcery],
+    spell  - 1,
+    board  - 0,
+    gy     - 1,
+    cmc    - 3,
+    roles  - [entomb]
+]).
+card('Unmarked Grave', [
+    cost   - [0, 0, 1, 0, 0, 0, 1],
+    yield  - [0, 0, 0, 0, 0, 0, 0],
+    net    - 0,
+    colors - [b],
+    types  - [sorcery],
+    spell  - 1,
+    board  - 0,
+    gy     - 1,
+    cmc    - 2,
+    roles  - [entomb]
+]).
+
+card('Reanimate', [
+    cost   - [0, 0, 1, 0, 0, 0, 0],
+    yield  - [0, 0, 0, 0, 0, 0, 0],
+    net    - 0,
+    colors - [b],
+    types  - [sorcery],
+    spell  - 1,
+    board  - 0,
+    gy     - 1,
+    cmc    - 1,
+    roles  - [animate]
+]).
+card('Animate Dead', [
+    cost   - [0, 0, 1, 0, 0, 0, 1],
+    yield  - [0, 0, 0, 0, 0, 0, 0],
+    net    - 0,
+    colors - [b],
+    types  - [enchantment],
+    spell  - 1,
+    board  - 1,
+    gy     - 0,
+    cmc    - 2,
+    roles  - [animate]
+]).
 
 % Generic land/spell pattern
 card(NAME, [
@@ -655,7 +712,8 @@ card('Cabal Therapy', [
     spell  - 1,
     board  - 0,
     gy     - 1,
-    protection - 1
+    protection - 1,
+    roles - [self_discard]
 ]).
 card('Lingering Souls', [
     cost   - [1, 0, 0, 0, 0, 0, 2],
@@ -744,7 +802,8 @@ card('Unmask', [
     board  - 0,
     gy     - 1,
     protection - 1,
-    restricted - true
+    restricted - true,
+    roles - [self_discard]
 ]).
 card('Grief', [
     cost   - [0, 0, 0, 0, 0, 0, 0],
@@ -805,6 +864,7 @@ card('Leyline of the Void', [
 ]).
 card('Thoughtseize', [
     cost   - [0, 0, 1, 0, 0, 0, 0],
+    cmc    - 1,
     yield  - [0, 0, 0, 0, 0, 0, 0],
     net    - 0,
     colors - [b],
@@ -812,7 +872,8 @@ card('Thoughtseize', [
     spell  - 1,
     board  - 0,
     gy     - 1,
-    protection - 1
+    protection - 1,
+    roles - [self_discard]
 ]).
 card('Veil of Summer', [
     cost   - [0, 0, 0, 0, 1, 0, 0],
@@ -961,6 +1022,37 @@ card('Chancellor of the Annex_used', [
     gy     - 0
 ]).
 
+% (Effectively) modal cards whose properties change in different modes
+card(CARDNAME, DATA) :- card(CARDNAME, DATA, base).
+
+card('Lively Dirge', [
+    cost   - [0, 0, 1, 0, 0, 0, 0],
+    yield  - [0, 0, 0, 0, 0, 0, 0],
+    net    - 0,
+    colors - [b],
+    types  - [sorcery],
+    spell  - 1,
+    board  - 0,
+    gy     - 1,
+    cmc    - 1,
+    roles  - [entomb, animate]
+], base).
+card('Lively Dirge', [
+    cost   - [0, 0, 1, 0, 0, 0, 2],
+    cmc    - 3,
+    roles  - [entomb]
+], entomb).
+card('Lively Dirge', [
+    cost   - [0, 0, 1, 0, 0, 0, 3],
+    cmc    - 4,
+    roles  - [animate]
+], animate).
+card('Lively Dirge', [
+    cost   - [0, 0, 1, 0, 0, 0, 4],
+    cmc    - 5,
+    roles  - [entomb, animate]
+], win).
+
 card_key_value_default(CARDNAME, KEY, VALUE, DEFAULT) :-
     card(CARDNAME, DATA),
     carddata_key_value_default(DATA, KEY, VALUE, DEFAULT).
@@ -992,6 +1084,8 @@ landspell('Sea Gate Restoration', u, [0, 1, 0, 0, 0, 0, 0]).
 landspell('Agadeem\'s Awakening', b, [0, 0, 1, 0, 0, 0, 0]).
 landspell('Shatterskull Smashing', r, [0, 0, 0, 1, 0, 0, 0]).
 landspell('Turntimber Symbiosis', g, [0, 0, 0, 0, 1, 0, 0]).
+landspell('Boggart Trawler', b, [0, 0, 1, 0, 0, 0, 0]).
+landspell('Sink into Stupor', u, [0, 1, 0, 0, 0, 0, 0]).
 
 % Concrete instantiations of the free permanent pattern
 free_permanent('Shield Sphere', [artifact, creature], []).
@@ -1163,6 +1257,7 @@ cmc(CARDNAME, CMC) :-
             total(COST, CMC)
         )
     ).
+
 
 sacrifice_creature(CARDNAME,
     [HAND, START_BOARD, MANA, START_GY, STORM, DECK, PROTECTION],
@@ -1538,6 +1633,11 @@ member_or_tutor(CARDNAME, HAND, LIBRARY) :-
     member(TUTOR, HAND), tutors_for(TUTOR, CARDNAME, LIBRARY), member(CARDNAME, LIBRARY)),
     !.
 
+all_member_or_tutor([], _, _).
+all_member_or_tutor([H|T], HAND, DECK) :-
+    member_or_tutor(H, HAND, DECK),
+    all_member_or_tutor(T, HAND, DECK).
+
 tutors_for(TUTOR_NAME, TARGET_NAME, DECK) :-
     card(TARGET_NAME, DATA),
     list_to_assoc(DATA, TARGET_ASSOC),
@@ -1552,6 +1652,35 @@ tutors_for_('Once Upon a Time', TARGET_NAME, TARGET_ASSOC, DECK) :-
     in_first_n(TARGET_NAME, DECK, 5),
     get_assoc(types, TARGET_ASSOC, TYPES),
     (member(creature, TYPES); member(land, TYPES)).
+
+has_role(CARDNAME, ROLE) :-
+    card(CARDNAME, DATA),
+    list_to_assoc(DATA, ASSOC),
+    get_assoc(roles, ASSOC, ROLES),
+    member(ROLE, ROLES).
+
+card_property(CARDNAME, MODE, PROPERTY, VALUE) :-
+    % if the card isn't modal, get the default value
+    card(CARDNAME, DATA),
+    not(card(CARDNAME, _, _)),
+    list_to_assoc(DATA, ASSOC),
+    get_assoc(PROPERTY, ASSOC, VALUE);
+    % if it is modal, use the right mode
+    card(CARDNAME, DATA, MODE),
+    list_to_assoc(DATA, ASSOC),
+    (
+        get_assoc(PROPERTY, ASSOC, VALUE);
+        % but if this mode doesn't specify the property, use the default mode
+        not(get_assoc(PROPERTY, ASSOC, _)),
+        card(CARDNAME, BASE_DATA, base),
+        list_to_assoc(BASE_DATA, BASE_ASSOC),
+        get_assoc(PROPERTY, BASE_ASSOC, VALUE)
+    ).
+
+card_property_default(CARDNAME, MODE, PROPERTY, _, VALUE) :-
+    card_property(CARDNAME, MODE, PROPERTY, VALUE).
+card_property_default(CARDNAME, MODE, PROPERTY, DEFAULT, DEFAULT) :-
+    not(card_property(CARDNAME, MODE, PROPERTY, _)).
 
 in_first_n(H, [H|_], N) :-
     N > 0.

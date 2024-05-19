@@ -23,6 +23,10 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <maven.compiler.source>1.8</maven.compiler.source>
     <maven.compiler.target>1.8</maven.compiler.target>
+    <jsonpath.version>2.9.0</jsonpath.version>
+    <json.smart.version>2.5.0</json.smart.version>
+    <gson.version>2.10.1</gson.version>
+    <httpclient.version>5.3.1</httpclient.version>
     <log4j.version>2.14.1</log4j.version>
     <mongodb.version>4.3.2</mongodb.version>
     <spring.boot.version>2.7.18</spring.boot.version>
@@ -61,18 +65,15 @@
       <version>${log4j.version}</version>
     </dependency>
     <dependency>
+      <groupId>org.apache.logging.log4j</groupId>
+      <artifactId>log4j-slf4j-impl</artifactId>
+      <version>${log4j.version}</version>
+    </dependency>
+    <dependency>
       <groupId>org.mongodb</groupId>
       <artifactId>mongodb-driver-sync</artifactId>
       <version>${mongodb.version}</version>
     </dependency>
-    <!--
-    <dependency>
-      <groupId>org.springframework.boot</groupId>
-      <artifactId>spring-boot-dependencies</artifactId>
-      <version>${spring.boot.version}</version>
-      <type>pom</type>
-    </dependency>
-    -->
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot</artifactId>
@@ -87,6 +88,36 @@
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-web</artifactId>
       <version>${spring.boot.version}</version>
+      <exclusions>
+          <exclusion>
+              <groupId>ch.qos.logback</groupId>
+              <artifactId>logback-classic</artifactId>
+          </exclusion>
+          <exclusion>
+              <groupId>org.apache.logging.log4j</groupId>
+              <artifactId>log4j-to-slf4j</artifactId>
+          </exclusion>
+      </exclusions>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.httpcomponents.client5</groupId>
+      <artifactId>httpclient5</artifactId>
+      <version>${httpclient.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>com.google.code.gson</groupId>
+      <artifactId>gson</artifactId>
+      <version>${gson.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>com.jayway.jsonpath</groupId>
+      <artifactId>json-path</artifactId>
+      <version>${jsonpath.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>net.minidev</groupId>
+      <artifactId>json-smart</artifactId>
+      <version>${json.smart.version}</version>
     </dependency>
 
     <!-- testing -->
@@ -149,6 +180,15 @@
                                 <value>debug</value>
                             </systemProperty>
                         </systemProperties>
+                    </configuration>
+                </execution>
+                <execution>
+                    <id>client</id>
+                    <goals>
+                        <goal>java</goal>
+                    </goals>
+                    <configuration>
+                        <mainClass>mtg.logic.ec.MtgRESTProblem</mainClass>
                     </configuration>
                 </execution>
                 <execution>

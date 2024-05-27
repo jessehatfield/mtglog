@@ -12,6 +12,7 @@ import java.lang.Integer;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.function.BiConsumer;
@@ -251,6 +252,46 @@ public class PrologEngine {
         }
         System.err.println(aggregatedResults.getNSuccesses() + " / " + aggregatedResults.getNTotal()
                 +  " total successes.");
+        return aggregatedResults;
+    }
+
+    /**
+     * Test a sequence of hands, without conducting additional mulligans (can
+     * assume a number of previous mulligans).
+     * @param objective The problem to test; sources should already be loaded
+     * @param deck The deck to use
+     * @param hands The sequence of hands to test
+     * @param printInterval Print partial results every interval of this size
+     * @return A ResultSequence object representing the outputs
+     */
+    public Results testHands(
+            final SingleObjectivePrologProblem objective,
+            final Deck deck,
+            final Iterator<Deck.PossibleHand> hands,
+            final int printInterval) {
+        final Results aggregatedResults = new Results();
+        int mulligans = objective.getStartingMulligans();
+        Results individualResult;
+        int i = 0;
+        while (hands.hasNext()) {
+            final Deck.PossibleHand uniqueHand = hands.next();
+            final String[] hand = uniqueHand.getHand();
+            final String[] library = uniqueHand.getLibrary();
+            individualResult = testHand(objective, hand, library, deck.getSideboard(), mulligans, 0);
+            for (final BiConsumer<String[], Results> callback : callbacks) {
+                callback.accept(hand, individualResult);
+            }
+            individualResult.multiply((int) uniqueHand.combinations());
+            aggregatedResults.add(individualResult, false);
+            if (printInterval > 0 && (i+1) % printInterval == 0) {
+                int nSuccess = aggregatedResults.getNSuccesses();
+                int nHands = aggregatedResults.getNTotal();
+                double p = ((double) nSuccess) / nHands;
+                System.err.println(aggregatedResults.getNSuccesses() + " / " + aggregatedResults.getNTotal() +
+                        " successes so far (p=" + p + ")");
+            }
+            i++;
+        }
         return aggregatedResults;
     }
 }

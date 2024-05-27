@@ -1,13 +1,17 @@
 package mtg.logic;
 
 import ec.util.MersenneTwisterFast;
+import org.apache.commons.math3.util.CombinatoricsUtils;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.Serializable;
+import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -40,7 +44,7 @@ public class Deck implements Serializable {
     }
 
     public Deck(String[] cards, int[] counts, int minSize) {
-        this(cards, counts, new int[] {}, minSize);
+        this(cards, counts, new int[cards.length], minSize);
     }
 
     public Deck(String[] cards, int[] counts) {
@@ -202,5 +206,51 @@ public class Deck implements Serializable {
     @Override
     public int hashCode() {
         return Objects.hash(maindeck, sideboard, minSize);
+    }
+
+    public static class PossibleHand {
+        String[] cardNames;
+        int[] hand;
+        int[] deck;
+
+        public PossibleHand(String[] cardNames, int[] hand, int[] deck) {
+            this.cardNames = cardNames;
+            this.hand = hand;
+            this.deck = deck;
+        }
+
+        public long combinations() {
+            long n = 1L;
+            for (int i = 0; i < cardNames.length; i++) {
+                if (hand[i] > 0 && deck[i] > 0) {
+                    n *= CombinatoricsUtils.binomialCoefficient(deck[i] + hand[i], hand[i]);
+                }
+            }
+            return n;
+        }
+
+        public String[] getHand() {
+            int handSize = Arrays.stream(hand).sum();
+            String[] cardsInHand = new String[handSize];
+            int index = 0;
+            for (int i = 0; i < hand.length; i++) {
+                for (int j = 0; j < hand[i]; j++) {
+                    cardsInHand[index++] = cardNames[i];
+                }
+            }
+            return cardsInHand;
+        }
+
+        public String[] getLibrary() {
+            int librarySize = Arrays.stream(deck).sum();
+            String[] cardsInLibrary = new String[librarySize];
+            int index = 0;
+            for (int i = 0; i < deck.length; i++) {
+                for (int j = 0; j < deck[i]; j++) {
+                    cardsInLibrary[index++] = cardNames[i];
+                }
+            }
+            return cardsInLibrary;
+        }
     }
 }

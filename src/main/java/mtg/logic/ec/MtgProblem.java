@@ -9,6 +9,7 @@ import ec.util.MersenneTwisterFast;
 import ec.util.Parameter;
 import ec.vector.IntegerVectorIndividual;
 import mtg.logic.Deck;
+import mtg.logic.EnumeratedHands;
 import mtg.logic.MongoResultStore;
 import mtg.logic.MultiObjectivePrologProblem;
 import mtg.logic.PrologEngine;
@@ -240,6 +241,21 @@ public class MtgProblem extends StochasticProblem {
         return prolog.simulateGames(objective, deck, n, rng, interval);
     }
 
+    private Results evaluateDeckExhaustive(final SingleObjectivePrologProblem objective, final Deck deck) {
+        int n = (int) EnumeratedHands.numUniqueHands(deck, objective.getHandSize());
+        final EnumeratedHands allHands = new EnumeratedHands(deck, objective.getHandSize());
+        int interval = n < 20 ? 0 : (n < 20000 ? n / 20 : 1000);
+        prolog.addCallback((hand, results) -> {
+            if (allHands.getNumRetrieved() % interval == 0) {
+                final double progress = allHands.getNumRetrieved() * 100.0 / n;
+                System.out.println("Processed " + allHands.getNumRetrieved() + " hands out of " +
+                        n + " (" + progress + "%)");
+            }
+        });
+        System.out.println("Evaluating all " + n + " possible hands...");
+        return prolog.testHands(objective, deck, allHands, interval);
+    }
+
     private void printResults(final SingleObjectivePrologProblem objective,
                               final Results results) {
         if (objective.getFilter() != null) {
@@ -312,11 +328,11 @@ public class MtgProblem extends StochasticProblem {
     }
 
     public static void main(String[] args) throws IOException {
-        if (args.length >= 3) {
+        if (args.length >= 2) {
             final MtgProblem app = new MtgProblem();
             app.problem = PrologProblem.fromYaml(args[0]);
             final String decklistFile = args[1];
-            app.baseTrials = Integer.parseInt(args[2]);
+            app.baseTrials = args.length > 2 ? Integer.parseInt(args[2]) : -1;
             app.initProlog(null);
             ResultStore store = null;
             if (args.length >= 5) {
@@ -329,7 +345,12 @@ public class MtgProblem extends StochasticProblem {
             final Map<String, Results> resultsMap = new HashMap<>();
             for (final SingleObjectivePrologProblem objective : app.problem.getObjectives()) {
                 System.out.println("Objective: " + objective.getName());
-                final Results objectiveResults = app.evaluateDeck(objective, deck, app.baseTrials, rng);
+                final Results objectiveResults;
+                if (app.baseTrials > 0) {
+                    objectiveResults = app.evaluateDeck(objective, deck, app.baseTrials, rng);
+                } else {
+                    objectiveResults = app.evaluateDeckExhaustive(objective, deck);
+                }
                 app.printResults(objective, objectiveResults);
                 resultsMap.put(objective.getName(), objectiveResults);
                 if (store != null) {

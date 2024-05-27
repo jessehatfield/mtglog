@@ -1,0 +1,15 @@
+name: Oops All Spells -- REST Client
+
+url: http://localhost:3000/api/sample
+
+objectives:
+
+  - name: win
+    path: $.stats.winProbability
+
+  - name: protectedWin
+    path: $.stats.protectedWinProbability
+
+  - name: deckSize
+    path: $.deckSize
+    minimize: true

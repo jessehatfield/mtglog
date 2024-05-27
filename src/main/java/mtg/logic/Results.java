@@ -19,6 +19,11 @@ public class Results {
     private final Map<String, List<String>> stringMetadata = new HashMap<>();
     private final Map<String, List<Boolean>> booleanMetadata = new HashMap<>();
 
+    // Running totals for metadata fields
+    private final Map<String, Integer> intMetadataSums = new HashMap<>();
+    private final Map<String, Map<String, Integer>> stringMetadataCounts = new HashMap<>();
+    private final Map<String, Integer> booleanMetadataCounts = new HashMap<>();
+
     // Fields that apply for every simulation
     private final List<Boolean> success = new ArrayList<>();
     private final List<Long> durations = new ArrayList<>();
@@ -48,10 +53,12 @@ public class Results {
                     final List<Boolean> list = new ArrayList<>();
                     list.add(value.isJTrue());
                     booleanMetadata.put(key, list);
+                    booleanMetadataCounts.put(key, value.isJTrue() ? 1 : 0);
                 } else if (value.isInteger()) {
                     final List<Integer> list = new ArrayList<>();
                     list.add(value.intValue());
                     intMetadata.put(key, list);
+                    intMetadataSums.put(key, value.intValue());
                 } else if (value.isList()) {
                     final Term[] terms = value.listToTermArray();
                     final List<List<String>> lists = new ArrayList<>();
@@ -66,17 +73,24 @@ public class Results {
                         final List<Boolean> list = new ArrayList<>();
                         list.add("true".equals(str));
                         booleanMetadata.put(key, list);
+                        booleanMetadataCounts.put(key, "true".equals(str) ? 1 : 0);
                     } else {
                         final List<String> list = new ArrayList<>();
                         list.add(str);
                         stringMetadata.put(key, list);
+                        stringMetadataCounts.put(key, new LinkedHashMap<>());
+                        stringMetadataCounts.get(key).put(str, 1);
                     }
                 }
             });
             intMetadata.put("nMulligans", Collections.singletonList(mulliganCount));
             intMetadata.put("nPowders", Collections.singletonList(powderCount));
+            intMetadataSums.put("nMulligans", mulliganCount);
+            intMetadataSums.put("nPowders", powderCount);
             booleanMetadata.put("mulligan", Collections.singletonList(mulliganCount > 0));
             booleanMetadata.put("powder", Collections.singletonList(powderCount > 0));
+            booleanMetadataCounts.put("mulligan", mulliganCount > 0 ? 1 : 0);
+            booleanMetadataCounts.put("powder", powderCount > 0 ? 1 : 0);
         }
     }
 
@@ -95,32 +109,97 @@ public class Results {
     }
 
     public void add(Results other) {
+        add(other, true);
+    }
+
+    public void add(Results other, boolean maintainLists) {
         nTotal += other.nTotal;
         nSuccesses += other.nSuccesses;
         nFailures += other.nFailures;
-        for (String key : other.intMetadata.keySet()) {
-            final List<Integer> mergedList = intMetadata.getOrDefault(key, new ArrayList<>());
-            mergedList.addAll(other.intMetadata.get(key));
-            intMetadata.put(key, mergedList);
+        for (String key : other.intMetadataSums.keySet()) {
+            int oldSum = intMetadataSums.getOrDefault(key, 0);
+            intMetadataSums.put(key, other.intMetadataSums.get(key) + oldSum);
         }
-        for (String key : other.stringMetadata.keySet()) {
-            final List<String> mergedList = stringMetadata.getOrDefault(key, new ArrayList<>());
-            mergedList.addAll(other.stringMetadata.get(key));
-            stringMetadata.put(key, mergedList);
+        for (String key : other.stringMetadataCounts.keySet()) {
+            if (!stringMetadataCounts.containsKey(key)) {
+                stringMetadataCounts.put(key, new LinkedHashMap<>());
+            }
+            final Set<String> values = new HashSet<>(stringMetadataCounts.get(key).keySet());
+            values.addAll(other.stringMetadataCounts.get(key).keySet());
+            for (String value : values) {
+                int oldCount = stringMetadataCounts.get(key).getOrDefault(value, 0);
+                int newCount = other.stringMetadataCounts.get(key).getOrDefault(value, 0);
+                stringMetadataCounts.get(key).put(value, oldCount + newCount);
+            }
         }
-        for (String key : other.listMetadata.keySet()) {
-            final List<List<String>> mergedList = listMetadata.getOrDefault(key, new ArrayList<>());
-            mergedList.addAll(other.listMetadata.get(key));
-            listMetadata.put(key, mergedList);
+        for (String key : other.booleanMetadataCounts.keySet()) {
+            final int oldCount = booleanMetadataCounts.getOrDefault(key, 0);
+            final int additional = other.booleanMetadataCounts.get(key);
+            booleanMetadataCounts.put(key, oldCount + additional);
         }
-        for (String key : other.booleanMetadata.keySet()) {
-            final List<Boolean> mergedList = booleanMetadata.getOrDefault(key, new ArrayList<>());
-            mergedList.addAll(other.booleanMetadata.get(key));
-            booleanMetadata.put(key, mergedList);
+        if (maintainLists) {
+            for (String key : other.intMetadata.keySet()) {
+                final List<Integer> mergedList = intMetadata.getOrDefault(key, new ArrayList<>());
+                mergedList.addAll(other.intMetadata.get(key));
+                intMetadata.put(key, mergedList);
+            }
+            for (String key : other.stringMetadata.keySet()) {
+                final List<String> mergedList = stringMetadata.getOrDefault(key, new ArrayList<>());
+                mergedList.addAll(other.stringMetadata.get(key));
+                stringMetadata.put(key, mergedList);
+            }
+            for (String key : other.listMetadata.keySet()) {
+                final List<List<String>> mergedList = listMetadata.getOrDefault(key, new ArrayList<>());
+                mergedList.addAll(other.listMetadata.get(key));
+                listMetadata.put(key, mergedList);
+            }
+            for (String key : other.booleanMetadata.keySet()) {
+                final List<Boolean> mergedList = booleanMetadata.getOrDefault(key, new ArrayList<>());
+                mergedList.addAll(other.booleanMetadata.get(key));
+                booleanMetadata.put(key, mergedList);
+            }
+            durations.addAll(other.durations);
+            mulliganCounts.addAll(other.mulliganCounts);
+            powderCounts.addAll(other.powderCounts);
+        } else {
+            intMetadata.clear();
+            listMetadata.clear();
+            stringMetadata.clear();
+            booleanMetadata.clear();
+            durations.clear();
+            mulliganCounts.clear();
+            powderCounts.clear();
         }
-        durations.addAll(other.durations);
-        mulliganCounts.addAll(other.mulliganCounts);
-        powderCounts.addAll(other.powderCounts);
+    }
+
+    public void multiply(int n) {
+        if (n <= 0) {
+            throw new IllegalArgumentException("Can only multiply results a positive number of times, received n=" + n);
+        }
+        nTotal *= n;
+        nSuccesses *= n;
+        nFailures *= n;
+        intMetadata.replaceAll((k, v) -> repeat(v, n));
+        listMetadata.replaceAll((k, v) -> repeat(v, n));
+        stringMetadata.replaceAll((k, v) -> repeat(v, n));
+        booleanMetadata.replaceAll((k, v) -> repeat(v, n));
+        intMetadataSums.replaceAll((k, v) -> v * n);
+        for (String key : stringMetadataCounts.keySet()) {
+            stringMetadataCounts.get(key).replaceAll((k, v) -> v * n);
+        }
+        booleanMetadataCounts.replaceAll((k, v) -> v * n);
+        success.addAll(repeat(success, n - 1));
+        durations.addAll(repeat(durations, n - 1));
+        mulliganCounts.addAll(repeat(mulliganCounts, n - 1));
+        powderCounts.addAll(repeat(powderCounts, n - 1));
+    }
+
+    private <T> List<T> repeat(final List<T> list, final int n) {
+        ArrayList<T> newList = new ArrayList<>(list.size() * n);
+        for (int i = 0; i < n; i++) {
+            newList.addAll(list);
+        }
+        return newList;
     }
 
     public int getNTotal() { return nTotal; }
@@ -130,34 +209,30 @@ public class Results {
         if (getNSuccesses() == 0) {
             return 0;
         }
-        if (!booleanMetadata.containsKey(property)) {
+        if (!booleanMetadataCounts.containsKey(property)) {
             throw new IllegalArgumentException("Results don't contain boolean property '"
-                    + property + "'. Boolean properties found: " + booleanMetadata);
+                    + property + "'. Boolean properties found: " + booleanMetadataCounts);
         }
-        return (int) booleanMetadata.get(property).stream().filter(b -> b).count();
+        return booleanMetadataCounts.get(property);
     }
 
     public int getPropertySum(final String property) {
         if (getNSuccesses() == 0) {
             return 0;
         }
-        if (!intMetadata.containsKey(property)) {
+        if (!intMetadataSums.containsKey(property)) {
             throw new IllegalArgumentException("Results don't contain integer property '"
-                    + property + "'. Integer properties found: " + intMetadata);
+                    + property + "'. Integer properties found: " + intMetadataSums);
         }
-        return intMetadata.get(property).stream().reduce(Integer::sum).orElse(0);
+        return intMetadataSums.get(property);
     }
 
     public Map<String, Integer> getValueDistribution(final String key) {
-        final Map<String, Integer> distribution = new LinkedHashMap<>();
-        if (!stringMetadata.containsKey(key)) {
+        if (!stringMetadataCounts.containsKey(key)) {
             throw new IllegalArgumentException("Results don't contain string property '"
-                    + key + "'. String properties found: " + stringMetadata);
+                    + key + "'. String properties found: " + stringMetadataCounts);
         }
-        for (final String value : stringMetadata.get(key)) {
-            distribution.put(value, distribution.getOrDefault(value, 0) + 1);
-        }
-        return distribution;
+        return stringMetadataCounts.get(key);
     }
 
     public Map<String, Integer> getIntMetadata(final int i) {

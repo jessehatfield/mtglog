@@ -1,0 +1,196 @@
+load_necro :-
+    consult('oops_test.pl'),
+    load_oops.
+
+necro_tests :-
+    load_necro,
+    time(test_cast_necro),
+    time(test_necro_no_payoff),
+    time(test_necro_cant_cast),
+    time(test_necro_borne),
+    time(test_necro_valakut),
+    time(test_necrologia),
+    time(test_no_win),
+    time(test_leyline).
+
+test_cast_necro :-
+    format("\nTest casting Necrodominance from hand or using Beseech\n", []),
+    hand_wins_(['Gemstone Mine', 'Dark Ritual', 'Necrodominance', 'Beseech the Mirror', 'Pact of Negation'], [], [], 0, 1, 'Necrodominance'),
+    hand_wins_(['Gemstone Mine', 'Dark Ritual', 'Necrodominance', 'Beseech the Mirror', 'Pact of Negation'], [], [], 1, 1, 'Necrodominance'),
+    hand_wins_(['Gemstone Mine', 'Dark Ritual', 'Necrodominance', 'Beseech the Mirror', 'Pact of Negation'], [], [], 2, 0, 'Necrodominance'),
+    hand_wins_(['Gemstone Mine', 'Dark Ritual', 'Necrodominance', 'Beseech the Mirror', 'Unmask'], [], [], 0, 1, 'Necrodominance'),
+    hand_wins_(['Gemstone Mine', 'Dark Ritual', 'Necrodominance', 'Beseech the Mirror', 'Unmask'], [], [], 1, 0, 'Necrodominance'),
+    hand_wins_(['Gemstone Mine', 'Dark Ritual', 'Necrodominance', 'Beseech the Mirror', 'Unmask'], [], [], 2, 0, 'Necrodominance'),
+    not(hand_wins_(['Vault of Whispers', 'Cabal Ritual', 'Simian Spirit Guide', 'Elvish Spirit Guide', 'Beseech the Mirror'], [], [], 0, 0)),
+    hand_wins_(['Vault of Whispers', 'Cabal Ritual', 'Simian Spirit Guide', 'Elvish Spirit Guide', 'Beseech the Mirror'], ['Necrodominance'], [], 0, 0, 'Beseech->Necro'),
+    not(hand_wins_(['Gemstone Mine', 'Cabal Ritual', 'Simian Spirit Guide', 'Elvish Spirit Guide', 'Beseech the Mirror'], ['Necrodominance'], [], 0, 0)),
+    not(hand_wins_(['Vault of Whispers', 'Gemstone Mine', 'Cabal Ritual', 'Simian Spirit Guide', 'Beseech the Mirror'], ['Necrodominance'], [], 0, 0)).
+
+test_necro_no_payoff :-
+    format("\nTest post-Necrodominance logic where no Borne or Valakut can be found\n", []),
+    LIBRARY = [
+        'Gemstone Mine', 'Lotus Petal', 'Necrodominance', 'Beseech the Mirror', 'Unmask',
+        'Simian Spirit Guide', 'Vault of Whispers', 'Summoner\'s Pact', 'Tendrils of Agony', 'Pact of Negation',
+        'Chrome Mox', 'Gemstone Mine', 'Lotus Petal', 'Tendrils of Agony', 'Manamorphose',
+        'Elvish Spirit Guide', 'Summoner\'s Pact', 'Beseech the Mirror', 'Beseech the Mirror',
+        'Chrome Mox', % draw off manamorphose
+        'Borne Upon a Wind',
+        'Valakut Awakening',
+        'Elvish Spirit Guide' % search with Pact
+    ],
+    HAND_WITH_PACT = ['Gemstone Mine', 'Dark Ritual', 'Pact of Negation', 'Necrodominance', 'Beseech the Mirror', 'Dark Ritual'],
+    hand_wins_(HAND_WITH_PACT, LIBRARY, [], 0, 1, 'Necrodominance', _{fizzle: true, mana: 3}).
+
+test_necro_cant_cast :-
+    format("\nTest post-Necrodominance logic where Borne or Valakut exist but can't be cast\n", []),
+    LIBRARY = [
+        'Gemstone Mine', 'Lotus Petal', 'Necrodominance', 'Beseech the Mirror', 'Unmask',
+        'Simian Spirit Guide', 'Vault of Whispers', 'Summoner\'s Pact', 'Tendrils of Agony', 'Pact of Negation',
+        'Chrome Mox', 'Gemstone Mine', 'Lotus Petal', 'Tendrils of Agony', 'Borne Upon a Wind',
+        'Valakut Awakening', 'Summoner\'s Pact', 'Beseech the Mirror', 'Beseech the Mirror',
+        'Elvish Spirit Guide' % search with Pact
+    ],
+    HAND_WITH_PACT = ['Gemstone Mine', 'Dark Ritual', 'Pact of Negation', 'Necrodominance', 'Beseech the Mirror', 'Dark Ritual'],
+    hand_wins_(HAND_WITH_PACT, LIBRARY, [], 0, 1, 'Necrodominance', _{fizzle: true, mana: 2}),
+    % this one has LED for mana, but we guess blue and can't cast Valakut
+    HAND_WITH_LED = ['Gemstone Mine', 'Lion\'s Eye Diamond', 'Necrodominance', 'Beseech the Mirror', 'Dark Ritual'],
+    NEEDS_RED = [
+        'Gemstone Mine', 'Lotus Petal', 'Necrodominance', 'Chancellor of the Annex', 'Pact of Negation',
+        'Chancellor of the Annex', 'Vault of Whispers', 'Summoner\'s Pact', 'Tendrils of Agony', 'Pact of Negation',
+        'Summoner\'s Pact', 'Cabal Ritual', 'Vault of Whispers', 'Tendrils of Agony', 'Gemstone Mine',
+        'Valakut Awakening', 'Summoner\'s Pact', 'Beseech the Mirror', 'Beseech the Mirror'
+    ],
+    hand_wins_(HAND_WITH_LED, NEEDS_RED, [], 0, 0, 'Necrodominance', _{fizzle: true, mana: 3}).
+
+test_necro_borne :-
+    format("\nTest post-Necrodominance logic where Borne should be cast, even if Valakut is an option\n", []),
+    HAND_WITH_PACT = ['Gemstone Mine', 'Pact of Negation', 'Necrodominance', 'Beseech the Mirror', 'Dark Ritual'],
+    DRAW_BORNE = [
+        'Gemstone Mine', 'Lotus Petal', 'Necrodominance', 'Beseech the Mirror', 'Unmask',
+        'Simian Spirit Guide', 'Vault of Whispers', 'Summoner\'s Pact', 'Tendrils of Agony', 'Pact of Negation',
+        'Chrome Mox', 'Gemstone Mine', 'Elvish Spirit Guide', 'Tendrils of Agony', 'Manamorphose',
+        'Valakut Awakening', 'Summoner\'s Pact', 'Borne Upon a Wind', 'Beseech the Mirror',
+        'Vault of Whispers' % draw with Manamorphose
+    ],
+    hand_wins_(['Dark Ritual'|HAND_WITH_PACT], DRAW_BORNE, [], 0, 1, 'Necrodominance', _{borne: true, mana: 2}),
+    CANTRIP_BORNE = [
+        'Gemstone Mine', 'Lotus Petal', 'Necrodominance', 'Beseech the Mirror', 'Unmask',
+        'Simian Spirit Guide', 'Vault of Whispers', 'Summoner\'s Pact', 'Tendrils of Agony', 'Pact of Negation',
+        'Summoner\'s Pact', 'Gemstone Mine', 'Elvish Spirit Guide', 'Tendrils of Agony', 'Manamorphose',
+        'Valakut Awakening', 'Summoner\'s Pact', 'Beseech the Mirror', 'Beseech the Mirror',
+        'Borne Upon a Wind', % draw with Manamorphose
+        'Elvish Spirit Guide' % search with Pact for 3 mana
+    ],
+    hand_wins_(HAND_WITH_PACT, CANTRIP_BORNE, [], 0, 1, 'Necrodominance', _{borne: true, mana: 1}),
+    LIBRARY_3MANA = [
+        'Gemstone Mine', 'Lotus Petal', 'Necrodominance', 'Beseech the Mirror', 'Unmask',
+        'Simian Spirit Guide', 'Vault of Whispers', 'Summoner\'s Pact', 'Tendrils of Agony', 'Pact of Negation',
+        'Chrome Mox', 'Gemstone Mine', 'Elvish Spirit Guide', 'Tendrils of Agony', 'Manamorphose',
+        'Valakut Awakening', 'Summoner\'s Pact', 'Beseech the Mirror', 'Borne Upon a Wind',
+        'Vault of Whispers', % draw with Manamorphose
+        'Elvish Spirit Guide' % search with pact for 3 mana
+    ],
+    hand_wins_(HAND_WITH_PACT, LIBRARY_3MANA, [], 0, 1, 'Necrodominance', _{borne: true, mana: 1}),
+    HAND_NEEDS_PETAL = ['Gemstone Mine', 'Necrodominance', 'Beseech the Mirror', 'Dark Ritual'],
+    DECK_NEEDS_PETAL = [
+        'Gemstone Mine', 'Lotus Petal', 'Necrodominance', 'Beseech the Mirror', 'Unmask',
+        'Simian Spirit Guide', 'Vault of Whispers', 'Summoner\'s Pact', 'Tendrils of Agony', 'Pact of Negation',
+        'Chrome Mox', 'Gemstone Mine', 'Elvish Spirit Guide', 'Tendrils of Agony', 'Vault of Whispers',
+        'Valakut Awakening', 'Summoner\'s Pact', 'Borne Upon a Wind', 'Beseech the Mirror'
+    ],
+    hand_wins_(HAND_NEEDS_PETAL, DECK_NEEDS_PETAL, [], 0, 0, 'Necrodominance', _{fizzle: true, mana: 2}),
+    hand_wins_(['Lotus Petal'|HAND_NEEDS_PETAL], DECK_NEEDS_PETAL, [], 0, 0, 'Necrodominance', _{borne: true, mana: 1}),
+    hand_wins_(['Lion\'s Eye Diamond'|HAND_NEEDS_PETAL], DECK_NEEDS_PETAL, [], 0, 0, 'Necrodominance', _{borne: true, mana: 3}).
+
+test_necro_valakut :-
+    format("\nTest post-Necrodominance logic where Borne is not an option but Valakut is\n", []),
+    HAND_WITH_PACT = ['Gemstone Mine', 'Pact of Negation', 'Necrodominance', 'Beseech the Mirror', 'Dark Ritual'],
+    RITUAL = [
+        'Gemstone Mine', 'Lotus Petal', 'Necrodominance', 'Elvish Spirit Guide', 'Dark Ritual',
+        'Simian Spirit Guide', 'Vault of Whispers', 'Summoner\'s Pact', 'Tendrils of Agony', 'Pact of Negation',
+        'Summoner\'s Pact', 'Cabal Ritual', 'Vault of Whispers', 'Tendrils of Agony', 'Manamorphose',
+        'Valakut Awakening', 'Summoner\'s Pact', 'Beseech the Mirror', 'Beseech the Mirror',
+        'Gemstone Mine' % draw with Manamorphose
+    ],
+    hand_wins_(HAND_WITH_PACT, RITUAL, [], 0, 1, 'Necrodominance', _{valakut: true, mana: 2}),
+    NO_BLUE = [
+        'Gemstone Mine', 'Lotus Petal', 'Necrodominance', 'Elvish Spirit Guide', 'Elvish Spirit Guide',
+        'Simian Spirit Guide', 'Vault of Whispers', 'Summoner\'s Pact', 'Tendrils of Agony', 'Pact of Negation',
+        'Summoner\'s Pact', 'Gemstone Mine', 'Borne Upon a Wind', 'Tendrils of Agony', 'Borne Upon a Wind',
+        'Valakut Awakening', 'Summoner\'s Pact', 'Beseech the Mirror', 'Beseech the Mirror',
+        'Elvish Spirit Guide' % search with Pact
+    ],
+    hand_wins_(HAND_WITH_PACT, NO_BLUE, [], 0, 1, 'Necrodominance', _{valakut: true, mana: 1}),
+    NO_BORNE = [
+        'Gemstone Mine', 'Lotus Petal', 'Necrodominance', 'Elvish Spirit Guide', 'Elvish Spirit Guide',
+        'Simian Spirit Guide', 'Vault of Whispers', 'Summoner\'s Pact', 'Tendrils of Agony', 'Pact of Negation',
+        'Summoner\'s Pact', 'Gemstone Mine', 'Manamorphose', 'Tendrils of Agony', 'Manamorphose',
+        'Valakut Awakening', 'Summoner\'s Pact', 'Beseech the Mirror', 'Beseech the Mirror',
+        'Elvish Spirit Guide', % search with Pact
+        'Gemstone Mine' % draw with Manamorphose
+    ],
+    hand_wins_(HAND_WITH_PACT, NO_BORNE, [], 0, 1, 'Necrodominance', _{valakut: true, mana: 1}),
+    HAND_WITH_RITUAL = ['Gemstone Mine', 'Dark Ritual', 'Necrodominance', 'Beseech the Mirror', 'Dark Ritual'],
+    NEEDS_RITUAL = [
+        'Gemstone Mine', 'Lotus Petal', 'Necrodominance', 'Elvish Spirit Guide', 'Pact of Negation',
+        'Simian Spirit Guide', 'Vault of Whispers', 'Summoner\'s Pact', 'Tendrils of Agony', 'Pact of Negation',
+        'Summoner\'s Pact', 'Cabal Ritual', 'Vault of Whispers', 'Tendrils of Agony', 'Manamorphose',
+        'Valakut Awakening', 'Summoner\'s Pact', 'Beseech the Mirror', 'Beseech the Mirror',
+        'Gemstone Mine' % draw with Manamorphose
+    ],
+    hand_wins_(HAND_WITH_RITUAL, NEEDS_RITUAL, [], 0, 0, 'Necrodominance', _{valakut: true, mana: 2}),
+    % this one has two LEDs for mana, so we should be able to make red
+    HAND_WITH_LED = ['Gemstone Mine', 'Lion\'s Eye Diamond', 'Lion\'s Eye Diamond', 'Necrodominance', 'Beseech the Mirror', 'Dark Ritual'],
+    NEEDS_RED = [
+        'Gemstone Mine', 'Lotus Petal', 'Necrodominance', 'Chancellor of the Annex', 'Pact of Negation',
+        'Chancellor of the Annex', 'Vault of Whispers', 'Summoner\'s Pact', 'Tendrils of Agony', 'Pact of Negation',
+        'Summoner\'s Pact', 'Cabal Ritual', 'Vault of Whispers', 'Tendrils of Agony', 'Gemstone Mine',
+        'Valakut Awakening', 'Summoner\'s Pact', 'Beseech the Mirror', 'Beseech the Mirror'
+    ],
+    hand_wins_(HAND_WITH_LED, NEEDS_RED, [], 0, 0, 'Necrodominance', _{valakut: true, mana: 3}).
+
+test_necrologia :-
+    format("\nTest post-Necrologia logic\n", []),
+    HAND = ['Gemstone Mine', 'Dark Ritual', 'Lotus Petal', 'Necrologia', 'Simian Spirit Guide', 'Rite of Flame'],
+    DECK = [
+        'Gemstone Mine', 'Lotus Petal', 'Necrodominance', 'Elvish Spirit Guide', 'Dark Ritual',
+        'Simian Spirit Guide', 'Vault of Whispers', 'Summoner\'s Pact', 'Tendrils of Agony', 'Cabal Ritual',
+        'Summoner\'s Pact', 'Rite of Flame', 'Vault of Whispers', 'Tendrils of Agony', 'Manamorphose',
+        'Valakut Awakening', 'Summoner\'s Pact', 'Borne Upon a Wind', 'Beseech the Mirror',
+        'Gemstone Mine' % draw with Manamorphose
+    ],
+    hand_wins_(HAND, DECK, [], 0, 0, 'Necrologia', _{borne: true, mana: 3}),
+    NO_MANAMORPHOSE = [
+        'Gemstone Mine', 'Lotus Petal', 'Necrodominance', 'Elvish Spirit Guide', 'Dark Ritual',
+        'Simian Spirit Guide', 'Vault of Whispers', 'Summoner\'s Pact', 'Tendrils of Agony', 'Cabal Ritual',
+        'Summoner\'s Pact', 'Rite of Flame', 'Vault of Whispers', 'Tendrils of Agony', 'Gemstone Mine',
+        'Valakut Awakening', 'Summoner\'s Pact', 'Borne Upon a Wind', 'Beseech the Mirror'
+    ],
+    hand_wins_(HAND, NO_MANAMORPHOSE, [], 0, 0, 'Necrologia', _{fizzle: true, mana: 2}),
+    hand_wins_(['Lotus Petal'|HAND], NO_MANAMORPHOSE, [], 0, 0, 'Necrologia', _{borne: true, mana: 1}),
+    hand_wins_(['Lion\'s Eye Diamond'|HAND], NO_MANAMORPHOSE, [], 0, 0, 'Necrologia', _{borne: true, mana: 3}).
+
+test_leyline :-
+    format("\nTest Leyline of Anticipation\n", []),
+    HAND = ['Gemstone Mine', 'Pact of Negation', 'Necrodominance', 'Dark Ritual', 'Leyline of Anticipation'],
+    DECK = [
+        'Gemstone Mine', 'Lotus Petal', 'Necrodominance', 'Chancellor of the Annex', 'Unmask',
+        'Simian Spirit Guide', 'Vault of Whispers', 'Summoner\'s Pact', 'Chancellor of the Annex', 'Pact of Negation',
+        'Chrome Mox', 'Gemstone Mine', 'Elvish Spirit Guide', 'Leyline of Anticipation', 'Tendrils of Agony',
+        'Leyline of Anticipation', 'Summoner\'s Pact', 'Borne Upon a Wind', 'Chancellor of the Annex'
+    ],
+    hand_wins_(HAND, DECK, [], 0, 1, 'Necrodominance', _{leyline: true}).
+
+test_no_win :-
+    format("\nTest situations where we can cast Borne or Valakut but then have no way to continue\n", []),
+    HAND_WITH_PACT = ['Gemstone Mine', 'Pact of Negation', 'Necrodominance', 'Dark Ritual'],
+    DRAW_BORNE = [
+        'Gemstone Mine', 'Lotus Petal', 'Necrodominance', 'Chancellor of the Annex', 'Unmask',
+        'Simian Spirit Guide', 'Vault of Whispers', 'Summoner\'s Pact', 'Chancellor of the Annex', 'Pact of Negation',
+        'Chrome Mox', 'Gemstone Mine', 'Elvish Spirit Guide', 'Leyline of Anticipation', 'Manamorphose',
+        'Leyline of Anticipation', 'Summoner\'s Pact', 'Borne Upon a Wind', 'Chancellor of the Annex',
+        'Vault of Whispers', % draw with Manamorphose
+        'Leyline of Anticipation', % draw with Borne
+        'Tendrils of Agony' % can't get there
+    ],
+    hand_wins_(HAND_WITH_PACT, DRAW_BORNE, [], 0, 1, 'Necrodominance', _{fizzle: true}).

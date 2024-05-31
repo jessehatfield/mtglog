@@ -241,7 +241,10 @@ public class MtgProblem extends StochasticProblem {
         return prolog.simulateGames(objective, deck, n, rng, interval);
     }
 
-    private Results evaluateDeckExhaustive(final SingleObjectivePrologProblem objective, final Deck deck) {
+    private Results evaluateDeckExhaustive(
+            final SingleObjectivePrologProblem objective,
+            final Deck deck,
+            final MersenneTwisterFast rng) {
         int n = (int) EnumeratedHands.numUniqueHands(deck, objective.getHandSize());
         final EnumeratedHands allHands = new EnumeratedHands(deck, objective.getHandSize());
         int interval = n < 20 ? 0 : (n < 20000 ? n / 20 : 1000);
@@ -253,7 +256,7 @@ public class MtgProblem extends StochasticProblem {
             }
         });
         System.out.println("Evaluating all " + n + " possible hands...");
-        return prolog.testHands(objective, deck, allHands, interval);
+        return prolog.testHands(objective, deck, allHands, interval, rng);
     }
 
     private void printResults(final SingleObjectivePrologProblem objective,
@@ -349,7 +352,7 @@ public class MtgProblem extends StochasticProblem {
                 if (app.baseTrials > 0) {
                     objectiveResults = app.evaluateDeck(objective, deck, app.baseTrials, rng);
                 } else {
-                    objectiveResults = app.evaluateDeckExhaustive(objective, deck);
+                    objectiveResults = app.evaluateDeckExhaustive(objective, deck, rng);
                 }
                 app.printResults(objective, objectiveResults);
                 resultsMap.put(objective.getName(), objectiveResults);

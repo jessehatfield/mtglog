@@ -262,13 +262,15 @@ public class PrologEngine {
      * @param deck The deck to use
      * @param hands The sequence of hands to test
      * @param printInterval Print partial results every interval of this size
+     * @param rng Shuffle the cards remaining in the library using this RNG
      * @return A ResultSequence object representing the outputs
      */
     public Results testHands(
             final SingleObjectivePrologProblem objective,
             final Deck deck,
             final Iterator<Deck.PossibleHand> hands,
-            final int printInterval) {
+            final int printInterval,
+            final MersenneTwisterFast rng) {
         final Results aggregatedResults = new Results();
         int mulligans = objective.getStartingMulligans();
         Results individualResult;
@@ -276,7 +278,7 @@ public class PrologEngine {
         while (hands.hasNext()) {
             final Deck.PossibleHand uniqueHand = hands.next();
             final String[] hand = uniqueHand.getHand();
-            final String[] library = uniqueHand.getLibrary();
+            final String[] library = uniqueHand.getLibrary(rng);
             individualResult = testHand(objective, hand, library, deck.getSideboard(), mulligans, 0);
             for (final BiConsumer<String[], Results> callback : callbacks) {
                 callback.accept(hand, individualResult);

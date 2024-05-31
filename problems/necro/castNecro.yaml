@@ -1,0 +1,27 @@
+name: Necrodominance -- Cast only
+
+sources:
+  - mana.pl
+  - cards.pl
+  - oops.pl
+  - necro.pl
+  - test.pl
+
+objectives:
+
+    - name: turn_one_necro
+      predicate: play_oops_hand
+      maxMulligans: 5
+      params:
+        protection: 1
+        greedy_mulligans: 0
+      outputs:
+        boolean:
+          - isProtected
+          - fizzle
+          - borne
+          - valakut
+        numeric:
+          - mana
+        categorical:
+          - wincon

@@ -72,6 +72,12 @@ win(HAND, DECK, SB, SEQUENCE, PROTECTION, 'Eldritch->Spy') :-
     ee_spy(HAND, DECK, SB, SEQUENCE, PROTECTION).
 win(HAND, DECK, _, SEQUENCE, PROTECTION, 'Beseech->Spy', METADATA) :-
     beseech_spy(HAND, DECK, SEQUENCE, PROTECTION, METADATA).
+win(HAND, DECK, _, SEQUENCE, PROTECTION, 'Necrodominance', METADATA) :-
+    cast_necro(HAND, DECK, SEQUENCE, PROTECTION, METADATA).
+win(HAND, DECK, _, SEQUENCE, PROTECTION, 'Beseech->Necro', METADATA) :-
+    beseech_necro(HAND, DECK, SEQUENCE, PROTECTION, METADATA).
+win(HAND, DECK, _, SEQUENCE, PROTECTION, 'Necrologia', METADATA) :-
+    necrologia(HAND, DECK, SEQUENCE, PROTECTION, METADATA).
 
 win_oops(HAND, DECK, SB, SEQUENCE, PROTECTION, WINCON, _{}) :-
     member([
@@ -232,26 +238,28 @@ beseech_spy(H1, B1, M1, G1, S1, D1, SEQUENCE, PROTECTION, EXTRAS) :-
     canInformer(H1, G1, D1),
     informerCombo(H1, ['Balustrade Spy'|B1], D1, G1, M1, [], _, _),
     % Then attempt it for real
-    beseech_spy_mill(H1, B1, M1, G1, S1, D1, H2, B2, M2, G2, _, D2, [], SEQUENCE1, P1, SACRIFICE),
+    beseech_for_target('Balustrade Spy', [H1, B1, M1, G1, S1, D1, 0], [H2, B2, M2, G2, _, D2, P1], [], SEQUENCE1, SACRIFICE),
     informerCombo(H2, B2, D2, G2, M2, SEQUENCE1, SEQUENCE, P2),
     PROTECTION is P1 + P2,
     EXTRAS = _{bargain:SACRIFICE},
     !.
-beseech_spy_mill(H1, B1, M1, G1, S1, D1, H5, B6, M5, G5, S5, D5, SEQUENCE_PRIOR, SEQUENCE_FINAL, PROTECTION, SACRIFICE) :-
-    prune(4, H1, B1, G1, M1),
-    member('Balustrade Spy', D1),
-    % Make 1BBB mana, cast
-    makemana_goal('Beseech the Mirror', [H1, B1, M1, G1, S1, D1, 0], STATE2, SEQUENCE_PRIOR, SEQUENCE2),
+
+beseech_for_target(TARGET, START_STATE, END_STATE, SEQUENCE_PRIOR, SEQUENCE_FINAL, SACRIFICE) :-
+    % preliminary check
+    prune_(4, START_STATE),
+    in_hand('Beseech the Mirror', START_STATE),
+    in_deck(TARGET, START_STATE),
+    % actually make the mana and cast
+    makemana_goal('Beseech the Mirror', START_STATE, STATE2, SEQUENCE_PRIOR, SEQUENCE2),
     remove_from_hand('Beseech the Mirror', STATE2, STATE3),
     spend_([0, 0, 3, 0, 0, 0, 1], STATE3, STATE4),
-    beseech_bargain('Balustrade Spy', STATE4, [H5, B5, M5, G5, S5, D5, PROTECTION], SEQUENCE_SAC, SACRIFICE),
+    beseech_bargain(TARGET, STATE4, STATE5, SEQUENCE_SAC, SACRIFICE),
     append(SEQUENCE2, SEQUENCE_SAC, SEQUENCE3),
-    append(SEQUENCE3, ['Balustrade Spy'], SEQUENCE_FINAL),
-    append(B5, ['Balustrade Spy'], B6).
-beseech_spy_mill(START_HAND, START_DECK, SEQUENCE, PROTECTION) :-
-    member_or_tutor('Beseech the Mirror', START_HAND, START_DECK),
-    beseech_spy_mill(START_HAND, [0,0,0,0,0,0,0], [], 0, START_DECK, _, _, _, _, _, [], SEQUENCE, PROTECTION),
-    !.
+    append(SEQUENCE3, [TARGET], SEQUENCE_FINAL),
+    (
+        card_property(TARGET, board, _, 0), hand_to_grave(TARGET, STATE5, END_STATE), !;
+        hand_to_board(TARGET, STATE5, END_STATE)
+    ).
 
 dirge_spy(START_HAND, START_DECK, SEQUENCE, PROTECTION) :-
     dirge_spy(START_HAND, [], [0,0,0,0,0,0,0], [], 0, START_DECK, SEQUENCE, PROTECTION).
@@ -377,6 +385,52 @@ discard_reanimate(START_STATE, SEQUENCE, PROTECTION, WINCON) :-
     state_protection(START_STATE, P1),
     PROTECTION is P1 + P2,
     atomic_list_concat([DISCARD_STEP, '->', ANIMATE], WINCON).
+
+cast_necro(START_HAND, START_DECK, FINAL_SEQUENCE, PROTECTION, METADATA) :-
+    (PAYOFF = 'leyline'; PAYOFF = 'borne'; PAYOFF = 'valakut'; PAYOFF = 'fizzle'),
+    cast_necro([START_HAND, [], [0,0,0,0,0,0,0], [], 0, START_DECK, 0], SEQUENCE, END_STATE),
+    post_necro(END_STATE, SEQUENCE, FINAL_SEQUENCE, METADATA, 'Necrodominance', PAYOFF),
+    state_protection(END_STATE, PROTECTION).
+cast_necro(START_STATE, SEQUENCE, END_STATE) :-
+    in_hand('Necrodominance', START_STATE),
+    % Check for the total mana optimistically
+    prune_(3, START_STATE),
+    % Then look for actual sequences to generate the mana and combo
+    makemana_goal('Necrodominance', START_STATE, STATE2, [], SEQUENCE1),
+    spend_([0, 0, 3, 0, 0, 0, 0], STATE2, STATE3),
+    hand_to_board('Necrodominance', STATE3, STATE4),
+    append(SEQUENCE1, ['Necrodominance'], NECRO_SEQUENCE),
+    makemana(STATE4, END_STATE, NECRO_SEQUENCE, SEQUENCE).
+
+beseech_necro(START_HAND, START_DECK, FINAL_SEQUENCE, PROTECTION, METADATA) :-
+    (PAYOFF = 'leyline'; PAYOFF = 'borne'; PAYOFF = 'valakut'; PAYOFF = 'fizzle'),
+    beseech_for_target('Necrodominance',
+        [START_HAND, [], [0,0,0,0,0,0,0], [], 0, START_DECK, 0],
+        END_STATE,
+        [],
+        SEQUENCE,
+        SACRIFICE),
+    state_protection(END_STATE, PROTECTION),
+    post_necro(END_STATE, SEQUENCE, FINAL_SEQUENCE, NECRO_METADATA, 'Necrodominance', PAYOFF),
+    METADATA = NECRO_METADATA.put(_{bargain:SACRIFICE}),
+    !.
+
+necrologia(START_HAND, START_DECK, FINAL_SEQUENCE, PROTECTION, METADATA) :-
+    (PAYOFF = 'leyline'; PAYOFF = 'borne'; PAYOFF = 'valakut'; PAYOFF = 'fizzle'),
+    necrologia([START_HAND, [], [0,0,0,0,0,0,0], [], 0, START_DECK, 0], SEQUENCE, END_STATE),
+    post_necro(END_STATE, SEQUENCE, FINAL_SEQUENCE, METADATA, 'Necrologia', PAYOFF),
+    state_protection(END_STATE, PROTECTION).
+necrologia(START_STATE, SEQUENCE, END_STATE) :-
+    in_hand('Necrologia', START_STATE),
+    % Check for the total mana optimistically
+    prune_(5, START_STATE),
+    % Then look for actual sequences to generate the mana and combo
+    makemana_goal('Necrologia', START_STATE, STATE2, [], SEQUENCE1),
+    (member(SEQUENCE1, 'Leyline of Anticipation'); type_max(0, sorcery, SEQUENCE1)),
+    spend_([0, 0, 2, 0, 0, 0, 3], STATE2, STATE3),
+    hand_to_grave('Necrologia', STATE3, STATE4),
+    append(SEQUENCE1, ['Necrologia'], NECRO_SEQUENCE),
+    makemana(STATE4, END_STATE, NECRO_SEQUENCE, SEQUENCE).
 
 breakfast(START_HAND, START_DECK, SEQUENCE, PROTECTION) :-
     breakfast(START_HAND, [], [0,0,0,0,0,0,0], [], 0, START_DECK, SEQUENCE, PROTECTION).
@@ -599,16 +653,13 @@ informer_win_cast(H1, B1, G1, M1, PRIOR_SEQUENCE, TOTAL_SEQUENCE, PROTECTION) :-
     append(S2, ['Oracle'], INTERMEDIATE_SEQUENCE),
     finalize([H3, B2, M3, G2, 0, D2, PROTECTION1], [_, _, _, _, _, _, PROTECTION], INTERMEDIATE_SEQUENCE, TOTAL_SEQUENCE, _).
 
-finalize(STATE, STATE, SEQ, SEQ, 0) :-
-    state_hand(STATE, HAND),
-    hand_maxprotection(HAND, 0).
+finalize(STATE, STATE, SEQ, SEQ, 0).
 finalize(STATE1, FINAL_STATE, PRIOR_SEQUENCE, TOTAL_SEQUENCE, P_DELTA) :-
     finalize(STATE1, FINAL_STATE, PRIOR_SEQUENCE, TOTAL_SEQUENCE),
     state_protection(STATE1, P1),
     state_protection(FINAL_STATE, P2),
     P_DELTA = P2 - P1,
     (P2 > P1; P1 > P2).
-finalize(STATE, STATE, SEQ, SEQ, 0).
 finalize(STATE, STATE, SEQ, SEQ) :-
     state_hand(STATE, HAND),
     hand_maxprotection(HAND, 0).

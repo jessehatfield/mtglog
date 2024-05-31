@@ -1,7 +1,8 @@
 load_oops :-
     consult('mana.pl'),
     consult('cards.pl'),
-    consult('oops.pl').
+    consult('oops.pl'),
+    consult('necro.pl').
 
 run_oops_tests :-
     load_oops,
@@ -31,7 +32,9 @@ fast_tests :-
     time(test_dirge),
     time(test_throne),
     time(test_pentad),
-    time(test_makemana_goal(_, _)), !.
+    time(test_makemana_goal(_, _)),
+    time(test_timing),
+    !.
 
 slow_tests :-
     time(test_hand_5),
@@ -89,10 +92,10 @@ test_hand_4 :-
 
 % Should be a win, can take over a minute
 test_hand_5 :-
-    format("\nTest case 5: win with Summoner's Pact and useless LED in hand (many useless branches)\n", []),
+    format("\nTest case 5: win with Summoner's Pact to filter and LED to activate Informer (many useless branches)\n", []),
     LIBRARY = ['UNKNOWN', 'Narcomoeba', 'Narcomoeba', 'Narcomoeba', 'Dread Return', 'Elvish Spirit Guide', 'Thassa\'s Oracle', 'Wild Cantor'],
     HAND = ['Undercity Informer', 'Sea Gate Restoration', 'Pact of Negation', 'Simian Spirit Guide', 'Elvish Spirit Guide', 'Summoner\'s Pact', 'Lion\'s Eye Diamond'],
-    hand_wins_(HAND, LIBRARY, [], 0, 0, 'Undercity Informer').
+    hand_wins_(HAND, LIBRARY, [], 0, 1, 'Undercity Informer').
 
 % Hand is a loss, but can take time because of multiple pacts, which could generate the proper CMC
 % AND the proper colors but not both
@@ -412,9 +415,10 @@ hand_wins_(HAND, LIBRARY, SB, MULLIGANS, PROTECTION, WINCON, REQUIRED_OUTPUTS) :
     format('~w\n', [HAND]),
     play_oops_hand(HAND, LIBRARY, SB, MULLIGANS, _{protection:1}, OUTPUTS),
     format(' -->~w (~wx protection, win with ~w)\n', [OUTPUTS.sequence, OUTPUTS.protection, OUTPUTS.wincon]),
+    format('    ~w\n', OUTPUTS),
+    subdict(REQUIRED_OUTPUTS, OUTPUTS),
     PROTECTION is OUTPUTS.protection,
-    WINCON = OUTPUTS.wincon,
-    subdict(REQUIRED_OUTPUTS, OUTPUTS).
+    WINCON = OUTPUTS.wincon.
 
 hand_wins_(HAND, LIBRARY, SB, MULLIGANS, PROTECTION, WINCON) :-
     hand_wins_(HAND, LIBRARY, SB, MULLIGANS, PROTECTION, WINCON, _{}).
@@ -501,3 +505,30 @@ test_powder_check :-
     library_contains_win([], ['Narcomoeba'|NO_THERAPY]),
     library_contains_win([], ['Bridge from Below'|['Cabal Therapy'|NO_THERAPY]]),
     !.
+
+test_timing :-
+    format("\nTest restrictions on if/when cards can be cast\n", []),
+    MAIN = ['Gemstone Mine', 'Dark Ritual', 'Necrodominance'],
+    check_timing('Elvish Spirit Guide', MAIN),
+    check_timing('Simian Spirit Guide', MAIN),
+    check_timing('Dark Ritual', MAIN),
+    check_timing('Cabal Ritual', MAIN),
+    check_timing('Summoner\'s Pact', MAIN),
+    check_timing('Manamorphose', MAIN),
+    check_timing('Rite of Flame', MAIN),
+    check_timing('unknown', MAIN),
+    check_timing('Pact of Negation', MAIN),
+    not(check_timing('Leyline of Anticipation', MAIN)),
+    check_timing('Tendrils of Agony', MAIN),
+    EOT = ['Gemstone Mine', 'Dark Ritual', 'Necrodominance', 'Pact of Negation', 'end step', 'draw 19', 'Summoner\'s Pact', 'find Elvish Spirit Guide'],
+    check_timing('Elvish Spirit Guide', EOT),
+    check_timing('Simian Spirit Guide', EOT),
+    check_timing('Dark Ritual', EOT),
+    check_timing('Cabal Ritual', EOT),
+    check_timing('Summoner\'s Pact', EOT),
+    check_timing('Manamorphose', EOT),
+    not(check_timing('Rite of Flame', EOT)),
+    not(check_timing('unknown', EOT)),
+    not(check_timing('Pact of Negation', EOT)),
+    not(check_timing('Leyline of Anticipation', EOT)),
+    not(check_timing('Tendrils of Agony', EOT)).

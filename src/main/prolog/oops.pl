@@ -15,6 +15,10 @@ play_oops_hand(HAND, LIBRARY, SB, MULLIGANS, INPUT_PARAMS, OUTPUTS) :-
     OUTPUTS = METADATA.put(_{sequence:SEQ,protection:PROTECTION,keep:MULL_HAND,isProtected:IS_PROTECTED,wincon:WINCON}),
     !.
 
+%play_necro_hand(HAND, LIBRARY, SB, MULLIGANS, INPUT_PARAMS, OUTPUTS) :-
+%    b_setval(reveal_draws, true),
+%    play_oops_hand(HAND, LIBRARY, SB, MULLIGANS, INPUT_PARAMS, OUTPUTS).
+
 protected_win(HAND, DECK, SB, MIN_PROTECTION, TARGET_PROTECTION, REQUIRED_WINCON, SEQUENCE, TARGET_PROTECTION, WINCON, METADATA) :-
     prune_protection(TARGET_PROTECTION, HAND),
     win_specific(HAND, DECK, SB, REQUIRED_WINCON, SEQUENCE, TARGET_PROTECTION, WINCON, METADATA),
@@ -251,15 +255,19 @@ beseech_for_target(TARGET, START_STATE, END_STATE, SEQUENCE_PRIOR, SEQUENCE_FINA
     in_deck(TARGET, START_STATE),
     % actually make the mana and cast
     makemana_goal('Beseech the Mirror', START_STATE, STATE2, SEQUENCE_PRIOR, SEQUENCE2),
-    remove_from_hand('Beseech the Mirror', STATE2, STATE3),
-    spend_([0, 0, 3, 0, 0, 0, 1], STATE3, STATE4),
-    beseech_bargain(TARGET, STATE4, STATE5, SEQUENCE_SAC, SACRIFICE),
-    append(SEQUENCE2, SEQUENCE_SAC, SEQUENCE3),
+    cast_beseech(TARGET, STATE2, STATE3, SEQUENCE2, SEQUENCE3, SACRIFICE),
     append(SEQUENCE3, [TARGET], SEQUENCE_FINAL),
     (
-        card_property(TARGET, board, _, 0), hand_to_grave(TARGET, STATE5, END_STATE), !;
-        hand_to_board(TARGET, STATE5, END_STATE)
+        card_property(TARGET, board, _, 0), hand_to_grave(TARGET, STATE3, END_STATE), !;
+        hand_to_board(TARGET, STATE3, END_STATE)
     ).
+
+cast_beseech(TARGET, START_STATE, END_STATE, SEQUENCE_PRIOR, SEQUENCE_FINAL, SACRIFICE) :-
+    remove_from_hand('Beseech the Mirror', START_STATE, STATE2),
+    spend_([0, 0, 3, 0, 0, 0, 1], STATE2, STATE3),
+    beseech_bargain(TARGET, STATE3, STATE4, SEQUENCE_SAC, SACRIFICE),
+    append(SEQUENCE_PRIOR, SEQUENCE_SAC, SEQUENCE_FINAL),
+    increment_storm(STATE4, END_STATE).
 
 dirge_spy(START_HAND, START_DECK, SEQUENCE, PROTECTION) :-
     dirge_spy(START_HAND, [], [0,0,0,0,0,0,0], [], 0, START_DECK, SEQUENCE, PROTECTION).
@@ -387,23 +395,26 @@ discard_reanimate(START_STATE, SEQUENCE, PROTECTION, WINCON) :-
     atomic_list_concat([DISCARD_STEP, '->', ANIMATE], WINCON).
 
 cast_necro(START_HAND, START_DECK, FINAL_SEQUENCE, PROTECTION, METADATA) :-
-    (PAYOFF = 'leyline'; PAYOFF = 'borne'; PAYOFF = 'valakut'; PAYOFF = 'fizzle'),
-    cast_necro([START_HAND, [], [0,0,0,0,0,0,0], [], 0, START_DECK, 0], SEQUENCE, END_STATE),
-    post_necro(END_STATE, SEQUENCE, FINAL_SEQUENCE, METADATA, 'Necrodominance', PAYOFF),
-    state_protection(END_STATE, PROTECTION).
-cast_necro(START_STATE, SEQUENCE, END_STATE) :-
-    in_hand('Necrodominance', START_STATE),
-    % Check for the total mana optimistically
+    %cast_necro([START_HAND, [], [0,0,0,0,0,0,0], [], 0, START_DECK, 0], SEQUENCE, END_STATE),
+    cast_one_opt(['Leyline of Anticipation'], [START_HAND, [], [0,0,0,0,0,0,0], [], 0, START_DECK, 0], START_STATE, [], START_SEQUENCE),
     prune_(3, START_STATE),
-    % Then look for actual sequences to generate the mana and combo
-    makemana_goal('Necrodominance', START_STATE, STATE2, [], SEQUENCE1),
-    spend_([0, 0, 3, 0, 0, 0, 0], STATE2, STATE3),
-    hand_to_board('Necrodominance', STATE3, STATE4),
-    append(SEQUENCE1, ['Necrodominance'], NECRO_SEQUENCE),
-    makemana(STATE4, END_STATE, NECRO_SEQUENCE, SEQUENCE).
+    make_mana_and_cast('Necrodominance', START_STATE, NECRO_STATE, START_SEQUENCE, NECRO_SEQUENCE),
+    cast_in_order([['Pact of Negation'], ['Force of Will'], ['Misdirection']], NECRO_STATE, PROTECT_STATE, NECRO_SEQUENCE, PROTECT_SEQUENCE),
+    makemana(PROTECT_STATE, END_STATE, PROTECT_SEQUENCE, SEQUENCE),
+    post_necro(END_STATE, SEQUENCE, FINAL_SEQUENCE, METADATA, 'Necrodominance'),
+    state_protection(END_STATE, PROTECTION).
+%cast_necro(START_STATE, SEQUENCE, END_STATE) :-
+%    in_hand('Necrodominance', START_STATE),
+%    % Check for the total mana optimistically
+%    prune_(3, START_STATE),
+%    % Then look for actual sequences to generate the mana and combo
+%    makemana_goal('Necrodominance', START_STATE, STATE2, [], SEQUENCE1),
+%    spend_([0, 0, 3, 0, 0, 0, 0], STATE2, STATE3),
+%    hand_to_board('Necrodominance', STATE3, STATE4),
+%    append(SEQUENCE1, ['Necrodominance'], NECRO_SEQUENCE),
+%    makemana(STATE4, END_STATE, NECRO_SEQUENCE, SEQUENCE).
 
 beseech_necro(START_HAND, START_DECK, FINAL_SEQUENCE, PROTECTION, METADATA) :-
-    (PAYOFF = 'leyline'; PAYOFF = 'borne'; PAYOFF = 'valakut'; PAYOFF = 'fizzle'),
     beseech_for_target('Necrodominance',
         [START_HAND, [], [0,0,0,0,0,0,0], [], 0, START_DECK, 0],
         END_STATE,
@@ -411,14 +422,13 @@ beseech_necro(START_HAND, START_DECK, FINAL_SEQUENCE, PROTECTION, METADATA) :-
         SEQUENCE,
         SACRIFICE),
     state_protection(END_STATE, PROTECTION),
-    post_necro(END_STATE, SEQUENCE, FINAL_SEQUENCE, NECRO_METADATA, 'Necrodominance', PAYOFF),
+    post_necro(END_STATE, SEQUENCE, FINAL_SEQUENCE, NECRO_METADATA, 'Necrodominance'),
     METADATA = NECRO_METADATA.put(_{bargain:SACRIFICE}),
     !.
 
 necrologia(START_HAND, START_DECK, FINAL_SEQUENCE, PROTECTION, METADATA) :-
-    (PAYOFF = 'leyline'; PAYOFF = 'borne'; PAYOFF = 'valakut'; PAYOFF = 'fizzle'),
     necrologia([START_HAND, [], [0,0,0,0,0,0,0], [], 0, START_DECK, 0], SEQUENCE, END_STATE),
-    post_necro(END_STATE, SEQUENCE, FINAL_SEQUENCE, METADATA, 'Necrologia', PAYOFF),
+    post_necro(END_STATE, SEQUENCE, FINAL_SEQUENCE, METADATA, 'Necrologia'),
     state_protection(END_STATE, PROTECTION).
 necrologia(START_STATE, SEQUENCE, END_STATE) :-
     in_hand('Necrologia', START_STATE),

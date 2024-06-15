@@ -8,6 +8,8 @@
 % Once Upon a Time
 % LED + non-targeting Reanimate
 
+nb_setval(reveal_draws, false).
+
 % Placeholder
 card('Unknown', [
     cost   - [0, 0, 0, 0, 0, 0, 0],
@@ -354,7 +356,8 @@ card('Crop Rotation', [
     spell  - 1,
     board  - 0,
     gy     - 1,
-    cmc    - 1
+    cmc    - 1,
+    restricted - true
 ]).
 card('Gold Rush', [
     cost   - [0, 0, 0, 0, 1, 0, 1],
@@ -608,6 +611,8 @@ card(NAME, [
     board  - 1,
     gy     - 0
 ]) :- landspell(NAME, COLOR, YIELD).
+
+% Generic land pattern
 card(NAME, [
     cost   - [0, 0, 0, 0, 0, 0, 0],
     yield  - YIELD,
@@ -618,8 +623,6 @@ card(NAME, [
     board  - 1,
     gy     - 0
 ]) :- land(NAME, YIELD, EXTRA_TYPES).
-
-% Generic land pattern
 
 %card(NAME, DATA) :-
 %    (
@@ -746,7 +749,7 @@ card('Tendrils of Agony', [
     net    - 0,
     colors - [b],
     types  - [sorcery],
-    spell  - 0,
+    spell  - 1,
     board  - 0,
     gy     - 1
 ]).
@@ -1184,6 +1187,21 @@ card('Lively Dirge', [
     roles  - [entomb, animate]
 ], win).
 
+card('Electrodominance', [
+    roles  - [],
+    cost   - [0, 0, 0, 2, 0, 0, 0],
+    yield  - [0, 0, 0, 0, 0, 0, 0],
+    net    - 0,
+    colors - [r],
+    types  - [instant],
+    spell  - 1,
+    board  - 0,
+    gy     - 1
+], base).
+card('Electrodominance', [
+    cost   - [0, 0, 0, 2, 0, 0, C]
+], C) :- number(C).
+
 card_key_value_default(CARDNAME, KEY, VALUE, DEFAULT) :-
     card(CARDNAME, DATA),
     carddata_key_value_default(DATA, KEY, VALUE, DEFAULT).
@@ -1223,6 +1241,9 @@ landspell('Sink into Stupor', u, [0, 1, 0, 0, 0, 0, 0]).
 land('Gemstone Mine', [0, 0, 0, 0, 0, 0, 1], []).
 land('Vault of Whispers', [0, 0, 1, 0, 0, 0, 0], [artifact]).
 
+land('Emergence Zone', [0, 0, 0, 0, 0, 1, 0], []).
+land('Emergence Zone_untapped', [0, 0, 0, 0, 0, 0, 0], []).
+
 % Concrete instantiations of the free permanent pattern
 free_permanent('Shield Sphere', [artifact, creature], []).
 free_permanent('Phyrexian Walker', [artifact, creature], []).
@@ -1234,7 +1255,8 @@ free_permanent('Memnite', [artifact, creature], []).
 specialcast(NAME, YIELD, OLD_STATE, NEW_STATE, _, EXTRA_STEPS) :-
     NAME == 'Culling the Weak', culling(YIELD, OLD_STATE, NEW_STATE, EXTRA_STEPS);
     NAME == 'Sacrifice', sacrifice(YIELD, OLD_STATE, NEW_STATE, EXTRA_STEPS);
-    NAME == 'Burnt Offering', burnt_offering(YIELD, OLD_STATE, NEW_STATE, EXTRA_STEPS).
+    NAME == 'Burnt Offering', burnt_offering(YIELD, OLD_STATE, NEW_STATE, EXTRA_STEPS);
+    NAME == 'Crop Rotation', crop_rotation(YIELD, OLD_STATE, NEW_STATE, EXTRA_STEPS).
 specialcast(NAME, YIELD, OLD_STATE, NEW_STATE, _, []) :-
     NAME == 'Lion\'s Eye Diamond', led(YIELD, OLD_STATE, NEW_STATE);
     NAME == 'Cabal Ritual', cabal(YIELD, OLD_STATE, NEW_STATE);
@@ -1244,12 +1266,14 @@ specialcast(NAME, YIELD, OLD_STATE, NEW_STATE, _, []) :-
     NAME == 'Chancellor of the Tangle', chancellor(YIELD, OLD_STATE, NEW_STATE);
     NAME == 'Manamorphose', cantrip('Manamorphose', YIELD, OLD_STATE, NEW_STATE);
     NAME == 'Street Wraith', cantrip('Street Wraith', YIELD, OLD_STATE, NEW_STATE);
+    NAME == 'Borne Upon a Wind', cantrip('Borne Upon a Wind', YIELD, OLD_STATE, NEW_STATE);
 %    NAME == 'Gitaxian Probe', cantrip('Gitaxian Probe', YIELD, OLD_STATE, NEW_STATE). (banned)
     NAME == 'Chancellor of the Annex', chancellor_annex(YIELD, OLD_STATE, NEW_STATE);
     NAME == 'Wild Cantor', alternate_version('Wild Cantor_unused', YIELD, OLD_STATE, NEW_STATE);
     NAME == 'Tinder Wall', alternate_version('Tinder Wall_unused', YIELD, OLD_STATE, NEW_STATE);
     NAME == 'Lotus Petal', alternate_version('Lotus Petal_unused', YIELD, OLD_STATE, NEW_STATE);
     NAME == 'Lion\'s Eye Diamond', alternate_version('Lion\'s Eye Diamond_unused', YIELD, OLD_STATE, NEW_STATE);
+    NAME == 'Emergence Zone', alternate_version('Emergence Zone_untapped', YIELD, OLD_STATE, NEW_STATE);
     NAME == 'Once Upon a Time', once_upon_a_time(YIELD, OLD_STATE, NEW_STATE).
 specialcast(NAME, YIELD, OLD_STATE, NEW_STATE, SPENT_MANA, []) :-
     NAME == 'Pentad Prism', pentad(YIELD, SPENT_MANA, OLD_STATE, NEW_STATE).
@@ -1378,6 +1402,20 @@ burnt_offering([0, 0, B, R, 0, 0, 0], START_STATE, END_STATE, STEPS) :-
     atom_concat(BS, RS, DISTRIBUTION),
     append(SACRIFICE_STEPS, [DISTRIBUTION], STEPS).
 
+crop_rotation(YIELD, START_STATE, END_STATE, [SAC_STEP, FIND_STEP]) :-
+    normalcast('Crop Rotation', _, START_STATE, CAST_STATE),
+    sacrifice_land(_, CAST_STATE, SAC_STATE, SAC_STEP),
+    land(TARGET, NORMAL_YIELD, _),
+    remove_from_deck(TARGET, SAC_STATE, FIND_STATE),
+    atom_concat('find ', TARGET, FIND_STEP),
+    (
+        add_to_board(TARGET, FIND_STATE, END_STATE),
+        YIELD = NORMAL_YIELD;
+        atom_concat(TARGET, '_untapped', UNTAPPED_VERSION),
+        add_to_board(UNTAPPED_VERSION, FIND_STATE, END_STATE),
+        YIELD = [0, 0, 0, 0, 0, 0, 0]
+    ).
+
 concat_n(_, 0, '').
 concat_n(ATOM, 1, ATOM).
 concat_n(ATOM, N, RESULT) :-
@@ -1396,7 +1434,6 @@ cmc(CARDNAME, CMC) :-
             total(COST, CMC)
         )
     ).
-
 
 sacrifice_creature(CARDNAME,
     [HAND, START_BOARD, MANA, START_GY, STORM, DECK, PROTECTION],
@@ -1438,6 +1475,14 @@ sacrifice_bargain(CARDNAME,
     ),
     atom_concat('sacrifice ', CARDNAME, SACRIFICE_STEP).
 
+sacrifice_land(CARDNAME, START_STATE, END_STATE, SACRIFICE_STEP) :-
+    board_to_grave(CARDNAME, START_STATE, END_STATE),
+    card(CARDNAME, DATA),
+    list_to_assoc(DATA, CARD),
+    get_assoc(types, CARD, TYPES),
+    member(land, TYPES),
+    atom_concat('sacrifice ', CARDNAME, SACRIFICE_STEP).
+
 spact(YIELD,
     CARDNAME,
     [START_HAND, START_BOARD, START_MANA, START_GY, START_STORM, START_DECK, PROTECTION],
@@ -1455,10 +1500,18 @@ spact(YIELD,
 
 cantrip(NAME, YIELD,
     [START_HAND, START_BOARD, START_MANA, START_GY, START_STORM, START_DECK, PROTECTION],
-    [["Draw" | END_HAND], END_BOARD, END_MANA, END_GY, END_STORM, END_DECK, PROTECTION]) :-
+    [["(unknown draw)" | END_HAND], END_BOARD, END_MANA, END_GY, END_STORM, END_DECK, PROTECTION]) :-
+    (nb_current(reveal_draws, false); not(nb_current(reveal_draws, true))),
     normalcast(NAME, YIELD,
         [START_HAND, START_BOARD, START_MANA, START_GY, START_STORM, START_DECK, PROTECTION],
         [END_HAND, END_BOARD, END_MANA, END_GY, END_STORM, [ _ | END_DECK], PROTECTION]).
+cantrip(NAME, YIELD,
+    [START_HAND, START_BOARD, START_MANA, START_GY, START_STORM, START_DECK, PROTECTION],
+    [[DRAW | END_HAND], END_BOARD, END_MANA, END_GY, END_STORM, END_DECK, PROTECTION]) :-
+    nb_current(reveal_draws, true),
+    normalcast(NAME, YIELD,
+        [START_HAND, START_BOARD, START_MANA, START_GY, START_STORM, START_DECK, PROTECTION],
+        [END_HAND, END_BOARD, END_MANA, END_GY, END_STORM, [ DRAW | END_DECK], PROTECTION]).
 
 append_n([], [], _, []).
 append_n([], List, 0, List).
@@ -1649,20 +1702,32 @@ normalcast(NAME, YIELD,
     get_assoc(gy, CARD, GY),
     get_assoc(board, CARD, BOARD),
     END_STORM is START_STORM + SPELLS,
-    yard(NAME, START_GY, END_GY, GY),
+    yard(NAME, [START_HAND, START_BOARD, START_MANA, START_GY, START_STORM, START_DECK, START_PROTECTION], END_GY, GY),
     board(NAME, START_BOARD, END_BOARD, BOARD),
     type_max(1, land, END_BOARD),
     carddata_key_value_default(DATA, protection, ADDITIONAL_PROTECTION, 0),
     END_PROTECTION is START_PROTECTION + ADDITIONAL_PROTECTION.
-yard(_, START_GY, START_GY, 0).
-yard(NAME, START_GY, END_GY, 1) :-
+
+yard(_, START_STATE, END_GY, 0) :-
+    state_gy(START_STATE, END_GY).
+yard(_, START_STATE, END_GY, 1) :-
+    exile_grave(START_STATE),
+    state_gy(START_STATE, END_GY).
+yard(NAME, START_STATE, END_GY, 1) :-
+    not(exile_grave(START_STATE)),
+    state_gy(START_STATE, START_GY),
     append(START_GY, [NAME], END_GY).
+
 board(_, START_BOARD, START_BOARD, 0).
 board(NAME, START_BOARD, END_BOARD, 1) :-
     append(START_BOARD, [NAME], END_BOARD).
 threshold(GRAVEYARD) :-
     length(GRAVEYARD, N),
     N >= 7.
+
+exile_grave(STATE) :-
+    state_board(STATE, BOARD),
+    member('Necrodominance', BOARD).
 
 maxnet(NAME, MAX) :-
     card(NAME, DATA),
@@ -1726,6 +1791,12 @@ remove_first(ITEM, [H | T], [H | REMOVED]) :-
     dif(ITEM, H),
     remove_first(ITEM, T, REMOVED).
 
+remove_first_opt(_, [], [], []).
+remove_first_opt(ITEM, [ITEM | T], T, [ITEM]).
+remove_first_opt(ITEM, [H | T], [H | T_REMOVED], REMOVED) :-
+    dif(ITEM, H),
+    remove_first_opt(ITEM, T, T_REMOVED, REMOVED).
+
 remove_first_type(TYPE, [CARDNAME | T], T, CARDNAME) :-
     istype(CARDNAME, TYPE).
 remove_first_type(TYPE, [H | T], [H | REMOVED], CARDNAME) :-
@@ -1735,6 +1806,15 @@ remove_first_type(TYPE, [H | T], [H | REMOVED], CARDNAME) :-
 take(ITEM, [ITEM | T], T).
 take(ITEM, [H | T], [H | TAKEN]) :-
     take(ITEM, T, TAKEN).
+
+take_all(LIST, [], [], LIST).
+take_all([], _, [], []).
+take_all([H|T], SET, [H|TAKEN], REMAINDER) :-
+    member(H, SET),
+    take_all(T, SET, TAKEN, REMAINDER).
+take_all([H|T], SET, TAKEN, [H|REMAINDER]) :-
+    not(member(H, SET)),
+    take_all(T, SET, TAKEN, REMAINDER).
 
 remove_n(_, 0, LIST, LIST, []) :- !.
 remove_n(ITEM, N, LIST, REMAINDER, [ITEM|REMOVED]) :-

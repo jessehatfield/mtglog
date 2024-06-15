@@ -126,7 +126,7 @@ public class MtgProblem extends StochasticProblem {
         }
         for (final SecondaryObjective secondaryObjective : secondaryObjectives) {
             final Results mainResults = resultsMap.get(secondaryObjective.getObjective());
-            results[i] = mainResults.getP(secondaryObjective.getFilter());
+            results[i] = mainResults.getP(secondaryObjective);
             i++;
         }
         return results;
@@ -267,12 +267,12 @@ public class MtgProblem extends StochasticProblem {
                     + results.getStdDev(prop) + " ; p="
                     + results.getP(prop) + ")");
         }
-        System.out.println("    " + results.getNSuccesses() + " wins (stddev="
+        System.out.println("    " + results.getNSuccesses() + " successes (stddev="
                 + results.getStdDevSuccesses() + " ; p="
                 + results.getPSuccess() + ")");
         for (final String booleanVar : objective.getBooleanOutputs()) {
             System.out.println("    " + results.getNWithProperty(booleanVar)
-                    + " wins with property '" + booleanVar
+                    + " successes with property '" + booleanVar
                     + "' (stddev=" + results.getStdDev(booleanVar)
                     + " ; p=" + results.getP(booleanVar) + ")");
         }
@@ -280,14 +280,14 @@ public class MtgProblem extends StochasticProblem {
             final Map<String, Integer> distribution = results.getValueDistribution(categoricalVar);
             for (final Map.Entry<String, Integer> entry : distribution.entrySet()) {
                 System.out.println("    " + entry.getValue()
-                        + " wins with " + categoricalVar
+                        + " successes with " + categoricalVar
                         + " == " + entry.getKey());
             }
         }
         final int nMull = results.getNWithProperty("mulligan");
         final double avgMulls = results.getPropertySum("nMulligans") / ((double) nMull);
         System.out.println("    " + nMull
-                + " wins with at least one mulligan (stddev="
+                + " successes with at least one mulligan (stddev="
                 + results.getStdDev("mulligan")
                 + " ; p=" + results.getP("mulligan")
                 + "), avg # in those games: " + avgMulls + ")");
@@ -295,7 +295,7 @@ public class MtgProblem extends StochasticProblem {
         if (nPowder > 0) {
             final double avgPowders = results.getPropertySum("nPowders") / ((double) nPowder);
             System.out.println("    " + nPowder
-                    + " wins with at least one Serum Powder (stddev="
+                    + " successes with at least one Serum Powder (stddev="
                     + results.getStdDev("powder")
                     + " ; p=" + results.getP("powder")
                     + "), avg # in those games: " + avgPowders + ")");
@@ -304,11 +304,10 @@ public class MtgProblem extends StochasticProblem {
 
     private void printResults(final SecondaryObjective secondaryObjective,
                               final Results mainResults) {
-        final String prop = secondaryObjective.getFilter();
         if (secondaryObjective.getFilter() != null) {
-            System.out.println("    " + mainResults.getNWithProperty(prop) + " successes (stddev="
-                    + mainResults.getStdDev(prop) + " ; p="
-                    + mainResults.getP(prop) + ")");
+            System.out.println("    " + mainResults.getNWithProperty(secondaryObjective) + " successes (stddev="
+                    + mainResults.getStdDev(secondaryObjective) + " ; p="
+                    + mainResults.getP(secondaryObjective) + ")");
         }
     }
 

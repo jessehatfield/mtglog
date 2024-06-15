@@ -19,9 +19,26 @@ objectives:
         boolean:
           - isProtected
           - fizzle
-          - borne
-          - valakut
+          - lethal
         numeric:
-          - mana
+          - damage
         categorical:
-          - wincon
+          - kill
+
+secondaryObjectives:
+    - name: protectedNecro
+      objective: turn_one_necro
+      filter: isProtected
+
+    - name: fizzle
+      objective: turn_one_necro
+      filter: fizzle
+
+    - name: win
+      objective: turn_one_necro
+      filter: fizzle
+      invert: true
+
+    - name: lethalDamage
+      objective: turn_one_necro
+      filter: lethal

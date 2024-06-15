@@ -304,4 +304,21 @@ public class Results {
         final double p = getP(booleanVar);
         return Math.sqrt(nTotal * p * (1 - p));
     }
+
+    public int getNWithProperty(final SecondaryObjective objective) {
+        int n = getNWithProperty(objective.getFilter());
+        if (objective.isInvert()) {
+            n = nSuccesses - n;
+        }
+        return n;
+    }
+
+    public double getP(final SecondaryObjective objective) {
+        return ((double) getNWithProperty(objective)) / nTotal;
+    }
+
+    public double getStdDev(final SecondaryObjective objective) {
+        final double p = getP(objective);
+        return Math.sqrt(nTotal * p * (1 - p));
+    }
 }

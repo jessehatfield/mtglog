@@ -1239,6 +1239,7 @@ landspell('Sink into Stupor', u, [0, 1, 0, 0, 0, 0, 0]).
 
 % Concrete instantiations of the land pattern
 land('Gemstone Mine', [0, 0, 0, 0, 0, 0, 1], []).
+land('Undiscovered Paradise', [0, 0, 0, 0, 0, 0, 1], []).
 land('Vault of Whispers', [0, 0, 1, 0, 0, 0, 0], [artifact]).
 
 land('Emergence Zone', [0, 0, 0, 0, 0, 1, 0], []).

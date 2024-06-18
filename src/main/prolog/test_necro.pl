@@ -1,5 +1,5 @@
 load_necro :-
-    consult('oops_test.pl'),
+    consult('test_oops.pl'),
     load_oops.
 
 run_necro_tests :-
@@ -338,3 +338,21 @@ test_necro_lands :-
         'Tendrils of Agony', 'Cabal Therapy', 'Vault of Whispers', 'Gemstone Mine'
     ],
     hand_wins_(EMERGE_HAND, NO_FLASH, [], 0, 0, 'Necrodominance', _{fizzle: false, kill: tendrils}).
+
+test_slow :-
+    HAND = ['Simian Spirit Guide', 'Necrodominance', 'Summoner\'s Pact', 'Cabal Ritual', 'Manamorphose', 'Chancellor of the Annex', 'Lotus Petal'],
+    LIBRARY = [
+        'Necrodominance', 'Cabal Ritual', 'Borne Upon a Wind', 'Beseech the Mirror', 'Elvish Spirit Guide',
+        'Beseech the Mirror', 'Chancellor of the Annex', 'Cabal Ritual', 'Elvish Spirit Guide', 'Dark Ritual',
+        'Simian Spirit Guide', 'Dark Ritual', 'Valakut Awakening', 'Valakut Awakening', 'Gemstone Mine',
+        'Dark Ritual', 'Pact of Negation', 'Simian Spirit Guide', 'Pact of Negation', % Necro should draw up to here
+        'Lotus Petal', % or here if we Pact/Manamorphose
+        'Lotus Petal', % or here if we do both
+        'Borne Upon a Wind', 'Gemstone Mine', 'Summoner\'s Pact',
+        'Necrodominance', 'Vault of Whispers', 'Summoner\'s Pact', 'Vault of Whispers', 'Cabal Ritual',
+        'Beseech the Mirror', 'Summoner\'s Pact', 'Lotus Petal', 'Simian Spirit Guide', 'Pact of Negation',
+        'Vault of Whispers', 'Elvish Spirit Guide', 'Manamorphose', 'Chrome Mox', 'Borne Upon a Wind',
+        'Pact of Negation', 'Tendrils of Agony', 'Chancellor of the Annex', 'Gemstone Mine', 'Manamorphose',
+        'Chancellor of the Annex', 'Dark Ritual', 'Elvish Spirit Guide', 'Valakut Awakening', 'Wild Cantor',
+        'Vault of Whispers', 'Beseech the Mirror', 'Necrodominance', 'Manamorphose'],
+        hand_wins_(HAND, LIBRARY, [], 0, 1, 'Necrodominance', _{kill: tendrils}).

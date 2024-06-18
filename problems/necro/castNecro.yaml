@@ -11,6 +11,7 @@ objectives:
 
     - name: turn_one_necro
       predicate: play_oops_hand
+      serumPowderPredicate: necro_can_powder
       maxMulligans: 5
       params:
         protection: 1
@@ -20,6 +21,9 @@ objectives:
           - isProtected
           - fizzle
           - lethal
+          - followup
+          - borne
+          - valakut
         numeric:
           - damage
         categorical:

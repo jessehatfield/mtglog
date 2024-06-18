@@ -27,6 +27,32 @@ post_necro(START_STATE, PRIOR_SEQ, COMBO_SEQ, METADATA, NECRO) :-
         execute_combo(SG2_STATE, _, SG2_SEQ, COMBO_SEQ, POTENTIAL_METADATA, METADATA)
     ).
 
+necro_can_powder(HAND, LIBRARY, 0, []) :-
+    member('Serum Powder', HAND),
+    library_contains_necro_win([], LIBRARY).
+necro_can_powder(HAND, LIBRARY, N_BOTTOM, BOTTOM) :-
+    N_BOTTOM > 0,
+    remove('Serum Powder', HAND, MINUS_POWDER),
+    % TODO: return the bottom combinations in some order that minimizes fizzles
+    combination(MINUS_POWDER, N_BOTTOM, BOTTOM, _),
+    append(LIBRARY, BOTTOM, POWDER_LIBRARY),
+    library_contains_necro_win([], POWDER_LIBRARY).
+library_contains_necro_win(_, LIBRARY) :-
+    (member('Necrodominance', LIBRARY); member('Necrologia', LIBRARY)),
+    (
+        member('Tendrils of Agony', LIBRARY),
+        (
+            member('Borne Upon a Wind', LIBRARY);
+            member('Leyline of Anticipation', LIBRARY);
+            member('Electrodominance', LIBRARY);
+            member('Emergence Zone', LIBRARY)
+        );
+        count('Fateful Showdown', LIBRARY, SHOWDOWNS),
+        SHOWDOWNS > 1;
+        count('Brain Freeze', LIBRARY, FREEZES),
+        FREEZES > 1
+    ), !.
+
 cast_leds(STATE1, STATE5, PRIOR_SEQ, COMBINED_SEQ) :-
     % Cast as many LEDs as you have, without using them
     remove_from_hand('Lion\'s Eye Diamond', STATE1, STATE2),
@@ -282,20 +308,20 @@ execute_combo(START_STATE, FINAL_STATE, START_SEQ, FINAL_SEQ, START_COMBO, FINAL
     ),
     state_storm(FINAL_STATE, STORM),
     TENDRILS_DAMAGE is STORM * 2,
-    FINAL_COMBO = START_COMBO.put(_{kill:tendrils, damage:TENDRILS_DAMAGE, lethal:LETHAL, fizzle: false}),
+    FINAL_COMBO = START_COMBO.put(_{kill:tendrils, damage:TENDRILS_DAMAGE, lethal:LETHAL, fizzle: false, followup: true}),
     !;
 
     % if Borne is in hand and we don't have flash, try to cast Borne before recursing
     START_COMBO.flash = false,
     make_mana_and_cast('Borne Upon a Wind', START_STATE, BORNE_STATE, START_SEQ, BORNE_SEQ),
-    execute_combo(BORNE_STATE, FINAL_STATE, BORNE_SEQ, FINAL_SEQ, START_COMBO.put(_{flash:true}), FINAL_COMBO),
+    execute_combo(BORNE_STATE, FINAL_STATE, BORNE_SEQ, FINAL_SEQ, START_COMBO.put(_{flash:true, followup: true, borne: true}), FINAL_COMBO),
     !;
 
     % if Emergence Zone is on board and untapped and we don't have flash, activate before recursing
     START_COMBO.flash = false,
     on_board('Emergence Zone_untapped', START_STATE),
     activate_emergence_zone(START_STATE, EMERGE_STATE, START_SEQ, EMERGE_SEQ),
-    execute_combo(EMERGE_STATE, FINAL_STATE, EMERGE_SEQ, FINAL_SEQ, START_COMBO.put(_{flash:true}), FINAL_COMBO),
+    execute_combo(EMERGE_STATE, FINAL_STATE, EMERGE_SEQ, FINAL_SEQ, START_COMBO.put(_{flash:true, followup: true, emerge: true}), FINAL_COMBO),
     !;
 
     % if Emergence Zone is in the deck and we have Crop Rotation, find it and activate before recursing
@@ -304,7 +330,7 @@ execute_combo(START_STATE, FINAL_STATE, START_SEQ, FINAL_SEQ, START_COMBO, FINAL
     in_deck('Emergence Zone', START_STATE),
     make_mana_and_cast('Crop Rotation', START_STATE, ROTATE_STATE, START_SEQ, ROTATE_SEQ),
     activate_emergence_zone(ROTATE_STATE, EMERGE_STATE, ROTATE_SEQ, EMERGE_SEQ),
-    execute_combo(EMERGE_STATE, FINAL_STATE, EMERGE_SEQ, FINAL_SEQ, START_COMBO.put(_{flash:true}), FINAL_COMBO),
+    execute_combo(EMERGE_STATE, FINAL_STATE, EMERGE_SEQ, FINAL_SEQ, START_COMBO.put(_{flash:true, followup: true, emerge: true}), FINAL_COMBO),
     !;
 
     % if Manamorphose is in hand, try to cast it before recursing
@@ -330,7 +356,7 @@ execute_combo(START_STATE, FINAL_STATE, START_SEQ, FINAL_SEQ, START_COMBO, FINAL
     cast_free('Tendrils of Agony', BARGAIN_STATE, FINAL_STATE, BARGAIN_SEQ, FINAL_SEQ),
     state_storm(FINAL_STATE, STORM),
     TENDRILS_DAMAGE is STORM * 2,
-    FINAL_COMBO = START_COMBO.put(_{kill:tendrils, damage:TENDRILS_DAMAGE, lethal:LETHAL}),
+    FINAL_COMBO = START_COMBO.put(_{kill:tendrils, damage:TENDRILS_DAMAGE, lethal:LETHAL, followup: true}),
     !;
 
     % if we have Electrodominance and Tendrils, try to cast it and terminate, recording storm*2 + 4 + X damage
@@ -354,7 +380,7 @@ execute_combo(START_STATE, FINAL_STATE, START_SEQ, FINAL_SEQ, START_COMBO, FINAL
     ELECTRO_DAMAGE is 4 + ADD_DAMAGE,
     TOTAL_DAMAGE is TENDRILS_DAMAGE + ELECTRO_DAMAGE,
     (TOTAL_DAMAGE >= 20, LETHAL = true; TOTAL_DAMAGE < 20, LETHAL = false),
-    FINAL_COMBO = START_COMBO.put(_{kill:tendrils, damage:TOTAL_DAMAGE, lethal:LETHAL, fizzle: false}),
+    FINAL_COMBO = START_COMBO.put(_{kill:tendrils, damage:TOTAL_DAMAGE, lethal:LETHAL, fizzle: false, followup: true}),
     !;
 
     % if we have Electrodominance and Beseech in hand, and Tendrils in deck, chain all three
@@ -380,7 +406,7 @@ execute_combo(START_STATE, FINAL_STATE, START_SEQ, FINAL_SEQ, START_COMBO, FINAL
     ELECTRO_DAMAGE is 4 + ADD_DAMAGE,
     TOTAL_DAMAGE is TENDRILS_DAMAGE + ELECTRO_DAMAGE,
     (TOTAL_DAMAGE >= 20, LETHAL = true; TOTAL_DAMAGE < 20, LETHAL = false),
-    FINAL_COMBO = START_COMBO.put(_{kill:tendrils, damage:TOTAL_DAMAGE, lethal:LETHAL, fizzle: false}),
+    FINAL_COMBO = START_COMBO.put(_{kill:tendrils, damage:TOTAL_DAMAGE, lethal:LETHAL, fizzle: false, followup: true}),
     !;
 
     % if we can cast Valakut, make mana and then try with the new hand
@@ -395,7 +421,7 @@ execute_combo(START_STATE, FINAL_STATE, START_SEQ, FINAL_SEQ, START_COMBO, FINAL
     draw(N, VALAKUT_WHEEL_STATE, VALAKUT_DRAW_STATE),
     string_concat('valakut draw ', N, VALAKUT_DRAW_STEP),
     append(VALAKUT_CAST_SEQ, [VALAKUT_DRAW_STEP], VALAKUT_DRAW_SEQ),
-    execute_combo(VALAKUT_DRAW_STATE, FINAL_STATE, VALAKUT_DRAW_SEQ, FINAL_SEQ, START_COMBO, FINAL_COMBO),
+    execute_combo(VALAKUT_DRAW_STATE, FINAL_STATE, VALAKUT_DRAW_SEQ, FINAL_SEQ, START_COMBO.put(_{valakut: true, followup: true}), FINAL_COMBO),
     !;
 
     % If we can cast Showdown, make mana and cast it, then try again unless we've done enough damage
@@ -409,13 +435,11 @@ execute_combo(START_STATE, FINAL_STATE, START_SEQ, FINAL_SEQ, START_COMBO, FINAL
     append(SHOWDOWN_CAST_SEQ, [SHOWDOWN_DRAW_STEP], SHOWDOWN_DRAW_SEQ),
     (D = START_COMBO.get(damage), !; D = 0),
     UPDATED_DAMAGE is D + N,
-    SHOWDOWN_COMBO = START_COMBO.put(_{kill:showdown, damage:UPDATED_DAMAGE}),
+    SHOWDOWN_COMBO = START_COMBO.put(_{kill:showdown, damage:UPDATED_DAMAGE, followup: true, showdown: true}),
     execute_combo(SHOWDOWN_DRAW_STATE, FINAL_STATE, SHOWDOWN_DRAW_SEQ, FINAL_SEQ, SHOWDOWN_COMBO, FINAL_COMBO);
 
     % if we can't do any of these things, we fizzle
     FINAL_COMBO = START_COMBO.put(_{fizzle: true, kill: none}).
-
-    % TODO: Electrodominance
 
 showdown_mana(START_STATE, FINAL_STATE, PRIOR_SEQ, FINAL_SEQ) :-
     % Cast instant-speed rituals maximizing red mana

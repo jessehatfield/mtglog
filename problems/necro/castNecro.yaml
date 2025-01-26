@@ -22,14 +22,19 @@ objectives:
           - fizzle
           - lethal
           - followup
-          - borne
-          - valakut
         numeric:
           - damage
-        categorical:
-          - kill
 
 secondaryObjectives:
+    - name: potentialWin
+      objective: turn_one_necro
+      filter: followup
+
+    - name: win
+      objective: turn_one_necro
+      filter: fizzle
+      invert: true
+
     - name: protectedNecro
       objective: turn_one_necro
       filter: isProtected
@@ -37,11 +42,6 @@ secondaryObjectives:
     - name: fizzle
       objective: turn_one_necro
       filter: fizzle
-
-    - name: win
-      objective: turn_one_necro
-      filter: fizzle
-      invert: true
 
     - name: lethalDamage
       objective: turn_one_necro

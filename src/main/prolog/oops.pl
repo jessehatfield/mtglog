@@ -33,8 +33,8 @@ protected_win(HAND, DECK, SB, REQUIRED_WINCON, SEQUENCE, PROTECTION, WINCON) :-
 
 win_specific(HAND, DECK, SB, any, SEQUENCE, TARGET_PROTECTION, WINCON, METADATA) :-
     win(HAND, DECK, SB, SEQUENCE, TARGET_PROTECTION, WINCON, METADATA).
-win_specific(HAND, DECK, SB, any, SEQUENCE, TARGET_PROTECTION, WINCON, _{}) :-
-    win(HAND, DECK, SB, SEQUENCE, TARGET_PROTECTION, WINCON).
+%win_specific(HAND, DECK, SB, any, SEQUENCE, TARGET_PROTECTION, WINCON, _{}) :-
+%    win(HAND, DECK, SB, SEQUENCE, TARGET_PROTECTION, WINCON).
 win_specific(HAND, DECK, SB, oops, SEQUENCE, TARGET_PROTECTION, WINCON, METADATA) :-
     win_oops(HAND, DECK, SB, SEQUENCE, TARGET_PROTECTION, WINCON, METADATA).
 win_specific(HAND, DECK, SB, empty, SEQUENCE, TARGET_PROTECTION, WINCON, METADATA) :-
@@ -46,33 +46,35 @@ win(HAND, SEQUENCE, PROTECTION) :-
     win(HAND, [], SEQUENCE, PROTECTION).
 win(HAND, DECK, SEQUENCE, PROTECTION) :-
     win(HAND, DECK, [], SEQUENCE, PROTECTION, _).
-win(HAND, DECK, _, SEQUENCE, PROTECTION, 'Undercity Informer') :-
+win(HAND, DECK, SB, SEQUENCE, PROTECTION, WINCON) :-
+    win(HAND, DECK, SB, SEQUENCE, PROTECTION, WINCON, _{}).
+win(HAND, DECK, _, SEQUENCE, PROTECTION, 'Undercity Informer', _{}) :-
     informer(HAND, DECK, SEQUENCE, PROTECTION).
-win(HAND, DECK, _, SEQUENCE, PROTECTION, 'Balustrade Spy') :-
+win(HAND, DECK, _, SEQUENCE, PROTECTION, 'Balustrade Spy', _{}) :-
     spy(HAND, DECK, SEQUENCE, PROTECTION).
-win(HAND, DECK, _, SEQUENCE, PROTECTION, 'Destroy the Evidence') :-
+win(HAND, DECK, _, SEQUENCE, PROTECTION, 'Destroy the Evidence', _{}) :-
     destroy(HAND, DECK, SEQUENCE, PROTECTION).
-win(HAND, DECK, _, SEQUENCE, PROTECTION, 'Lively Dirge') :-
+win(HAND, DECK, _, SEQUENCE, PROTECTION, 'Lively Dirge', _{}) :-
     dirge_spy(HAND, DECK, SEQUENCE, PROTECTION).
-win(HAND, DECK, _, SEQUENCE, PROTECTION, WINCON) :-
+win(HAND, DECK, _, SEQUENCE, PROTECTION, WINCON, _{}) :-
     entomb_reanimate(HAND, DECK, SEQUENCE, PROTECTION, WINCON).
-win(HAND, DECK, _, SEQUENCE, PROTECTION, WINCON) :-
+win(HAND, DECK, _, SEQUENCE, PROTECTION, WINCON, _{}) :-
     discard_reanimate(HAND, DECK, SEQUENCE, PROTECTION, WINCON).
-win(HAND, DECK, _, SEQUENCE, PROTECTION, breakfast) :-
+win(HAND, DECK, _, SEQUENCE, PROTECTION, breakfast, _{}) :-
     breakfast(HAND, DECK, SEQUENCE, PROTECTION).
-win(HAND, DECK, _, SEQUENCE, PROTECTION, 'Empty the Warrens') :-
+win(HAND, DECK, _, SEQUENCE, PROTECTION, 'Empty the Warrens', _{}) :-
     etw(HAND, DECK, SEQUENCE, STORM, PROTECTION), STORM >= 4, canpass(SEQUENCE).
-win(HAND, DECK, _, SEQUENCE, PROTECTION, belcher) :-
+win(HAND, DECK, _, SEQUENCE, PROTECTION, belcher, _{}) :-
     belcher(HAND, DECK, SEQUENCE, PROTECTION).
-win(HAND, DECK, SB, SEQUENCE, PROTECTION, 'Wish->Empty') :-
+win(HAND, DECK, SB, SEQUENCE, PROTECTION, 'Wish->Empty', _{}) :-
     wish_warrens(HAND, DECK, SB, SEQUENCE, STORM, PROTECTION), STORM >= 4, canpass(SEQUENCE).
-win(HAND, DECK, SB, SEQUENCE, PROTECTION, 'Wish->Spy') :-
+win(HAND, DECK, SB, SEQUENCE, PROTECTION, 'Wish->Spy', _{}) :-
     wish_spy(HAND, DECK, SB, SEQUENCE, PROTECTION).
-win(HAND, DECK, SB, SEQUENCE, PROTECTION, 'Wish->Informer') :-
+win(HAND, DECK, SB, SEQUENCE, PROTECTION, 'Wish->Informer', _{}) :-
     wish_informer(HAND, DECK, SB, SEQUENCE, PROTECTION).
-win(HAND, DECK, SB, SEQUENCE, PROTECTION, 'Eldritch->Informer') :-
+win(HAND, DECK, SB, SEQUENCE, PROTECTION, 'Eldritch->Informer', _{}) :-
     ee_informer(HAND, DECK, SB, SEQUENCE, PROTECTION).
-win(HAND, DECK, SB, SEQUENCE, PROTECTION, 'Eldritch->Spy') :-
+win(HAND, DECK, SB, SEQUENCE, PROTECTION, 'Eldritch->Spy', _{}) :-
     ee_spy(HAND, DECK, SB, SEQUENCE, PROTECTION).
 win(HAND, DECK, _, SEQUENCE, PROTECTION, 'Beseech->Spy', METADATA) :-
     beseech_spy(HAND, DECK, SEQUENCE, PROTECTION, METADATA).
@@ -112,7 +114,7 @@ belcher(START_HAND, START_DECK, SEQUENCE, PROTECTION) :-
     belcher(START_HAND, [], [0,0,0,0,0,0,0], [], 0, START_DECK, SEQUENCE, PROTECTION).
 belcher(H1, B1, M1, G1, S1, D1, SEQUENCE, PROTECTION) :-
     member('Goblin Charbelcher', H1),
-    prune(7, H1, B1, G1),
+    prune(7, H1, B1, G1, D1, 0),
     % Make 4 mana, cast
     makemana([H1, B1, M1, G1, S1, D1, 0], [H2, B2, M2, G2, S2, D2, P2], [], SEQUENCE1),
     remove('Goblin Charbelcher', H2, H3),
@@ -153,7 +155,7 @@ informer(START_HAND, START_DECK, SEQUENCE, PROTECTION) :-
 informer(H1, B1, M1, G1, S1, D1, SEQUENCE, PROTECTION) :-
     % Verify that its possible in the best case scenario for mana sequencing
     member_or_tutor('Undercity Informer', H1, D1),
-    prune(4, H1, B1, G1, M1),
+    prune(4, H1, B1, G1, D1, M1, 0),
     canInformer(H1, G1, D1),
     informerCombo(H1, B1, D1, G1, M1, [], _, _),
     % Then attempt it for real
@@ -163,7 +165,7 @@ informer(H1, B1, M1, G1, S1, D1, SEQUENCE, PROTECTION) :-
     PROTECTION is P1 + P2,
     !.
 informer_mill(H1, B1, M1, G1, S1, D1, H4, B3, M5, G3, S3, D3, SEQUENCE_PRIOR, SEQUENCE_FINAL, PROTECTION) :-
-    prune(4, H1, B1, G1, M1),
+    prune(4, H1, B1, G1, D1, M1, 0),
     % Make 2B mana, cast
     makemana_goal('Undercity Informer', [H1, B1, M1, G1, S1, D1, 0], [H2, B2, M2, G2, S2, D2, P2], SEQUENCE_PRIOR, SEQUENCE2),
     remove('Undercity Informer', H2, H3),
@@ -183,7 +185,7 @@ spy(START_HAND, START_DECK, SEQUENCE, PROTECTION) :-
 spy(H1, B1, M1, G1, S1, D1, SEQUENCE, PROTECTION) :-
     % Verify that its possible in the best case scenario for mana sequencing
     member_or_tutor('Balustrade Spy', H1, D1),
-    prune(4, H1, B1, G1, M1),
+    prune(4, H1, B1, G1, D1, M1, 0),
     canInformer(H1, G1, D1),
     informerCombo(H1, ['Balustrade Spy'|B1], D1, G1, M1, [], _, _),
     % Then attempt it for real
@@ -192,7 +194,7 @@ spy(H1, B1, M1, G1, S1, D1, SEQUENCE, PROTECTION) :-
     PROTECTION is P1 + P2,
     !.
 spy_mill(H1, B1, M1, G1, S1, D1, H3, B3, M3, G2, S2, D2, SEQUENCE_PRIOR, SEQUENCE_FINAL, PROTECTION) :-
-    prune(4, H1, B1, G1, M1),
+    prune(4, H1, B1, G1, D1, M1, 0),
     % Make 3B mana, cast
     makemana_goal('Balustrade Spy', [H1, B1, M1, G1, S1, D1, 0], [H2, B2, M2, G2, S2, D2, PROTECTION], SEQUENCE_PRIOR, SEQUENCE2),
     remove('Balustrade Spy', H2, H3),
@@ -210,7 +212,7 @@ destroy(H1, B1, M1, G1, S1, D1, SEQUENCE, PROTECTION) :-
     % Verify that its possible in the best case scenario for mana sequencing
     member_or_tutor('Destroy the Evidence', H1, D1),
     type_threshold(1, land, H1),
-    prune(5, H1, B1, G1, M1),
+    prune(5, H1, B1, G1, D1, M1, 0),
     canInformer(H1, G1, D1),
     informerCombo(H1, ['Destroy the Evidence'|B1], D1, G1, M1, [], _, _),
     % Then attempt it for real
@@ -219,7 +221,7 @@ destroy(H1, B1, M1, G1, S1, D1, SEQUENCE, PROTECTION) :-
     PROTECTION is P1 + P2,
     !.
 destroy_mill(H1, B1, M1, G1, S1, D1, H3, B3, M3, G3, S2, D2, SEQUENCE_PRIOR, SEQUENCE_FINAL, PROTECTION) :-
-    prune(5, H1, B1, G1, M1),
+    prune(5, H1, B1, G1, D1, M1, 0),
     % Make 4B mana, cast
     makemana_goal('Destroy the Evidence', [H1, B1, M1, G1, S1, D1, 0], [H2, B2, M2, G2, S2, D2, PROTECTION], SEQUENCE_PRIOR, SEQUENCE2),
     remove('Destroy the Evidence', H2, H3),
@@ -238,7 +240,7 @@ beseech_spy(H1, B1, M1, G1, S1, D1, SEQUENCE, PROTECTION, EXTRAS) :-
     % Verify that its possible in the best case scenario for mana sequencing
     member_or_tutor('Beseech the Mirror', H1, D1),
     member('Balustrade Spy', D1),
-    prune(4, H1, B1, G1, M1),
+    prune(4, H1, B1, G1, D1, M1, 0),
     canInformer(H1, G1, D1),
     informerCombo(H1, ['Balustrade Spy'|B1], D1, G1, M1, [], _, _),
     % Then attempt it for real
@@ -275,7 +277,7 @@ dirge_spy(H1, B1, M1, G1, S1, D1, SEQUENCE, PROTECTION) :-
     % Verify that its possible in the best case scenario for mana sequencing
     member_or_tutor('Lively Dirge', H1, D1),
     member('Balustrade Spy', D1),
-    prune(5, H1, B1, G1, M1),
+    prune(5, H1, B1, G1, D1, M1, 0),
     canInformer(H1, G1, D1),
     informerCombo(H1, ['Balustrade Spy'|B1], D1, G1, M1, [], _, _),
     % Then attempt it for real
@@ -394,7 +396,8 @@ discard_reanimate(START_STATE, SEQUENCE, PROTECTION, WINCON) :-
     PROTECTION is P1 + P2,
     atomic_list_concat([DISCARD_STEP, '->', ANIMATE], WINCON).
 
-cast_necro(START_HAND, START_DECK, FINAL_SEQUENCE, PROTECTION, METADATA) :-
+cast_necro(UNSORTED_HAND, START_DECK, FINAL_SEQUENCE, PROTECTION, METADATA) :-
+    sort_necro_hand(UNSORTED_HAND, START_HAND),
     %cast_necro([START_HAND, [], [0,0,0,0,0,0,0], [], 0, START_DECK, 0], SEQUENCE, END_STATE),
     cast_one_opt(['Leyline of Anticipation'], [START_HAND, [], [0,0,0,0,0,0,0], [], 0, START_DECK, 0], START_STATE, [], START_SEQUENCE),
     prune_(3, START_STATE),
@@ -414,7 +417,8 @@ cast_necro(START_HAND, START_DECK, FINAL_SEQUENCE, PROTECTION, METADATA) :-
 %    append(SEQUENCE1, ['Necrodominance'], NECRO_SEQUENCE),
 %    makemana(STATE4, END_STATE, NECRO_SEQUENCE, SEQUENCE).
 
-beseech_necro(START_HAND, START_DECK, FINAL_SEQUENCE, PROTECTION, METADATA) :-
+beseech_necro(UNSORTED_HAND, START_DECK, FINAL_SEQUENCE, PROTECTION, METADATA) :-
+    sort_necro_hand(UNSORTED_HAND, START_HAND),
     beseech_for_target('Necrodominance',
         [START_HAND, [], [0,0,0,0,0,0,0], [], 0, START_DECK, 0],
         END_STATE,
@@ -426,7 +430,8 @@ beseech_necro(START_HAND, START_DECK, FINAL_SEQUENCE, PROTECTION, METADATA) :-
     METADATA = NECRO_METADATA.put(_{bargain:SACRIFICE}),
     !.
 
-necrologia(START_HAND, START_DECK, FINAL_SEQUENCE, PROTECTION, METADATA) :-
+necrologia(UNSORTED_HAND, START_DECK, FINAL_SEQUENCE, PROTECTION, METADATA) :-
+    sort_necro_hand(UNSORTED_HAND, START_HAND),
     necrologia([START_HAND, [], [0,0,0,0,0,0,0], [], 0, START_DECK, 0], SEQUENCE, END_STATE),
     post_necro(END_STATE, SEQUENCE, FINAL_SEQUENCE, METADATA, 'Necrologia'),
     state_protection(END_STATE, PROTECTION).
@@ -453,7 +458,7 @@ breakfast(H1, B1, M1, G1, S1, D1, SEQUENCE, PROTECTION) :-
     PROTECTION is P1 + P2,
     !.
 breakfast_mill(H1, B1, M1, G1, S1, D1, H4, B3, M3, G2, S2, D2, SEQUENCE_PRIOR, SEQUENCE_FINAL, PROTECTION) :-
-    prune(3, H1, B1, G1, M1),
+    prune(3, H1, B1, G1, D1, M1, 0),
     % Make 2U, cast combo
     makemana([H1, B1, M1, G1, S1, D1, 0], [H2, B2, M2, G2, S2, D2, PROTECTION], SEQUENCE_PRIOR, SEQUENCE2),
     remove('Shuko', H2, H3),
@@ -471,7 +476,7 @@ etw(START_HAND, START_DECK, SEQUENCE, STORM, PROTECTION) :-
     etw(START_HAND, [], [0,0,0,0,0,0,0], [], 0, START_DECK, SEQUENCE, STORM, PROTECTION).
 etw(H1, B1, M1, G1, S1, D1, SEQUENCE, STORM, PROTECTION) :-
     member('Empty the Warrens', H1),
-    prune(4, H1, B1, G1, M1),
+    prune(4, H1, B1, G1, D1, M1, 0),
     % Make 3R mana, cast
     makemana_goal('Empty the Warrens', [H1, B1, M1, G1, S1, D1, 0], [H2, _, M2, _, S2, _, P1], [], SEQUENCE1),
     remove('Empty the Warrens', H2, _),
@@ -486,7 +491,7 @@ wish_warrens(START_HAND, START_DECK, SB, SEQUENCE, STORM, PROTECTION) :-
     wish_warrens(START_HAND, [], [0,0,0,0,0,0,0], [], 0, START_DECK, SEQUENCE, STORM, PROTECTION).
 wish_warrens(H1, B1, M1, G1, S1, D1, SEQUENCE, STORM, PROTECTION) :-
     member('Burning Wish', H1),
-    prune(6, H1, B1, G1, M1),
+    prune(6, H1, B1, G1, D1, M1, 0),
     % Cast Burning Wish
     makemana([H1, B1, M1, G1, S1, D1, 0], [H2, B2, M2, G2, S2, D2, P2], [], SEQUENCE1),
     remove('Burning Wish', H2, H3),
@@ -507,7 +512,7 @@ wish_spy(START_HAND, START_DECK, SB, SEQUENCE, PROTECTION) :-
 wish_spy(H1, B1, M1, G1, S1, D1, SEQUENCE, PROTECTION) :-
     % Verify that its possible in the best case scenario for mana sequencing
     member('Living Wish', H1),
-    prune(6, H1, B1, G1, M1),
+    prune(6, H1, B1, G1, D1, M1, 0),
     canInformer(H1, G1, D1),
     informerCombo(H1, B1, D1, G1, M1, [], _, _),
     % Then attempt it for real
@@ -531,7 +536,7 @@ wish_informer(START_HAND, START_DECK, SB, SEQUENCE, PROTECTION) :-
 wish_informer(H1, B1, M1, G1, S1, D1, SEQUENCE, PROTECTION) :-
     % Verify that its possible in the best case scenario for mana sequencing
     member('Living Wish', H1),
-    prune(6, H1, B1, G1, M1),
+    prune(6, H1, B1, G1, D1, M1, 0),
     canInformer(H1, G1, D1),
     informerCombo(H1, B1, D1, G1, M1, [], _, _),
     % Then attempt it for real
@@ -541,7 +546,7 @@ wish_informer(H1, B1, M1, G1, S1, D1, SEQUENCE, PROTECTION) :-
     PROTECTION is P1 + P2,
     !.
 wish_informer_mill(H1, B1, M1, G1, S1, D1, P1, H5, B4, M7, G4, S5, D4, P4, SEQUENCE) :-
-    prune(6, H1, B1, G1, M1),
+    prune(6, H1, B1, G1, D1, M1, 0),
     % Cast Living Wish
     makemana([H1, B1, M1, G1, S1, D1, P1], [H2, B2, M2, G2, S2, D2, P2], [], SEQUENCE1),
     remove('Living Wish', H2, H3),
@@ -567,7 +572,7 @@ ee_informer(START_HAND, START_DECK, _, SEQUENCE, PROTECTION) :-
 ee_informer(H1, B1, M1, G1, S1, D1, SEQUENCE, PROTECTION) :-
     % Verify that its possible in the best case scenario for mana sequencing
     member('Eldritch Evolution', H1),
-    prune(3, H1, B1, G1, M1),
+    prune(3, H1, B1, G1, D1, M1, 0),
     canInformer(H1, G1, D1),
     informerCombo(H1, B1, D1, G1, M1, [], _, _),
     % Then attempt it for real
@@ -598,7 +603,7 @@ ee_spy(START_HAND, START_DECK, _, SEQUENCE, PROTECTION) :-
 ee_spy(H1, B1, M1, G1, S1, D1, SEQUENCE, PROTECTION) :-
     % Verify that its possible in the best case scenario for mana sequencing
     member('Eldritch Evolution', H1),
-    prune(3, H1, B1, G1, M1),
+    prune(3, H1, B1, G1, D1, M1, 0),
     canInformer(H1, G1, D1),
     informerCombo(H1, B1, D1, G1, M1, [], _, _),
     % Then attempt it for real
@@ -654,7 +659,7 @@ informer_win_dr(HAND, BOARD, GY, MANA, CREATURES, PRIOR_SEQUENCE, TOTAL_SEQUENCE
 informer_win_cast(H1, B1, G1, M1, PRIOR_SEQUENCE, TOTAL_SEQUENCE, PROTECTION) :-
     % Cast the win condition from your hand instead
     member('Thassa\'s Oracle', H1),
-    prune(2, H1, B1, G1, M1),
+    prune(2, H1, B1, G1, [], M1, 0),
     % Make UU, cast
     % (storm doesn't matter here so just reset it -- inputs need to be bound)
     makemana([H1, B1, M1, G1, 0, [], 0], [H2, B2, M2, G2, _, D2, PROTECTION1], PRIOR_SEQUENCE, S2),
@@ -802,3 +807,10 @@ can_powder(HAND, LIBRARY, N_BOTTOM, BOTTOM) :-
     combination(MINUS_POWDER, N_BOTTOM, BOTTOM, _),
     append(LIBRARY, BOTTOM, POWDER_LIBRARY),
     library_contains_win([], POWDER_LIBRARY).
+
+sort_necro_hand([], []).
+sort_necro_hand(UNSORTED, SORTED) :-
+    map_list_to_pairs(card_priority, UNSORTED, PAIRS),
+    keysort(PAIRS, SORTED_PAIRS),
+    pairs_values(SORTED_PAIRS, SORTED).
+

@@ -1,9 +1,15 @@
 load_necro :-
+    source_file(load_necro, Filename),
+    file_directory_name(Filename, Dir),
+    working_directory(_, Dir),
     consult('test_oops.pl'),
-    load_oops.
+    load_oops,
+    consult('necro.pl').
 
 run_necro_tests :-
     load_necro,
+    debug,
+    use_module(library(prolog_stack)),
     time(test_cast_necro),
     time(test_necro_no_payoff),
     time(test_necro_cant_cast),
@@ -15,7 +21,10 @@ run_necro_tests :-
     time(test_necro_beseech),
     time(test_showdown),
     time(test_electrodominance),
-    time(test_necro_lands).
+    time(test_necro_lands),
+    time(test_slow),
+    time(test_storm),
+    format('Necrodominance tests passed.', []).
 
 test_cast_necro :-
     format("\nTest casting Necrodominance from hand or using Beseech\n", []),
@@ -245,6 +254,7 @@ test_necro_beseech :-
         'Leyline of Anticipation', % draw with Borne
         'Tendrils of Agony' % can't get there
     ],
+    format('test1:\n', []),
     hand_wins_(HAND_WITH_PACT, DRAW_BORNE_BESEECH, [], 0, 1, 'Necrodominance', _{kill: tendrils, lethal: true}),
     BARGAIN_NECRO = [
         'Gemstone Mine', 'Elvish Spirit Guide', 'Necrodominance', 'Chancellor of the Annex', 'Unmask',
@@ -255,9 +265,12 @@ test_necro_beseech :-
         'Leyline of Anticipation', % draw with Borne
         'Tendrils of Agony' % can't get there
     ],
-    hand_wins_(HAND_WITH_PACT, BARGAIN_NECRO, [], 0, 1, 'Necrodominance', _{fizzle: true}), % can't get to 10 storm
+    format('test2:\n', []),
+    hand_wins_(HAND_WITH_PACT, BARGAIN_NECRO, [], 0, 1, 'Necrodominance', _{kill: tendrils, lethal: false}), % can't get to 10 storm
+    format('test3:\n', []),
     hand_wins_(['Unmask'|HAND_WITH_PACT], BARGAIN_NECRO, [], 0, 1, 'Necrodominance', _{kill: tendrils, lethal: true}),
     NECROLOGIA_HAND = ['Gemstone Mine', 'Pact of Negation', 'Necrologia', 'Dark Ritual', 'Dark Ritual'],
+    format('test4:\n', []),
     hand_wins_(NECROLOGIA_HAND, BARGAIN_NECRO, [], 0, 1, 'Necrologia', _{fizzle: true}).
 
 test_showdown :-
@@ -281,7 +294,7 @@ test_showdown :-
         'Dark Ritual', 'Tendrils of Agony', 'Thoughtseize', 'Chancellor of the Annex', 'Fateful Showdown',
         'Chrome Mox', 'Pact of Negation', 'Beseech the Mirror', 'Necrodominance'
     ], UNCASTABLE),
-    hand_wins_(HAND_WITH_PACT, ONE_SHOWDOWN, [], 0, 1, 'Necrodominance', _{fizzle: true, potential_win: false}),
+    hand_wins_(HAND_WITH_PACT, ONE_SHOWDOWN, [], 0, 1, 'Necrodominance', _{fizzle: true, potential_win: true}),
     hand_wins_(HAND_WITH_PACT, TWO_SHOWDOWNS, [], 0, 1, 'Necrodominance', _{fizzle: true, potential_win: true, potential_kill: showdown}),
     hand_wins_(HAND_WITH_PACT, TWO_SHOWDOWNS_DRAW, [], 0, 1, 'Necrodominance', _{fizzle: false, kill: showdown, lethal: true}),
     hand_wins_(HAND_WITH_PACT, UNCASTABLE, [], 0, 1, 'Necrodominance', _{fizzle: true, potential_win: true, potential_kill: showdown}).
@@ -305,7 +318,7 @@ test_electrodominance :-
     append(ELECTRODOMINANCE_ALONE, ['Tendrils of Agony'], ELECTRODOMINANCE_BESEECH),
     hand_wins_(HAND_WITH_PACT, ELECTRODOMINANCE_TENDRILS, [], 0, 1, 'Necrodominance', _{fizzle: false, kill: tendrils, lethal: false, damage: 18}),
     hand_wins_(HAND_WITH_PACT, ELECTRODOMINANCE_ALONE, [], 0, 1, 'Necrodominance', _{fizzle: true, potential_win: false}),
-    hand_wins_(HAND_WITH_PACT, ELECTRODOMINANCE_BESEECH, [], 0, 1, 'Necrodominance', _{fizzle: false, kill: tendrils, lethal: true, damage: 22}).
+    hand_wins_(HAND_WITH_PACT, ELECTRODOMINANCE_BESEECH, [], 0, 1, 'Necrodominance', _{fizzle: false, kill: tendrils, lethal: true, damage: 24}).
 
 test_necro_lands :-
     format("\nTest situations involving Crop Rotation or other land tricks\n", []),
@@ -328,18 +341,18 @@ test_necro_lands :-
         'Tendrils of Agony', 'Cabal Therapy', 'Vault of Whispers', 'Gemstone Mine',
         'Emergence Zone' % find with Crop Rotation
     ],
-    hand_wins_(HAND, EMERGE, [], 0, 0, 'Necrodominance', _{fizzle: false, kill: tendrils}),
-    % TODO: should prefer putting untapped Zone in play if it's possible to cast Necro without the land drop
-    EMERGE_HAND = ['Necrodominance', 'Dark Ritual', 'Emergence Zone', 'Lotus Petal'],
+    hand_wins_(HAND, EMERGE, [], 0, 0, 'Necrodominance', _{fizzle: false, kill: tendrils, lethal: true}),
+    EMERGE_HAND = ['Gemstone Mine', 'Necrodominance', 'Dark Ritual', 'Emergence Zone', 'Lotus Petal'],
     NO_FLASH = [
         'Gemstone Mine', 'Lotus Petal', 'Cabal Ritual', 'Chancellor of the Annex', 'Unmask',
         'Elvish Spirit Guide', 'Cabal Therapy', 'Pact of Negation', 'Dark Ritual', 'Emergence Zone',
         'Chrome Mox', 'Gemstone Mine', 'Pact of Negation', 'Vault of Whispers', 'Chrome Mox',
         'Tendrils of Agony', 'Cabal Therapy', 'Vault of Whispers', 'Gemstone Mine'
     ],
-    hand_wins_(EMERGE_HAND, NO_FLASH, [], 0, 0, 'Necrodominance', _{fizzle: false, kill: tendrils}).
+    hand_wins_(EMERGE_HAND, NO_FLASH, [], 0, 0, 'Necrodominance', _{fizzle: false, kill: tendrils, lethal: true}).
 
 test_slow :-
+    format("\nTest a combo turn with several branching decisions\n", []),
     HAND = ['Simian Spirit Guide', 'Necrodominance', 'Summoner\'s Pact', 'Cabal Ritual', 'Manamorphose', 'Chancellor of the Annex', 'Lotus Petal'],
     LIBRARY = [
         'Necrodominance', 'Cabal Ritual', 'Borne Upon a Wind', 'Beseech the Mirror', 'Elvish Spirit Guide',
@@ -356,3 +369,20 @@ test_slow :-
         'Chancellor of the Annex', 'Dark Ritual', 'Elvish Spirit Guide', 'Valakut Awakening', 'Wild Cantor',
         'Vault of Whispers', 'Beseech the Mirror', 'Necrodominance', 'Manamorphose'],
         hand_wins_(HAND, LIBRARY, [], 0, 1, 'Necrodominance', _{kill: tendrils}).
+
+test_storm :-
+    format("\nTest logic to storm up to a target value\n", []),
+    HAND = [
+        'Lotus Petal', 'Cabal Ritual', 'Chancellor of the Annex', 'Unmask',
+        'Cabal Therapy', 'Pact of Negation', 'Dark Ritual',
+        'Chrome Mox', 'Pact of Negation', 'Chrome Mox',
+        'Tendrils of Agony', 'Cabal Therapy', 'Vault of Whispers', 'Gemstone Mine'
+    ],
+    START_STATE = [HAND, ['Gemstone Mine'], [0,0,0,0,0,0,0], [], 2, [], 0],
+    START_SEQ = ['Gemstone Mine', 'Dark Ritual', 'Necrodominance'],
+    storm_up(9, 'Tendrils of Agony', START_STATE, _, START_SEQ, _), !,
+    storm_up_and_cast(9, 'Tendrils of Agony', START_STATE, _, START_SEQ, _), !,
+    % Could get to 10 but only by pitching Tendrils to Unmask
+    storm_up(10, 'Pact of Negation', START_STATE, _, START_SEQ, _), !,
+    not(storm_up(10, 'Tendrils of Agony', START_STATE, _, START_SEQ, _)), !,
+    not(storm_up_and_cast(10, 'Tendrils of Agony', START_STATE, _, START_SEQ, _)), !.

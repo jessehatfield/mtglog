@@ -3,16 +3,19 @@ post_necro(START_STATE, PRIOR_SEQ, COMBO_SEQ, METADATA, NECRO) :-
     % Cast sacrificeable permanents without using them, if possible
     cast_leds(START_STATE, CAST_LED_STATE, PRIOR_SEQ, CAST_LED_SEQ),
     cast_in_order([['Lotus Petal'], ['Wild Cantor']], CAST_LED_STATE, PETAL_STATE, CAST_LED_SEQ, PETAL_SEQ),
+    % Play a land if possible
+    play_land(PETAL_STATE, LAND_STATE, PETAL_SEQ, LAND_SEQ),
     % Empty the mana pool and record that we're in the end step
-    end_step_mana(PETAL_STATE, NECRO, END_STEP_SEQ, END_STEP_STATE),
-    append(PETAL_SEQ, ['end step'], END_STEP_SEQ),
+    append(LAND_SEQ, ['end step'], END_STEP_SEQ),
+    end_step_mana(LAND_STATE, NECRO, END_STEP_SEQ, END_STEP_STATE),
     % Make any mana you can before drawing cards
     spirit_guides(END_STEP_STATE, SG1_STATE, END_STEP_SEQ, SG1_SEQ),
     sac_leds(SG1_STATE, SAC_LED_STATE, SAC_LED_SEQ),
     sac_all_unused(SAC_LED_STATE, NECRO_STATE, SAC_LED_SEQ, SAC_SEQ),
     % Draw and go off
     N_NECRO_DRAW = 19,
-    draw_up_to(N_NECRO_DRAW, NECRO_STATE, DRAW_STATE),
+    draw_up_to(N_NECRO_DRAW, NECRO_STATE, UNSORTED_STATE),
+    apply_to_hand(sort_necro_hand, UNSORTED_STATE, DRAW_STATE),
     string_concat("draw ", N_NECRO_DRAW, DRAW_STEP),
     append([SG1_SEQ, SAC_SEQ, [DRAW_STEP]], DRAW_SEQ),
     spirit_guides(DRAW_STATE, SG2_STATE, DRAW_SEQ, SG2_SEQ),
@@ -26,6 +29,19 @@ post_necro(START_STATE, PRIOR_SEQ, COMBO_SEQ, METADATA, NECRO) :-
         POTENTIAL_METADATA.potential_win = true,
         execute_combo(SG2_STATE, _, SG2_SEQ, COMBO_SEQ, POTENTIAL_METADATA, METADATA)
     ).
+
+play_land(START_STATE, START_STATE, START_SEQ, START_SEQ) :-
+    type_threshold(1, land, START_SEQ), !;
+    state_hand(START_STATE, HAND),
+    type_max(0, land, HAND), !.
+play_land(START_STATE, END_STATE, START_SEQ, END_SEQ) :-
+    state_hand(START_STATE, HAND),
+    map_list_to_pairs(card_priority, HAND, PAIRS),
+    sort(1, @<, PAIRS, UNIQUE_PAIRS),
+    pairs_values(UNIQUE_PAIRS, UNIQUE_CARDS),
+    member(CARDNAME, UNIQUE_CARDS),
+    istype(CARDNAME, land),
+    cast_from_hand(CARDNAME, START_STATE, END_STATE, START_SEQ, END_SEQ).
 
 necro_can_powder(HAND, LIBRARY, 0, []) :-
     member('Serum Powder', HAND),
@@ -162,10 +178,10 @@ sac_unused(UNUSED_NAME, START_STATE, SAC_STATE, STEP) :-
     string_concat('sac ', BASE_NAME, STEP).
 
 % Initialize combo metadata from a given game state 
-combo_progress(STATE, SEQ, _{damage: 0, flash: false}) :-
+combo_progress(STATE, SEQ, _{damage: 0, flash: false, kill: unknown, lethal: false, followup: false}) :-
     not(on_board('Leyline of Anticipation', STATE)),
     not(member('Borne Upon a Wind', SEQ)).
-combo_progress(STATE, SEQ, _{damage: 0, flash: true}) :-
+combo_progress(STATE, SEQ, _{damage: 0, flash: true, kill: unknown, lethal: false, followup: false}) :-
     on_board('Leyline of Anticipation', STATE);
     member('Borne Upon a Wind', SEQ).
 
@@ -190,8 +206,14 @@ valakut_wheel(COMBO, HAND, WHEEL, KEEP) :-
         KEEP3 = [],
         WHEEL3 = WHEEL2
     ),
-    append([KEEP1, KEEP2, KEEP3], KEEP),
-    WHEEL = WHEEL3.
+    % hold on to an Electrodominance if we have it
+    remove_first_opt('Electrodominance', WHEEL3, WHEEL4, KEEP4),
+    % hold on to a Crop Rotation if we have it
+    remove_first_opt('Crop Rotation', WHEEL4, WHEEL5, KEEP5),
+    % hold on to all Valakuts, Freezes, and Showdowns
+    take_all(WHEEL5, ['Valakut Awakening', 'Fateful Showdown', 'Brain Freeze'], KEEP6, WHEEL6),
+    append([KEEP1, KEEP2, KEEP3, KEEP4, KEEP5, KEEP6], KEEP),
+    WHEEL = WHEEL6.
 
 cantrip_ignore_mana(START_STATE, FINAL_STATE, START_COMBO, FINAL_COMBO) :-
     state_hand(START_STATE, START_HAND),
@@ -241,24 +263,17 @@ combo_ignore_mana(START_STATE, FINAL_STATE, START_COMBO, FINAL_COMBO) :-
         in_hand('Beseech the Mirror', CANTRIP_STATE),
         in_deck('Tendrils of Agony', CANTRIP_STATE),
         FINAL_COMBO = CANTRIP_COMBO.put(_{potential_win: true, potential_kill: tendrils}), !;
+        % we have Freeze in hand
+        in_hand('Brain Freeze', CANTRIP_STATE), !;
         % if we have none of the above but access to Emergence Zone, add flash and recurse
         CANTRIP_COMBO.potential_flash = false,
         (
             remove_from_hand('Crop Rotation', CANTRIP_STATE, ROTATE_STATE),
-            remove_from_deck('Emergence Zone', ROTATE_STATE, EMERGE_STATE);
+            remove_from_deck('Emergence Zone', ROTATE_STATE, EMERGE_STATE), !;
             remove_from_board('Emergence Zone_untapped', CANTRIP_STATE, EMERGE_STATE)
         ),
         combo_ignore_mana(EMERGE_STATE, FINAL_STATE, CANTRIP_COMBO.put(_{potential_flash: true}), FINAL_COMBO), !;
-        % if we have none of the above but Valakut in hand, use it and recurse
-        state_hand(CANTRIP_STATE, CANTRIP_HAND),
-        remove_first('Valakut Awakening', CANTRIP_HAND, VALAKUT_HAND),
-        valakut_wheel(CANTRIP_COMBO, VALAKUT_HAND, WHEEL, KEEP),
-        update_hand(CANTRIP_STATE, KEEP, BOTTOM_STATE),
-        length(WHEEL, N),
-        N1 is N + 1,
-        draw_up_to(N1, BOTTOM_STATE, DRAW_STATE),
-        combo_ignore_mana(DRAW_STATE, FINAL_STATE, CANTRIP_COMBO, FINAL_COMBO);
-        % if we have none of the above but Showdown in hand, use it, track max damage, and recurse if less than 20
+        % if we have none of the above but Showdown in hand, use it and call it a potential win
         in_hand('Fateful Showdown', CANTRIP_STATE),
         state_hand(CANTRIP_STATE, CANTRIP_HAND),
         length(CANTRIP_HAND, N),
@@ -269,7 +284,16 @@ combo_ignore_mana(START_STATE, FINAL_STATE, START_COMBO, FINAL_COMBO) :-
         (D = CANTRIP_COMBO.get(potential_damage), !; D = 0),
         UPDATED_DAMAGE is D + N1,
         SHOWDOWN_COMBO = CANTRIP_COMBO.put(_{potential_kill: showdown, potential_damage: UPDATED_DAMAGE}),
-        combo_ignore_mana(DRAW_STATE, FINAL_STATE, SHOWDOWN_COMBO, FINAL_COMBO), !;
+        FINAL_STATE = DRAW_STATE, FINAL_COMBO = SHOWDOWN_COMBO.put(_{potential_win: true}), !;
+        % if we have none of the above but Valakut in hand, use it and recurse
+        state_hand(CANTRIP_STATE, CANTRIP_HAND),
+        remove_first('Valakut Awakening', CANTRIP_HAND, VALAKUT_HAND),
+        valakut_wheel(CANTRIP_COMBO, VALAKUT_HAND, WHEEL, KEEP),
+        update_hand(CANTRIP_STATE, KEEP, BOTTOM_STATE),
+        length(WHEEL, N),
+        N1 is N + 1,
+        draw_up_to(N1, BOTTOM_STATE, DRAW_STATE),
+        combo_ignore_mana(DRAW_STATE, FINAL_STATE, CANTRIP_COMBO, FINAL_COMBO);
         % if we have none of the above at all, record a fizzle
         FINAL_STATE = CANTRIP_STATE,
         FINAL_COMBO = CANTRIP_COMBO.put(_{potential_win: false})
@@ -282,13 +306,31 @@ execute_combo(START_STATE, FINAL_STATE, START_SEQ, FINAL_SEQ, START_COMBO, FINAL
     FINAL_COMBO = START_COMBO.put(_{lethal: true, fizzle: false}),
     FINAL_STATE = START_STATE, !;
 
+    % if we've cast two Showdowns, assume a human player could've sequenced better to make them lethal
+    N_SHOWDOWNS = START_COMBO.get(n_showdowns),
+    N_SHOWDOWNS >= 2,
+    FINAL_COMBO = START_COMBO.put(_{lethal: true, fizzle: false}),
+    FINAL_STATE = START_STATE, !;
+
+    % if we've milled for 54, assume that's lethal
+    MILL = START_COMBO.get(mill),
+    MILL >= 54,
+    FINAL_COMBO = START_COMBO.put(_{lethal: true, fizzle: false}),
+    FINAL_STATE = START_STATE, !;
+
+    % if we've cast two Freezes, assume a human player could've sequenced it to be lethal
+    N_FREEZES = START_COMBO.get(n_freezes),
+    N_FREEZES >= 2,
+    FINAL_COMBO = START_COMBO.put(_{lethal: true, fizzle: false}),
+    FINAL_STATE = START_STATE, !;
+
     % if we don't have access to a win condition, it's over
     state_hand(START_STATE, HAND),
-    intersection(['Tendrils of Agony', 'Fateful Showdown'], HAND, []),
+    intersection(['Tendrils of Agony', 'Fateful Showdown', 'Brain Freeze'], HAND, []),
     (
         intersection(['Beseech the Mirror', 'Manamorphose', 'Borne Upon a Wind', 'Valakut Awakening'], HAND, []), !;
         state_deck(START_STATE, LIBRARY),
-        intersection(['Tendrils of Agony', 'Electrodominance'], LIBRARY, []), !
+        intersection(['Tendrils of Agony', 'Electrodominance', 'Brain Freeze'], LIBRARY, []), !
     ),
     FINAL_COMBO = START_COMBO.put(_{fizzle: true, kill: none}),
     !;
@@ -297,12 +339,12 @@ execute_combo(START_STATE, FINAL_STATE, START_SEQ, FINAL_SEQ, START_COMBO, FINAL
     START_COMBO.flash = true,
     in_hand('Tendrils of Agony', START_STATE),
     prune_(4, START_STATE),
-    makemana_goal('Tendrils of Agony', START_STATE, MANA_STATE, START_SEQ, MANA_SEQ),
     (
+        makemana_goal('Tendrils of Agony', START_STATE, MANA_STATE, START_SEQ, MANA_SEQ),
         storm_up(9, 'Tendrils of Agony', MANA_STATE, STORM_STATE, MANA_SEQ, STORM_SEQ),
         cast_one(['Tendrils of Agony'], STORM_STATE, FINAL_STATE, STORM_SEQ, FINAL_SEQ),
-        LETHAL = true,
-        !;
+        LETHAL = true;
+        makemana_goal('Tendrils of Agony', START_STATE, MANA_STATE, START_SEQ, MANA_SEQ),
         cast_one(['Tendrils of Agony'], MANA_STATE, FINAL_STATE, MANA_SEQ, FINAL_SEQ),
         LETHAL = false
     ),
@@ -331,11 +373,6 @@ execute_combo(START_STATE, FINAL_STATE, START_SEQ, FINAL_SEQ, START_COMBO, FINAL
     make_mana_and_cast('Crop Rotation', START_STATE, ROTATE_STATE, START_SEQ, ROTATE_SEQ),
     activate_emergence_zone(ROTATE_STATE, EMERGE_STATE, ROTATE_SEQ, EMERGE_SEQ),
     execute_combo(EMERGE_STATE, FINAL_STATE, EMERGE_SEQ, FINAL_SEQ, START_COMBO.put(_{flash:true, followup: true, emerge: true}), FINAL_COMBO),
-    !;
-
-    % if Manamorphose is in hand, try to cast it before recursing
-    make_mana_and_cast('Manamorphose', START_STATE, MM_STATE, START_SEQ, MM_SEQ),
-    execute_combo(MM_STATE, FINAL_STATE, MM_SEQ, FINAL_SEQ, START_COMBO, FINAL_COMBO),
     !;
 
     % if we have flash and Beseech in hand, and Tendrils in deck, cast Beseech
@@ -409,6 +446,27 @@ execute_combo(START_STATE, FINAL_STATE, START_SEQ, FINAL_SEQ, START_COMBO, FINAL
     FINAL_COMBO = START_COMBO.put(_{kill:tendrils, damage:TOTAL_DAMAGE, lethal:LETHAL, fizzle: false, followup: true}),
     !;
 
+    % If we can cast Showdown, make mana and cast it, then try again unless we've done enough damage
+    showdown_mana(START_STATE, RED_STATE, START_SEQ, RED_SEQ),
+    make_mana_and_cast('Fateful Showdown', RED_STATE, SHOWDOWN_CAST_STATE, RED_SEQ, SHOWDOWN_CAST_SEQ),
+    state_hand(SHOWDOWN_CAST_STATE, SHOWDOWN_CAST_HAND),
+    length(SHOWDOWN_CAST_HAND, N),
+    update_hand(SHOWDOWN_CAST_STATE, [], SHOWDOWN_DISCARD_STATE),
+    draw(N, SHOWDOWN_DISCARD_STATE, SHOWDOWN_DRAW_STATE),
+    string_concat('Showdown draw/damage ', N, SHOWDOWN_DRAW_STEP),
+    append(SHOWDOWN_CAST_SEQ, [SHOWDOWN_DRAW_STEP], SHOWDOWN_DRAW_SEQ),
+    (D = START_COMBO.get(damage), !; D = 0),
+    UPDATED_DAMAGE is D + N,
+    (PREVIOUS_SHOWDOWNS = START_COMBO.get(n_showdowns), !; PREVIOUS_SHOWDOWNS = 0),
+    N_SHOWDOWNS is PREVIOUS_SHOWDOWNS + 1,
+    SHOWDOWN_COMBO = START_COMBO.put(_{kill:showdown, damage:UPDATED_DAMAGE, followup: true, showdown: true, n_showdowns: N_SHOWDOWNS}),
+    execute_combo(SHOWDOWN_DRAW_STATE, FINAL_STATE, SHOWDOWN_DRAW_SEQ, FINAL_SEQ, SHOWDOWN_COMBO, FINAL_COMBO);
+
+    % if Manamorphose is in hand, try to cast it before recursing
+    make_mana_and_cast('Manamorphose', START_STATE, MM_STATE, START_SEQ, MM_SEQ),
+    execute_combo(MM_STATE, FINAL_STATE, MM_SEQ, FINAL_SEQ, START_COMBO, FINAL_COMBO),
+    !;
+
     % if we can cast Valakut, make mana and then try with the new hand
     make_mana_and_cast('Valakut Awakening', START_STATE, VALAKUT_CAST_STATE, START_SEQ, VALAKUT_CAST_SEQ),
     state_hand(VALAKUT_CAST_STATE, VALAKUT_CAST_HAND),
@@ -424,19 +482,17 @@ execute_combo(START_STATE, FINAL_STATE, START_SEQ, FINAL_SEQ, START_COMBO, FINAL
     execute_combo(VALAKUT_DRAW_STATE, FINAL_STATE, VALAKUT_DRAW_SEQ, FINAL_SEQ, START_COMBO.put(_{valakut: true, followup: true}), FINAL_COMBO),
     !;
 
-    % If we can cast Showdown, make mana and cast it, then try again unless we've done enough damage
-    showdown_mana(START_STATE, RED_STATE, START_SEQ, RED_SEQ),
-    make_mana_and_cast('Fateful Showdown', RED_STATE, SHOWDOWN_CAST_STATE, RED_SEQ, SHOWDOWN_CAST_SEQ),
-    state_hand(SHOWDOWN_CAST_STATE, SHOWDOWN_CAST_HAND),
-    length(SHOWDOWN_CAST_HAND, N),
-    update_hand(SHOWDOWN_CAST_STATE, [], SHOWDOWN_DISCARD_STATE),
-    draw(N, SHOWDOWN_DISCARD_STATE, SHOWDOWN_DRAW_STATE),
-    string_concat('Showdown draw/damage ', N, SHOWDOWN_DRAW_STEP),
-    append(SHOWDOWN_CAST_SEQ, [SHOWDOWN_DRAW_STEP], SHOWDOWN_DRAW_SEQ),
-    (D = START_COMBO.get(damage), !; D = 0),
-    UPDATED_DAMAGE is D + N,
-    SHOWDOWN_COMBO = START_COMBO.put(_{kill:showdown, damage:UPDATED_DAMAGE, followup: true, showdown: true}),
-    execute_combo(SHOWDOWN_DRAW_STATE, FINAL_STATE, SHOWDOWN_DRAW_SEQ, FINAL_SEQ, SHOWDOWN_COMBO, FINAL_COMBO);
+    % if we can cast Brain Freze, cast it, track storm, and recurse
+    make_mana_and_cast('Brain Freeze', START_STATE, FREEZE_CAST_STATE, START_SEQ, FREEZE_CAST_SEQ),
+    state_storm(FREEZE_CAST_STATE, STORM),
+    (PREV_FREEZES = START_COMBO.get(n_freezes), !; PREV_FREEZES = 0),
+    (PREV_MILL = START_COMBO.get(mill), !; PREV_MILL = 0),
+    NEW_MILL is 3 * STORM,
+    MILL is PREV_MILL + NEW_MILL,
+    N_FREEZES is PREV_FREEZES + 1,
+    FREEZE_COMBO = START_COMBO.put(_{freeze: true, followup: true, n_freezes: N_FREEZES, mill: MILL}),
+    execute_combo(FREEZE_CAST_STATE, FINAL_STATE, FREEZE_CAST_SEQ, FINAL_SEQ, FREEZE_COMBO, FINAL_COMBO),
+    !;
 
     % if we can't do any of these things, we fizzle
     FINAL_COMBO = START_COMBO.put(_{fizzle: true, kill: none}).

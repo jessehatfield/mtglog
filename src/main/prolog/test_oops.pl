@@ -1,19 +1,24 @@
 load_oops :-
+    source_file(load_oops, Filename),
+    file_directory_name(Filename, Dir),
+    working_directory(_, Dir),
     consult('mana.pl'),
     consult('cards.pl'),
-    consult('oops.pl'),
-    consult('necro.pl').
+    consult('oops.pl').
 
 run_oops_tests :-
     load_oops,
+    debug,
+    use_module(library(prolog_stack)),
     fast_tests,
     slow_tests,
-    !.
+    format('Oops tests passed.\n', []).
 
 run_fast_tests :-
     load_oops,
-    fast_tests,
-    !.
+    debug,
+    use_module(library(prolog_stack)),
+    fast_tests.
 
 fast_tests :-
     time(test_spend),
@@ -76,9 +81,9 @@ test_hand_3 :-
     format("\nTest case 3: loss after a mulligan\n", []),
     HAND = ['Elvish Spirit Guide', 'Summoner\'s Pact', 'Dread Return', 'Simian Spirit Guide', 'Summoner\'s Pact', 'Undercity Informer', 'Chrome Mox'],
     LIBRARY = ['Narcomoeba', 'Narcomoeba', 'Narcomoeba', 'Narcomoeba', 'Elvish Spirit Guide', 'Thassa\'s Oracle', 'Cabal Therapy'],
+    not(hand_wins_(HAND, LIBRARY, [], 1, 0)),
     % Could only be a win if there were a second Dread Return
-    hand_wins_(HAND, ['Dread Return'|LIBRARY], [], 1, 0, 'Undercity Informer'),
-    not(hand_wins_(HAND, LIBRARY, [], 1, 0)).
+    hand_wins_(HAND, ['Dread Return'|LIBRARY], [], 1, 0, 'Undercity Informer').
 
 % Should be a win, but was originally flagged as a loss
 test_hand_4 :-
@@ -90,7 +95,7 @@ test_hand_4 :-
     H2 = ['Lotus Petal', 'Narcomoeba', 'Dark Ritual', 'Chrome Mox', 'Undercity Informer', 'Lotus Petal', 'Narcomoeba'],
     not(hand_wins_(H2, LIBRARY, [], 0, 0)).
 
-% Should be a win, can take over a minute
+% Should be a win, can take over a minute with a slow implementation
 test_hand_5 :-
     format("\nTest case 5: win with Summoner's Pact to filter and LED to activate Informer (many useless branches)\n", []),
     LIBRARY = ['UNKNOWN', 'Narcomoeba', 'Narcomoeba', 'Narcomoeba', 'Dread Return', 'Elvish Spirit Guide', 'Thassa\'s Oracle', 'Wild Cantor'],
@@ -99,6 +104,7 @@ test_hand_5 :-
 
 % Hand is a loss, but can take time because of multiple pacts, which could generate the proper CMC
 % AND the proper colors but not both
+% almost 5 minutes at last test
 test_hand_6 :-
     format("\nTest case 6: loss with multiple Summoner's Pacts, may take time if inefficiently implemented\n", []),
     HAND = ['Lion\'s Eye Diamond', 'Balustrade Spy', 'Summoner\'s Pact', 'Summoner\'s Pact', 'Dread Return', 'Elvish Spirit Guide', 'Summoner\'s Pact'],
@@ -107,6 +113,7 @@ test_hand_6 :-
     not(hand_wins_(HAND, LIBRARY, [], 1, 0)).
 
 % Should be a simple loss if protection is required, but took several minutes in test run
+% 10 minutes at last test
 test_hand_7 :-
     format("\nTest case 7: simple Informer win with non-castable Thoughtseize\n", []),
     LIBRARY = ['UNKNOWN', 'Narcomoeba', 'Narcomoeba', 'Narcomoeba', 'Dread Return', 'Elvish Spirit Guide', 'Thassa\'s Oracle'],

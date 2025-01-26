@@ -14,14 +14,40 @@ makemana(NAME, START_STATE, END_STATE, PRIOR_SEQUENCE, TOTAL_SEQUENCE) :-
 
 storm_up(TARGET_STORM, _, START_STATE, START_STATE, PRIOR_SEQUENCE, PRIOR_SEQUENCE) :-
     state_storm(START_STATE, START_STORM),
-    START_STORM >= TARGET_STORM.
+    START_STORM >= TARGET_STORM,
+    !.
 storm_up(TARGET_STORM, STORM_CARD, START_STATE, END_STATE, PRIOR_SEQUENCE, TOTAL_SEQUENCE) :-
+    cast_in_order([['Lotus Petal'], ['Chrome Mox'], ['Summoner\'s Pact']], START_STATE, STATE2, PRIOR_SEQUENCE, SEQ2),
+    state_storm(STATE2, STORM2),
+    (
+        STORM2 >= TARGET_STORM,
+        END_STATE = STATE2,
+        TOTAL_SEQUENCE = SEQ2,
+        !;
+        storm_up_general(TARGET_STORM, STORM_CARD, STATE2, END_STATE, SEQ2, TOTAL_SEQUENCE)
+    ).
+storm_up_general(TARGET_STORM, _, START_STATE, START_STATE, PRIOR_SEQUENCE, PRIOR_SEQUENCE) :-
+    state_storm(START_STATE, START_STORM),
+    START_STORM >= TARGET_STORM,
+    !.
+storm_up_general(TARGET_STORM, STORM_CARD, START_STATE, END_STATE, PRIOR_SEQUENCE, TOTAL_SEQUENCE) :-
+    prune_storm(TARGET_STORM, START_STATE),
+    card_property(STORM_CARD, default, cost, TARGET_COST),
+    total(TARGET_COST, TARGET_CMC),
     state_storm(START_STATE, START_STORM),
     START_STORM < TARGET_STORM,
-    in_hand(CARD_NAME, START_STATE),
+    state_hand(START_STATE, START_HAND),
+    list_to_set(START_HAND, UNIQUE_CARDS),
+    member(CARD_NAME, UNIQUE_CARDS),
     cast_from_hand(CARD_NAME, START_STATE, CAST_STATE, PRIOR_SEQUENCE, CAST_SEQUENCE),
     in_hand(STORM_CARD, CAST_STATE),
-    storm_up(TARGET_STORM, STORM_CARD, CAST_STATE, END_STATE, CAST_SEQUENCE, TOTAL_SEQUENCE).
+    prune_(TARGET_CMC, CAST_STATE, CAST_SEQUENCE),
+    storm_up_general(TARGET_STORM, STORM_CARD, CAST_STATE, END_STATE, CAST_SEQUENCE, TOTAL_SEQUENCE).
+
+storm_up_and_cast(TARGET_STORM, STORM_CARD, START_STATE, END_STATE, START_SEQ, END_SEQ) :-
+    storm_up(TARGET_STORM, STORM_CARD, START_STATE, STORM_STATE, START_SEQ, STORM_SEQ),
+    makemana_goal(STORM_CARD, STORM_STATE, MANA_STATE, STORM_SEQ, MANA_SEQ),
+    cast_one([STORM_CARD], MANA_STATE, END_STATE, MANA_SEQ, END_SEQ).
 
 cast_from_hand(NAME,
         [START_HAND, START_BOARD, START_MANA, START_GY, START_STORM, START_DECK, START_PROTECTION],
@@ -137,7 +163,9 @@ makemana_cost_goal(TARGET_COST, TARGET_CARDS,
     % Verify that we could theoretically get the mana, colors, and required cards (if any)
     all_member_or_tutor(TARGET_CARDS, START_HAND, START_DECK),
     total(TARGET_COST, TARGET_CMC),
-    prune(TARGET_CMC, START_HAND, START_BOARD, START_GY, START_MANA),
+    %zone_type_count(PRIOR_SEQUENCE, land, 1, LAND_DROPS),
+    zone_type_count(PRIOR_SEQUENCE, land, LAND_DROPS),
+    prune(TARGET_CMC, START_HAND, START_BOARD, START_GY, START_DECK, START_MANA, LAND_DROPS),
     total_color_gain(START_HAND, COLORED_MANA_HAND),
     (
         addmana(COLORED_MANA_HAND, START_MANA, COLORED_MANA_MAX),
@@ -213,7 +241,7 @@ make_mana_and_cast(TARGET_CARD_NAME, START_STATE, END_STATE, PRIOR_SEQ, TOTAL_SE
 %    list_to_assoc(TARGET_DATA, TARGET_CARD),
 %    get_assoc(cost, TARGET_CARD, TARGET_MANA),
 %    total(TARGET_MANA, TARGET_CMC),
-%    prune(TARGET_CMC, START_HAND, START_BOARD, START_GY, START_MANA),
+%    prune(TARGET_CMC, START_HAND, START_BOARD, START_GY, START_DECK, START_MANA),
 %    format('goal: make ~d to cast ~s :: ~w\n', [TARGET_CMC, TARGET_CARD_NAME, START_STATE]),
 %    % Then play another card and recurse
 %    member(NAME, START_HAND),
@@ -254,18 +282,39 @@ update_storm([H, B, M, G, _, D, P], S, [H, B, M, G, S, D, P]).
 update_deck( [H, B, M, G, S, _], D, [H, B, M, G, S, D]).
 update_deck( [H, B, M, G, S, _, P], D, [H, B, M, G, S, D, P]).
 
+apply_to_hand(FUNCTION, STATE1, STATE2) :-
+    state_hand(STATE1, HAND1),
+    call(FUNCTION, HAND1, HAND2),
+    update_hand(STATE1, HAND2, STATE2).
+
 % Require that the maximum sum of mana is at least a certain amount, even in the
 % best situations for the various cards.
-prune(TOTAL_MANA, _, _, _) :- TOTAL_MANA < 1, !.
-prune(TOTAL_MANA, [H | T], BOARD, GY) :-
+prune(TOTAL_MANA, _, _, _, _, _) :- TOTAL_MANA < 1, !.
+prune(TOTAL_MANA, [H | T], BOARD, GY, LIBRARY, 0) :-
+    % base case: target already reached.
     TOTAL_MANA < 1, !;
-    maxnet(H, [H|T], BOARD, GY, NET),
+    % recursive case (play land)
+    istype(H, land),
+    maxnet(H, [H|T], BOARD, GY, LIBRARY, NET),
     REMAINDER is TOTAL_MANA - NET,
-    prune(REMAINDER, T, [H|BOARD], [H|GY]).
-prune(TOTAL_MANA, HAND, BOARD, GY, FLOATING) :-
+    prune(REMAINDER, T, [H|BOARD], GY, LIBRARY, 1), !.
+prune(TOTAL_MANA, [H | T], BOARD, GY, LIBRARY, LANDS) :-
+    % base case: target already reached.
+    TOTAL_MANA < 1, !;
+    % recursive case (play nonland)
+    not(istype(H, land)),
+    maxnet(H, [H|T], BOARD, GY, LIBRARY, NET),
+    REMAINDER is TOTAL_MANA - NET,
+    prune(REMAINDER, T, [H|BOARD], [H|GY], LIBRARY, LANDS), !;
+    % recursive case (skip): if it's a land, consider skipping it
+    istype(H, land),
+    prune(TOTAL_MANA, T, BOARD, GY, LIBRARY, LANDS), !.
+
+prune(TOTAL_MANA, HAND, BOARD, GY, LIBRARY, FLOATING, LANDS) :-
     total(FLOATING, CMC),
     DIFFERENCE is TOTAL_MANA - CMC,
-    prune(DIFFERENCE, HAND, BOARD, GY).
+    prune(DIFFERENCE, HAND, BOARD, GY, LIBRARY, LANDS).
+
 % Require that the total possible protection is at least a certain number
 prune_protection(MIN_PROTECTION, []) :-
    MIN_PROTECTION < 1.
@@ -275,6 +324,15 @@ prune_protection(MIN_PROTECTION, [H|T]) :-
     PROTECTION is max(IS_PROTECTION, FIND_PROTECTION),
     MIN_REMAINING is MIN_PROTECTION - PROTECTION,
     prune_protection(MIN_REMAINING, T).
+
+prune_storm(REQUIRED, STATE) :-
+    state_hand(STATE, HAND),
+    state_storm(STATE, CURRENT_STORM),
+    map_list_to_pairs(card_storm, HAND, PAIRS),
+    pairs_keys(PAIRS, STORM_LIST),
+    total(STORM_LIST, HAND_STORM),
+    MAX_STORM is CURRENT_STORM + HAND_STORM,
+    MAX_STORM >= REQUIRED.
 
 color_gain(NAME, GAIN) :-
     max_yield(NAME, [YW, YU, YB, YR, YG, YC | Y_REST]),
@@ -505,7 +563,6 @@ add_to_board(CARDNAME, [H, B, M, G, S, D, P], [H, [CARDNAME|B], M, G, S, D, P]).
 add_to_grave(CARDNAME, [H, B, M, G, S, D, P], [H, B, M, [CARDNAME|G], S, D, P]) :- not(exile_grave([H, B, M, G, S, D, P])).
 add_to_grave(_, STATE, STATE) :- exile_grave(STATE).
 add_to_deck(CARDNAME, [H, B, M, G, S, D, P], [H, B, M, G, S, [CARDNAME|D], P]).
-prune_(MANA, [H, B, M, G, _, _, _]) :- prune(MANA, H, B, G, M).
 increment_storm([H, B, M, G, S1, D, P], [H, B, M, G, S2, D, P]) :- S2 is S1 + 1.
 deck_to_board(CARDNAME, STATE1, STATE3) :- remove_from_deck(CARDNAME, STATE1, STATE2), add_to_board(CARDNAME, STATE2, STATE3).
 deck_to_grave(CARDNAME, STATE1, STATE3) :- remove_from_deck(CARDNAME, STATE1, STATE2), add_to_grave(CARDNAME, STATE2, STATE3).
@@ -513,6 +570,13 @@ hand_to_grave(CARDNAME, STATE1, STATE3) :- remove_from_hand(CARDNAME, STATE1, ST
 board_to_grave(CARDNAME, STATE1, STATE3) :- remove_from_board(CARDNAME, STATE1, STATE2), add_to_grave(CARDNAME, STATE2, STATE3).
 grave_to_board(CARDNAME, STATE1, STATE3) :- remove_from_grave(CARDNAME, STATE1, STATE2), add_to_board(CARDNAME, STATE2, STATE3).
 hand_to_board(CARDNAME, STATE1, STATE3) :- remove_from_hand(CARDNAME, STATE1, STATE2), add_to_board(CARDNAME, STATE2, STATE3).
+
+prune_(MANA, [H, B, M, G, _, L, _]) :-
+    zone_type_count(B, land, LANDS),
+    prune(MANA, H, B, G, L, M, LANDS).
+prune_(MANA, [H, B, M, G, _, L, _], SEQ) :-
+    zone_type_count(SEQ, land, LANDS),
+    prune(MANA, H, B, G, L, M, LANDS).
 
 add_mana_(STATE1, M, STATE2) :-
     state_mana(STATE1, M1),

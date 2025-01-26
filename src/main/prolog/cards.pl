@@ -1,4 +1,5 @@
 % To implement:
+% Jack-o'-Lantern
 % Land Grant
 % make Manamorphose draw a card (doesn't it already?)
 % Wish for mana?
@@ -109,7 +110,8 @@ card('Dark Ritual', [
     types  - [instant],
     spell  - 1,
     board  - 0,
-    gy     - 1
+    gy     - 1,
+    priority - 10
 ]).
 card('Cabal Ritual', [
     cost   - [0, 0, 1, 0, 0, 0, 1],
@@ -442,7 +444,7 @@ card(NAME, [
 card('Summoner\'s Pact', [
     cost   - [0, 0, 0, 0, 0, 0, 0],
     yield  - [0, 0, 0, 0, 0, 0, 0],
-    net    - 1,
+    net    - 0,
     colors - [g],
     types  - [instant],
     spell  - 1,
@@ -621,8 +623,9 @@ card(NAME, [
     types  - [land|EXTRA_TYPES],
     spell  - 0,
     board  - 1,
-    gy     - 0
-]) :- land(NAME, YIELD, EXTRA_TYPES).
+    gy     - 0,
+    priority - PRIORITY
+]) :- land(NAME, YIELD, EXTRA_TYPES, PRIORITY).
 
 %card(NAME, DATA) :-
 %    (
@@ -753,6 +756,16 @@ card('Tendrils of Agony', [
     board  - 0,
     gy     - 1
 ]).
+card('Brain Freeze', [
+    cost   - [0, 1, 0, 0, 0, 0, 1],
+    yield  - [0, 0, 0, 0, 0, 0, 0],
+    net    - 0,
+    colors - [u],
+    types  - [instant],
+    spell  - 1,
+    board  - 0,
+    gy     - 1
+]).
 
 % Cards used in the combo
 
@@ -761,6 +774,16 @@ card('Narcomoeba', [
     yield  - [0, 0, 0, 0, 0, 0, 0],
     net    - 0,
     colors - [u],
+    types  - [creature],
+    spell  - 1,
+    board  - 1,
+    gy     - 0
+]).
+card('Poxwalkers', [
+    cost   - [0, 0, 1, 0, 0, 0, 2],
+    yield  - [0, 0, 0, 0, 0, 0, 0],
+    net    - 0,
+    colors - [b],
     types  - [creature],
     spell  - 1,
     board  - 1,
@@ -1075,6 +1098,17 @@ card('Defense Grid', [
     gy     - 0,
     protection - 1
 ]).
+card('Into the Flood Maw', [
+    cost   - [0, 1, 0, 0, 0, 0, 0],
+    yield  - [0, 0, 0, 0, 0, 0, 0],
+    net    - 0,
+    colors - [u],
+    types  - [instant],
+    spell  - 1,
+    board  - 0,
+    gy     - 1,
+    protection - 1
+]).
 
 % Cards we don't directly use but might search for for Chrome Mox or otherwise use
 card('Spiritmonger', [
@@ -1118,6 +1152,16 @@ card('Memory\'s Journey', [
     types  - [instant],
     spell  - -1,
     board  - 0,
+    gy     - 0
+]).
+card('Jack-o\'-Lantern', [
+    cost   - [0, 0, 0, 0, 0, 0, 1],
+    yield  - [0, 0, 0, 0, 0, 0, 0],
+    net    - 0,
+    colors - [],
+    types  - [artifact],
+    spell  - 1,
+    board  - 1,
     gy     - 0
 ]).
 
@@ -1211,6 +1255,11 @@ carddata_key_value_default([HKEY - _ | T], KEY, VALUE, DEFAULT) :-
     carddata_key_value_default(T, KEY, VALUE, DEFAULT).
 carddata_key_value_default([], _, DEFAULT, DEFAULT).
 
+card_priority(CARDNAME, PRIORITY) :-
+    card_key_value_default(CARDNAME, priority, PRIORITY, 100).
+card_storm(CARDNAME, STORM) :-
+    card_key_value_default(CARDNAME, spell, STORM, 0).
+
 % Mark which cards need to be cast at the start or end of the sequence
 castfirst('Chancellor of the Annex').
 castfirst('Chancellor of the Tangle').
@@ -1234,16 +1283,21 @@ landspell('Sea Gate Restoration', u, [0, 1, 0, 0, 0, 0, 0]).
 landspell('Agadeem\'s Awakening', b, [0, 0, 1, 0, 0, 0, 0]).
 landspell('Shatterskull Smashing', r, [0, 0, 0, 1, 0, 0, 0]).
 landspell('Turntimber Symbiosis', g, [0, 0, 0, 0, 1, 0, 0]).
+landspell('Fell the Profane', b, [0, 0, 1, 0, 0, 0, 0]).
 landspell('Boggart Trawler', b, [0, 0, 1, 0, 0, 0, 0]).
 landspell('Sink into Stupor', u, [0, 1, 0, 0, 0, 0, 0]).
+landspell('Hydroelectric Specimen', u, [0, 1, 0, 0, 0, 0, 0]).
+landspell('Disciple of Freyalise', g, [0, 0, 0, 0, 1, 0, 0]).
 
 % Concrete instantiations of the land pattern
+land(NAME, YIELD, EXTRA_TYPES, 100) :- land(NAME, YIELD, EXTRA_TYPES).
+
+land('Emergence Zone', [0, 0, 0, 0, 0, 1, 0], [], 2).
+land('Emergence Zone_untapped', [0, 0, 0, 0, 0, 0, 0], []).
+
 land('Gemstone Mine', [0, 0, 0, 0, 0, 0, 1], []).
 land('Undiscovered Paradise', [0, 0, 0, 0, 0, 0, 1], []).
 land('Vault of Whispers', [0, 0, 1, 0, 0, 0, 0], [artifact]).
-
-land('Emergence Zone', [0, 0, 0, 0, 0, 1, 0], []).
-land('Emergence Zone_untapped', [0, 0, 0, 0, 0, 0, 0], []).
 
 % Concrete instantiations of the free permanent pattern
 free_permanent('Shield Sphere', [artifact, creature], []).
@@ -1254,6 +1308,7 @@ free_permanent('Memnite', [artifact, creature], []).
 % Special rules for casting / making mana
 
 specialcast(NAME, YIELD, OLD_STATE, NEW_STATE, _, EXTRA_STEPS) :-
+    NAME == 'Chrome Mox', cmox(YIELD, OLD_STATE, NEW_STATE, EXTRA_STEPS);
     NAME == 'Culling the Weak', culling(YIELD, OLD_STATE, NEW_STATE, EXTRA_STEPS);
     NAME == 'Sacrifice', sacrifice(YIELD, OLD_STATE, NEW_STATE, EXTRA_STEPS);
     NAME == 'Burnt Offering', burnt_offering(YIELD, OLD_STATE, NEW_STATE, EXTRA_STEPS);
@@ -1261,7 +1316,6 @@ specialcast(NAME, YIELD, OLD_STATE, NEW_STATE, _, EXTRA_STEPS) :-
 specialcast(NAME, YIELD, OLD_STATE, NEW_STATE, _, []) :-
     NAME == 'Lion\'s Eye Diamond', led(YIELD, OLD_STATE, NEW_STATE);
     NAME == 'Cabal Ritual', cabal(YIELD, OLD_STATE, NEW_STATE);
-    NAME == 'Chrome Mox', cmox(YIELD, OLD_STATE, NEW_STATE);
     NAME == 'Mox Opal', opal(YIELD, OLD_STATE, NEW_STATE);
     NAME == 'Rite of Flame', rite(YIELD, OLD_STATE, NEW_STATE);
     NAME == 'Chancellor of the Tangle', chancellor(YIELD, OLD_STATE, NEW_STATE);
@@ -1315,16 +1369,23 @@ cabal([0,0,5,0,0,0,0],
 
 cmox(YIELD,
     [START_HAND, START_BOARD, START_MANA, START_GY, START_STORM, START_DECK, PROTECTION],
-    [END_HAND, END_BOARD, END_MANA, END_GY, END_STORM, END_DECK, PROTECTION]) :-
+    [END_HAND, END_BOARD, END_MANA, END_GY, END_STORM, END_DECK, PROTECTION],
+    [IMPRINT_STEP]) :-
     normalcast('Chrome Mox', _,
         [START_HAND, START_BOARD, START_MANA, START_GY, START_STORM, START_DECK, PROTECTION],
         [NEXT_HAND, END_BOARD, END_MANA, END_GY, END_STORM, END_DECK, PROTECTION]),
-    % Imprint a card:
-    remove_first(IMPRINT, NEXT_HAND, END_HAND),
-    card(IMPRINT, DATA),
-    list_to_assoc(DATA, CARD),
-    get_assoc(colors, CARD, COLORS),
-    chrome_color(COLORS, YIELD).
+        %(
+        % Imprint a card:
+        remove_first(IMPRINT, NEXT_HAND, END_HAND),
+        card(IMPRINT, DATA),
+        list_to_assoc(DATA, CARD),
+        get_assoc(colors, CARD, COLORS),
+        chrome_color(COLORS, YIELD),
+        atom_concat('imprint ', IMPRINT, IMPRINT_STEP).
+        % or don't:
+        %YIELD = [0, 0, 0, 0, 0, 0, 0],
+        %IMPRINT_STEP = 'no imprint'
+        %).
 chrome_color([H|T], YIELD) :-
     chrome_color(H, YIELD);
     chrome_color(T, YIELD).
@@ -1406,7 +1467,7 @@ burnt_offering([0, 0, B, R, 0, 0, 0], START_STATE, END_STATE, STEPS) :-
 crop_rotation(YIELD, START_STATE, END_STATE, [SAC_STEP, FIND_STEP]) :-
     normalcast('Crop Rotation', _, START_STATE, CAST_STATE),
     sacrifice_land(_, CAST_STATE, SAC_STATE, SAC_STEP),
-    land(TARGET, NORMAL_YIELD, _),
+    land(TARGET, NORMAL_YIELD, _, _),
     remove_from_deck(TARGET, SAC_STATE, FIND_STATE),
     atom_concat('find ', TARGET, FIND_STEP),
     (
@@ -1647,7 +1708,10 @@ isnottype(CARDNAME, TYPE) :-
     card(CARDNAME, DATA),
     list_to_assoc(DATA, CARD),
     get_assoc(types, CARD, TYPES),
-    not_member(TYPE, TYPES).
+    not_member(TYPE, TYPES),
+    !.
+isnottype(CARDNAME, _) :-
+    not(card(CARDNAME, _)).
 metalcraft_possible(HAND, BOARD) :-
     append(HAND, BOARD, EVERYTHING),
     type_threshold(3, artifact, EVERYTHING).
@@ -1676,12 +1740,13 @@ type_max(N, TYPE, [CARDNAME|T]) :-
     type_max(M, TYPE, T).
 zone_type_count([], _, 0).
 zone_type_count([H|T], TYPE, COUNT) :-
-    zone_type_count(T, TYPE, N),
     istype(H, TYPE),
-    COUNT is N+1.
+    zone_type_count(T, TYPE, N),
+    COUNT is N+1,
+    !.
 zone_type_count([H|T], TYPE, COUNT) :-
-    zone_type_count(T, TYPE, COUNT),
-    isnottype(H, TYPE).
+    isnottype(H, TYPE),
+    zone_type_count(T, TYPE, COUNT).
 
 % General rules for casting
 
@@ -1736,7 +1801,7 @@ maxnet(NAME, MAX) :-
     get_assoc(net, CARD, MAX), !;
     MAX = 0.
 
-maxnet(NAME, HAND, BOARD, GY, MAX) :-
+maxnet(NAME, HAND, BOARD, GY, LIBRARY, MAX) :-
     % easy to get max yield for rite of flame
     NAME == 'Rite of Flame',
     count('Rite of Flame', GY, IN_GY),
@@ -1750,6 +1815,11 @@ maxnet(NAME, HAND, BOARD, GY, MAX) :-
     % assume max plausible CMC is 4 for Sacrifice/Burnt Offering
     (NAME == 'Sacrifice'; NAME == 'Burnt Offering'),
     MAX is 3,
+    !;
+    % for Summoner's Pact, check for specific green creatures in library
+    NAME == 'Summoner\'s Pact',
+    (member('Elvish Spirit Guide', LIBRARY); member('Tinder Wall', LIBRARY)),
+    MAX is 1,
     !;
     % for everything else just use the base number
     maxnet(NAME, MAX).

@@ -230,6 +230,21 @@
                         </systemProperties>
                     </configuration>
                 </execution>
+                <execution>
+                    <id>test-prolog</id>
+                    <goals>
+                        <goal>exec</goal>
+                    </goals>
+                    <configuration>
+                        <executable>bash</executable>
+                        <arguments>
+                            <argument>run-prolog-tests.sh</argument>
+                        </arguments>
+                        <environmentVariables>
+                            <PROLOG_SRC_DIR>${project.basedir}/src/main/prolog</PROLOG_SRC_DIR>
+                        </environmentVariables>
+                    </configuration>
+                </execution>
             </executions>
         </plugin>
       </plugins>
@@ -258,6 +273,16 @@
         <configuration>
           <jvmArguments>-Dprolog.src.dir=${project.basedir}/src/main/prolog</jvmArguments>
         </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>exec-maven-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>test-prolog</id>
+            <phase>integration-test</phase>
+          </execution>
+        </executions>
       </plugin>
     </plugins>
 

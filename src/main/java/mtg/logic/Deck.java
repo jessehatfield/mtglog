@@ -252,5 +252,11 @@ public class Deck implements Serializable {
             }
             return cardsInLibrary;
         }
+
+        public String[] getLibrary(final MersenneTwisterFast rng) {
+            String[] cardsInLibrary = getLibrary();
+            shuffle(cardsInLibrary, rng);
+            return cardsInLibrary;
+        }
     }
 }

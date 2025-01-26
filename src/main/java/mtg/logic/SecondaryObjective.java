@@ -8,10 +8,11 @@ public class SecondaryObjective implements Serializable {
     private String name;
     private String objective;
     private String filter;
+    private boolean invert = false;
 
     public String getName() {
-                          return name;
-                                      }
+        return name;
+    }
 
     public void setName(final String name) {
         this.name = name;
@@ -45,5 +46,19 @@ public class SecondaryObjective implements Serializable {
      */
     public void setFilter(final String filter) {
         this.filter = filter;
+    }
+
+    /**
+     * @return true to invert success and failure
+     */
+    public boolean isInvert() {
+        return invert;
+    }
+
+    /**
+     * @param invert Whether passing the filter should mean failing this objective
+     */
+    public void setInvert(final boolean invert) {
+        this.invert = invert;
     }
 }

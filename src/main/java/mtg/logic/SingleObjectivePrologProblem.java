@@ -40,6 +40,7 @@ public class SingleObjectivePrologProblem implements Serializable, PrologProblem
     private Map<String, Object> params;
     private Map<String, List<String>> outputs;
     private String filter;
+    private boolean invertCondition;
 
     @Override
     public String getName() {
@@ -141,6 +142,20 @@ public class SingleObjectivePrologProblem implements Serializable, PrologProblem
     }
 
     /**
+     * @return if true, the filter will identify failure cases instead of successes
+     */
+    public boolean isInvertCondition() {
+        return invertCondition;
+    }
+
+    /**
+     * @param failCondition if true, the filter will identify failure cases instead of successes
+     */
+    public void setInvertCondition(final boolean invertCondition) {
+        this.invertCondition = invertCondition;
+    }
+
+    /**
      * Serialize a problem specification as a YAML file.
      * @return a string specification of the problem.
      */
@@ -162,6 +177,9 @@ public class SingleObjectivePrologProblem implements Serializable, PrologProblem
      *   serumPowderPredicate (string): name of prolog predicate to check whether a hand can safely Serum Powder
      *   filter (string): name of boolean output property that, if false, indicates a result should be treated as a
      *                    failure, i.e. allows a success criterion that isn't considered during mulligans
+     *   invertCondition (boolean, default false): if true, flips the filter to be a failure
+     *                    condition instead, i.e. games will fail without mulliganing if the
+     *                    condition returns true
      * @param filename Name of YAML file specifying the problem
      * @return The corresponding hand evaluation problem specification
      */
@@ -185,6 +203,9 @@ public class SingleObjectivePrologProblem implements Serializable, PrologProblem
      *   serumPowderPredicate (string): name of prolog predicate to check whether a hand can safely Serum Powder
      *   filter (string): name of boolean output property that, if false, indicates a result should be treated as a
      *                    failure, i.e. allows a success criterion that isn't considered during mulligans
+     *   invertCondition (boolean, default false): if true, flips the filter to be a failure
+     *                    condition instead, i.e. games will fail without mulliganing if the
+     *                    condition returns true
      * @param is Input stream for reading the YAML specification of the problem
      * @return The corresponding hand evaluation problem specification
      */

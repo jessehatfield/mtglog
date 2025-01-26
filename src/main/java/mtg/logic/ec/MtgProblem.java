@@ -40,6 +40,8 @@ public class MtgProblem extends StochasticProblem {
     private PrologProblem problem;
     private int handLogNum = -1;
     private String adaptive;
+    private int progressFraction = 20;
+    private int timeoutMs = 0;
 
     public static final String PROLOG_SRC_PROPERTY = "prolog.src.dir";
 
@@ -48,6 +50,8 @@ public class MtgProblem extends StochasticProblem {
     public static final String P_N_GAMES = "games";
     public static final String P_HAND_LOG = "log-hands";
     public static final String P_ADAPT = "adapt-sampling";
+    public static final String P_PROGRESS_FRACTION = "progress-fraction";
+    public static final String P_TIMEOUT_MS = "timeout-ms";
 
     public static final String ADAPTIVE_CATCHUP = "catchup";
     public static final String ADAPTIVE_GENERATION_SQRT = "sqrt-gen";
@@ -89,13 +93,7 @@ public class MtgProblem extends StochasticProblem {
         final SingleObjectivePrologProblem singleObjective = problem.getObjectives().get(0);
         final int trials = trialsInd(newTrials, expectedMinTrials, ind);
         final Results results = evaluateDeck(singleObjective, deck, trials, state.random[threadnum]);
-        final double f;
-        if (singleObjective.getFilter() == null) {
-            f = results.getPSuccess();
-        } else {
-            f = results.getP(singleObjective.getFilter());
-        }
-        return f;
+        return results.getP(singleObjective);
     }
 
     /**
@@ -116,17 +114,13 @@ public class MtgProblem extends StochasticProblem {
         final int trials = trialsInd(newTrials, expectedMinTrials, ind);
         for (final SingleObjectivePrologProblem objective : objectives) {
             final Results objectiveResults = evaluateDeck(objective, deck, trials, state.random[threadnum]);
-            if (objective.getFilter() == null) {
-                results[i] = objectiveResults.getPSuccess();
-            } else {
-                results[i] = objectiveResults.getP(objective.getFilter());
-            }
+            results[i] = objectiveResults.getP(objective);
             resultsMap.put(objective.getName(), objectiveResults);
             i++;
         }
         for (final SecondaryObjective secondaryObjective : secondaryObjectives) {
             final Results mainResults = resultsMap.get(secondaryObjective.getObjective());
-            results[i] = mainResults.getP(secondaryObjective.getFilter());
+            results[i] = mainResults.getP(secondaryObjective);
             i++;
         }
         return results;
@@ -169,6 +163,10 @@ public class MtgProblem extends StochasticProblem {
             state.output.fatal("Doesn't understand adaptive sample size type",
                             base.push(P_ADAPT), def.push(P_ADAPT));
         }
+        progressFraction = state.parameters.getIntWithDefault(
+                base.push(P_PROGRESS_FRACTION), def.push(P_PROGRESS_FRACTION), 0);
+        timeoutMs = state.parameters.getIntWithDefault(
+                base.push(P_TIMEOUT_MS), def.push(P_TIMEOUT_MS), 0);
         final Parameter specA = base.push(P_PROBLEM_SPEC);
         final Parameter specB = def.push(P_PROBLEM_SPEC);
         try {
@@ -223,6 +221,7 @@ public class MtgProblem extends StochasticProblem {
     private void initProlog(final EvolutionState state) {
         prolog = new PrologEngine(prologSrcDir);
         prolog.setProblem(problem);
+        prolog.setTimeout(timeoutMs);
         if (state != null && handLogNum >= 0) {
             prolog.addCallback((h, r) -> state.output.println(getLogMessage(h, r), handLogNum));
         }
@@ -237,11 +236,14 @@ public class MtgProblem extends StochasticProblem {
                                  final Deck deck,
                                  final int n,
                                  final MersenneTwisterFast rng) {
-        int interval = n < 20 ? 0 : n / 20;
+        int interval = progressFraction <= 0 ? 0 : (n < progressFraction ? 0 : n / progressFraction);
         return prolog.simulateGames(objective, deck, n, rng, interval);
     }
 
-    private Results evaluateDeckExhaustive(final SingleObjectivePrologProblem objective, final Deck deck) {
+    private Results evaluateDeckExhaustive(
+            final SingleObjectivePrologProblem objective,
+            final Deck deck,
+            final MersenneTwisterFast rng) {
         int n = (int) EnumeratedHands.numUniqueHands(deck, objective.getHandSize());
         final EnumeratedHands allHands = new EnumeratedHands(deck, objective.getHandSize());
         int interval = n < 20 ? 0 : (n < 20000 ? n / 20 : 1000);
@@ -253,23 +255,24 @@ public class MtgProblem extends StochasticProblem {
             }
         });
         System.out.println("Evaluating all " + n + " possible hands...");
-        return prolog.testHands(objective, deck, allHands, interval);
+        return prolog.testHands(objective, deck, allHands, interval, rng);
     }
 
     private void printResults(final SingleObjectivePrologProblem objective,
                               final Results results) {
         if (objective.getFilter() != null) {
             final String prop = objective.getFilter();
-            System.out.println("    " + results.getNWithProperty(prop) + " successes (stddev="
+            final String matches = objective.isInvertCondition() ? "failures" : "successes";
+            System.out.println("    " + results.getNWithProperty(prop) + " " + matches + " (stddev="
                     + results.getStdDev(prop) + " ; p="
                     + results.getP(prop) + ")");
         }
-        System.out.println("    " + results.getNSuccesses() + " wins (stddev="
+        System.out.println("    " + results.getNSuccesses() + " successes (stddev="
                 + results.getStdDevSuccesses() + " ; p="
                 + results.getPSuccess() + ")");
         for (final String booleanVar : objective.getBooleanOutputs()) {
             System.out.println("    " + results.getNWithProperty(booleanVar)
-                    + " wins with property '" + booleanVar
+                    + " successes with property '" + booleanVar
                     + "' (stddev=" + results.getStdDev(booleanVar)
                     + " ; p=" + results.getP(booleanVar) + ")");
         }
@@ -277,14 +280,14 @@ public class MtgProblem extends StochasticProblem {
             final Map<String, Integer> distribution = results.getValueDistribution(categoricalVar);
             for (final Map.Entry<String, Integer> entry : distribution.entrySet()) {
                 System.out.println("    " + entry.getValue()
-                        + " wins with " + categoricalVar
+                        + " successes with " + categoricalVar
                         + " == " + entry.getKey());
             }
         }
         final int nMull = results.getNWithProperty("mulligan");
         final double avgMulls = results.getPropertySum("nMulligans") / ((double) nMull);
         System.out.println("    " + nMull
-                + " wins with at least one mulligan (stddev="
+                + " successes with at least one mulligan (stddev="
                 + results.getStdDev("mulligan")
                 + " ; p=" + results.getP("mulligan")
                 + "), avg # in those games: " + avgMulls + ")");
@@ -292,7 +295,7 @@ public class MtgProblem extends StochasticProblem {
         if (nPowder > 0) {
             final double avgPowders = results.getPropertySum("nPowders") / ((double) nPowder);
             System.out.println("    " + nPowder
-                    + " wins with at least one Serum Powder (stddev="
+                    + " successes with at least one Serum Powder (stddev="
                     + results.getStdDev("powder")
                     + " ; p=" + results.getP("powder")
                     + "), avg # in those games: " + avgPowders + ")");
@@ -301,11 +304,10 @@ public class MtgProblem extends StochasticProblem {
 
     private void printResults(final SecondaryObjective secondaryObjective,
                               final Results mainResults) {
-        final String prop = secondaryObjective.getFilter();
         if (secondaryObjective.getFilter() != null) {
-            System.out.println("    " + mainResults.getNWithProperty(prop) + " successes (stddev="
-                    + mainResults.getStdDev(prop) + " ; p="
-                    + mainResults.getP(prop) + ")");
+            System.out.println("    " + mainResults.getNWithProperty(secondaryObjective) + " successes (stddev="
+                    + mainResults.getStdDev(secondaryObjective) + " ; p="
+                    + mainResults.getP(secondaryObjective) + ")");
         }
     }
 
@@ -333,6 +335,7 @@ public class MtgProblem extends StochasticProblem {
             app.problem = PrologProblem.fromYaml(args[0]);
             final String decklistFile = args[1];
             app.baseTrials = args.length > 2 ? Integer.parseInt(args[2]) : -1;
+            app.timeoutMs = 30000;
             app.initProlog(null);
             ResultStore store = null;
             if (args.length >= 5) {
@@ -349,7 +352,7 @@ public class MtgProblem extends StochasticProblem {
                 if (app.baseTrials > 0) {
                     objectiveResults = app.evaluateDeck(objective, deck, app.baseTrials, rng);
                 } else {
-                    objectiveResults = app.evaluateDeckExhaustive(objective, deck);
+                    objectiveResults = app.evaluateDeckExhaustive(objective, deck, rng);
                 }
                 app.printResults(objective, objectiveResults);
                 resultsMap.put(objective.getName(), objectiveResults);

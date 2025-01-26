@@ -2,6 +2,7 @@ package mtg.logic;
 
 import ec.util.MersenneTwisterFast;
 import org.jpl7.Atom;
+import org.jpl7.Compound;
 import org.jpl7.Dict;
 import org.jpl7.Query;
 import org.jpl7.Term;
@@ -28,6 +29,7 @@ public class PrologEngine {
     private final List<BiConsumer<String[], Results>> callbacks = new ArrayList<>();
     private PrologProblem problem;
     private List<ResultConsumer> resultConsumers = new ArrayList<>();
+    private int timeoutMs = 0;
 
     public PrologEngine(String srcPath) {
         this.prologSrcDir = new File(srcPath);
@@ -53,6 +55,11 @@ public class PrologEngine {
         Query consultQuery = new Query("consult", new Term[] { new Atom(sourcePath)});
         consultQuery.allSolutions();
         consultQuery.close();
+    }
+
+    public void setTimeout(final int timeoutMs) {
+        new Query("use_module(library(dialect/sicstus/timeout)).").oneSolution();
+        this.timeoutMs = timeoutMs;
     }
 
     /**
@@ -81,6 +88,7 @@ public class PrologEngine {
             }
         }
         final Variable outputs = new Variable("Outputs");
+        final Variable timeResult = new Variable("TimeoutResult");
         Term[] queryTerms = new Term[] {
                 Term.stringArrayToList(hand),
                 Term.stringArrayToList(library),
@@ -89,18 +97,33 @@ public class PrologEngine {
                 new Dict(new Atom("params"), params),
                 outputs};
         final long startTime = System.currentTimeMillis();
-        final Query handQuery = new Query(objective.getPredicate(), queryTerms);
+        final Query handQuery;
+        if (timeoutMs > 0) {
+            final Compound handPart = new Compound(objective.getPredicate(), queryTerms);
+            handQuery = new Query("time_out", new Term[] {handPart, new org.jpl7.Integer(timeoutMs), timeResult});
+        } else {
+            handQuery = new Query(objective.getPredicate(), queryTerms);
+        }
         log.trace("Attempting hand: " + handQuery);
         final Map<String, Term> bindings = handQuery.oneSolution();
         Map<String, Term> outputMap = null;
         long duration = System.currentTimeMillis() - startTime;
         if (bindings != null) {
-            final Term outputTerm = bindings.get("Outputs");
-            log.trace("Success: " + outputTerm + " [" + duration + " ms]");
-            if (outputTerm instanceof Dict) {
-                outputMap = new HashMap<>();
-                for (Map.Entry<Atom, Term> entry : ((Dict) outputTerm).getMap().entrySet()) {
-                    outputMap.put(entry.getKey().toString(), entry.getValue());
+            if (bindings.containsKey("TimeoutResult") && bindings.get("TimeoutResult").toString().equals("time_out")) {
+                log.warn("Timed out!");
+                log.warn("\tHand: " + Arrays.toString(hand));
+                log.warn("\tLibrary: " + Arrays.toString(library));
+                log.warn("\tSideboard: " + Arrays.toString(sideboard));
+                log.warn("\tMulligans: " + mulligans);
+                log.warn("\tAdditional parameters: " + params);
+            } else {
+                final Term outputTerm = bindings.get("Outputs");
+                log.trace("Success: " + outputTerm + " [" + duration + " ms]");
+                if (outputTerm instanceof Dict) {
+                    outputMap = new HashMap<>();
+                    for (Map.Entry<Atom, Term> entry : ((Dict) outputTerm).getMap().entrySet()) {
+                        outputMap.put(entry.getKey().toString(), entry.getValue());
+                    }
                 }
             }
         } else {
@@ -262,13 +285,15 @@ public class PrologEngine {
      * @param deck The deck to use
      * @param hands The sequence of hands to test
      * @param printInterval Print partial results every interval of this size
+     * @param rng Shuffle the cards remaining in the library using this RNG
      * @return A ResultSequence object representing the outputs
      */
     public Results testHands(
             final SingleObjectivePrologProblem objective,
             final Deck deck,
             final Iterator<Deck.PossibleHand> hands,
-            final int printInterval) {
+            final int printInterval,
+            final MersenneTwisterFast rng) {
         final Results aggregatedResults = new Results();
         int mulligans = objective.getStartingMulligans();
         Results individualResult;
@@ -276,7 +301,7 @@ public class PrologEngine {
         while (hands.hasNext()) {
             final Deck.PossibleHand uniqueHand = hands.next();
             final String[] hand = uniqueHand.getHand();
-            final String[] library = uniqueHand.getLibrary();
+            final String[] library = uniqueHand.getLibrary(rng);
             individualResult = testHand(objective, hand, library, deck.getSideboard(), mulligans, 0);
             for (final BiConsumer<String[], Results> callback : callbacks) {
                 callback.accept(hand, individualResult);

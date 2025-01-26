@@ -17,3 +17,7 @@ mvn exec:java@client -Dexec.args="path/to/rest/spec.yaml path/to/decklist.dec"
 ## Run a local Spring server that can handle REST calls
 
 mvn spring-boot:run -Dspring-boot.run.arguments="path/to/problem/spec.yaml path/to/decklist.txt"
+
+## Troubleshooting
+
+May need to set LD_PRELOAD environment variable to the location of `libswipl.so`

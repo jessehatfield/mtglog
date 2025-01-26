@@ -1,0 +1,48 @@
+name: Necrodominance -- Cast only
+
+sources:
+  - mana.pl
+  - cards.pl
+  - oops.pl
+  - necro.pl
+  - test.pl
+
+objectives:
+
+    - name: turn_one_necro
+      predicate: play_oops_hand
+      serumPowderPredicate: necro_can_powder
+      maxMulligans: 5
+      params:
+        protection: 1
+        greedy_mulligans: 0
+      outputs:
+        boolean:
+          - isProtected
+          - fizzle
+          - lethal
+          - followup
+        numeric:
+          - damage
+
+secondaryObjectives:
+    - name: potentialWin
+      objective: turn_one_necro
+      filter: followup
+
+    - name: win
+      objective: turn_one_necro
+      filter: fizzle
+      invert: true
+
+    - name: protectedNecro
+      objective: turn_one_necro
+      filter: isProtected
+
+    - name: fizzle
+      objective: turn_one_necro
+      filter: fizzle
+
+    - name: lethalDamage
+      objective: turn_one_necro
+      filter: lethal

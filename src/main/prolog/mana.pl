@@ -1,12 +1,59 @@
 % Base case: make no mana, nothing changes.
-makemana(START_STATE, START_STATE, _, []).
+makemana(START_STATE, START_STATE, X, X).
 
 % Recursive case: play one card.
-makemana([START_HAND, START_BOARD, START_MANA, START_GY, START_STORM, START_DECK, START_PROTECTION],
-	[END_HAND, END_BOARD, END_MANA, END_GY, END_STORM, END_DECK, END_PROTECTION],
-	PRIOR_SEQUENCE,
-    NEW_SEQUENCE) :-
+makemana(START_STATE, END_STATE, PRIOR_SEQUENCE, NEXT_SEQUENCE) :-
+    state_hand(START_STATE, START_HAND),
     member(NAME, START_HAND),
+    makemana(NAME, START_STATE, END_STATE, PRIOR_SEQUENCE, NEXT_SEQUENCE).
+
+% Recursive case: play a specific card.
+makemana(NAME, START_STATE, END_STATE, PRIOR_SEQUENCE, TOTAL_SEQUENCE) :-
+    cast_from_hand(NAME, START_STATE, CAST_STATE, PRIOR_SEQUENCE, CAST_SEQUENCE),
+    makemana(CAST_STATE, END_STATE, CAST_SEQUENCE, TOTAL_SEQUENCE).
+
+storm_up(TARGET_STORM, _, START_STATE, START_STATE, PRIOR_SEQUENCE, PRIOR_SEQUENCE) :-
+    state_storm(START_STATE, START_STORM),
+    START_STORM >= TARGET_STORM,
+    !.
+storm_up(TARGET_STORM, STORM_CARD, START_STATE, END_STATE, PRIOR_SEQUENCE, TOTAL_SEQUENCE) :-
+    cast_in_order([['Lotus Petal'], ['Chrome Mox'], ['Summoner\'s Pact']], START_STATE, STATE2, PRIOR_SEQUENCE, SEQ2),
+    state_storm(STATE2, STORM2),
+    (
+        STORM2 >= TARGET_STORM,
+        END_STATE = STATE2,
+        TOTAL_SEQUENCE = SEQ2,
+        !;
+        storm_up_general(TARGET_STORM, STORM_CARD, STATE2, END_STATE, SEQ2, TOTAL_SEQUENCE)
+    ).
+storm_up_general(TARGET_STORM, _, START_STATE, START_STATE, PRIOR_SEQUENCE, PRIOR_SEQUENCE) :-
+    state_storm(START_STATE, START_STORM),
+    START_STORM >= TARGET_STORM,
+    !.
+storm_up_general(TARGET_STORM, STORM_CARD, START_STATE, END_STATE, PRIOR_SEQUENCE, TOTAL_SEQUENCE) :-
+    prune_storm(TARGET_STORM, START_STATE),
+    card_property(STORM_CARD, default, cost, TARGET_COST),
+    total(TARGET_COST, TARGET_CMC),
+    state_storm(START_STATE, START_STORM),
+    START_STORM < TARGET_STORM,
+    state_hand(START_STATE, START_HAND),
+    list_to_set(START_HAND, UNIQUE_CARDS),
+    member(CARD_NAME, UNIQUE_CARDS),
+    cast_from_hand(CARD_NAME, START_STATE, CAST_STATE, PRIOR_SEQUENCE, CAST_SEQUENCE),
+    in_hand(STORM_CARD, CAST_STATE),
+    prune_(TARGET_CMC, CAST_STATE, CAST_SEQUENCE),
+    storm_up_general(TARGET_STORM, STORM_CARD, CAST_STATE, END_STATE, CAST_SEQUENCE, TOTAL_SEQUENCE).
+
+storm_up_and_cast(TARGET_STORM, STORM_CARD, START_STATE, END_STATE, START_SEQ, END_SEQ) :-
+    storm_up(TARGET_STORM, STORM_CARD, START_STATE, STORM_STATE, START_SEQ, STORM_SEQ),
+    makemana_goal(STORM_CARD, STORM_STATE, MANA_STATE, STORM_SEQ, MANA_SEQ),
+    cast_one([STORM_CARD], MANA_STATE, END_STATE, MANA_SEQ, END_SEQ).
+
+cast_from_hand(NAME,
+        [START_HAND, START_BOARD, START_MANA, START_GY, START_STORM, START_DECK, START_PROTECTION],
+        END_STATE,
+        PRIOR_SEQUENCE,
+        TOTAL_SEQUENCE) :-
     check_timing(NAME, PRIOR_SEQUENCE),
     card(NAME, DATA),
     list_to_assoc(DATA, CARD),
@@ -15,37 +62,85 @@ makemana([START_HAND, START_BOARD, START_MANA, START_GY, START_STORM, START_DECK
     spend(COST, START_MANA, NEXT_MANA),
     diff_mana(START_MANA, NEXT_MANA, SPENT_MANA),
     cast(NAME, YIELD, EXTRA_STEPS,
-    	[NEXT_HAND, START_BOARD, NEXT_MANA, START_GY, START_STORM, START_DECK, START_PROTECTION],
-    	[CAST_HAND, CAST_BOARD, CAST_MANA, CAST_GY, CAST_STORM, CAST_DECK, CAST_PROTECTION],
+        [NEXT_HAND, START_BOARD, NEXT_MANA, START_GY, START_STORM, START_DECK, START_PROTECTION],
+        CAST_STATE,
         SPENT_MANA),
-    append(PRIOR_SEQUENCE, [NAME|EXTRA_STEPS], CAST_SEQUENCE),
+    append(PRIOR_SEQUENCE, [NAME|EXTRA_STEPS], TOTAL_SEQUENCE),
+    state_mana(CAST_STATE, CAST_MANA),
     addmana(YIELD, CAST_MANA, RESULT_MANA),
-    makemana([CAST_HAND, CAST_BOARD, RESULT_MANA, CAST_GY, CAST_STORM, CAST_DECK, CAST_PROTECTION],
-	[END_HAND, END_BOARD, END_MANA, END_GY, END_STORM, END_DECK, END_PROTECTION],
-        CAST_SEQUENCE,
-	NEXT_SEQUENCE),
-    append([NAME | EXTRA_STEPS], NEXT_SEQUENCE, NEW_SEQUENCE).
+    update_mana(CAST_STATE, RESULT_MANA, END_STATE).
+
+cast_from_hand(NAME,
+        MODE,
+        [START_HAND, START_BOARD, START_MANA, START_GY, START_STORM, START_DECK, START_PROTECTION],
+        END_STATE,
+        PRIOR_SEQUENCE,
+        TOTAL_SEQUENCE) :-
+    check_timing(NAME, PRIOR_SEQUENCE),
+    card_property(NAME, MODE, cost, COST),
+    remove_first(NAME, START_HAND, NEXT_HAND),
+    spend(COST, START_MANA, NEXT_MANA),
+    diff_mana(START_MANA, NEXT_MANA, SPENT_MANA),
+    cast(NAME, YIELD, EXTRA_STEPS,
+        [NEXT_HAND, START_BOARD, NEXT_MANA, START_GY, START_STORM, START_DECK, START_PROTECTION],
+        CAST_STATE,
+        SPENT_MANA),
+    append(PRIOR_SEQUENCE, [NAME|EXTRA_STEPS], TOTAL_SEQUENCE),
+    state_mana(CAST_STATE, CAST_MANA),
+    addmana(YIELD, CAST_MANA, RESULT_MANA),
+    update_mana(CAST_STATE, RESULT_MANA, END_STATE).
+
+% Cast a single card for free, ignoring timing
+cast_free(NAME,
+        [START_HAND, START_BOARD, START_MANA, START_GY, START_STORM, START_DECK, START_PROTECTION],
+        END_STATE,
+        PRIOR_SEQUENCE,
+        TOTAL_SEQUENCE) :-
+    remove_first(NAME, START_HAND, NEXT_HAND),
+    cast(NAME, YIELD, EXTRA_STEPS,
+        [NEXT_HAND, START_BOARD, START_MANA, START_GY, START_STORM, START_DECK, START_PROTECTION],
+        CAST_STATE,
+        [0, 0, 0, 0, 0, 0, 0]),
+    append(PRIOR_SEQUENCE, [NAME|EXTRA_STEPS], TOTAL_SEQUENCE),
+    state_mana(CAST_STATE, CAST_MANA),
+    addmana(YIELD, CAST_MANA, RESULT_MANA),
+    update_mana(CAST_STATE, RESULT_MANA, END_STATE).
 
 check_timing(CARDNAME, ALREADY_CAST) :-
-    check_castfirst(CARDNAME, ALREADY_CAST),
-    check_castlast(CARDNAME, ALREADY_CAST).
+    check_pregame(CARDNAME, ALREADY_CAST),
+    check_counter_timing(CARDNAME, ALREADY_CAST),
+    check_instant_speed(CARDNAME, ALREADY_CAST),
+    check_land_sac(CARDNAME, ALREADY_CAST).
 check_sequence_timing([], _).
 check_sequence_timing([H|T], ALREADY_CAST) :-
     check_timing(H, ALREADY_CAST),
     append(ALREADY_CAST, [H], INTERMEDIATE),
     check_sequence_timing(T, INTERMEDIATE).
-check_castfirst(CARDNAME, ALREADY_CAST) :-
-    not(castfirst(CARDNAME));
-    castfirst(CARDNAME), onlycastfirst(ALREADY_CAST).
-onlycastfirst([]).
-onlycastfirst([H | T]) :-
-    castfirst(H), onlycastfirst(T).
-check_castlast(CARDNAME, ALREADY_CAST) :-
-    castlast(CARDNAME);
-    not(castlast(CARDNAME)), nocastlast(ALREADY_CAST).
-nocastlast([]).
-nocastlast([H | T]) :-
-    not(castlast(H)), nocastlast(T).
+check_pregame(CARDNAME, ALREADY_CAST) :-
+    not(has_role(CARDNAME, pregame));
+    has_role(CARDNAME, pregame), all_have_role(ALREADY_CAST, pregame).
+% Counterspells should be cast immediately after the combo card, in any order
+check_counter_timing(CARDNAME, LIST) :-
+    not(has_role(CARDNAME, counterspell));
+    has_role(CARDNAME, counterspell),
+    last(LIST, PREV_CARD),
+    (has_role(PREV_CARD, combo); has_role(PREV_CARD, counterspell)).
+instant_speed(CARDNAME) :-
+    istype(CARDNAME, instant), !;
+    member(CARDNAME, ['Elvish Spirit Guide', 'Simian Spirit Guide']).
+check_instant_speed(CARDNAME, SEQUENCE) :-
+    not(member('end step', SEQUENCE)), !;
+    not(istype(CARDNAME, land)),
+    (
+        member('Leyline of Anticipation', SEQUENCE), !;
+        member('Borne Upon a Wind', SEQUENCE), !;
+        member('activate Emergence Zone', SEQUENCE), !;
+        instant_speed(CARDNAME), !
+    ).
+check_land_sac(CARDNAME, SEQUENCE) :-
+    not(istype(CARDNAME, land));
+    istype(CARDNAME, land),
+    not(member('Crop Rotation', SEQUENCE)).
 
 makemana_goal(TARGET_CARD_NAME, START_STATE, END_STATE, PRIOR_SEQUENCE, TOTAL_SEQUENCE) :-
     makemana_goal(TARGET_CARD_NAME, default, START_STATE, END_STATE, PRIOR_SEQUENCE, TOTAL_SEQUENCE).
@@ -62,13 +157,15 @@ makemana_cost_goal(TARGET_COST, TARGET_CARDS, START_STATE, START_STATE, PRIOR_SE
     spend(TARGET_COST, START_MANA, _).
 makemana_cost_goal(TARGET_COST, TARGET_CARDS,
         [START_HAND, START_BOARD, START_MANA, START_GY, START_STORM, START_DECK, START_PROTECTION],
-	[END_HAND, END_BOARD, END_MANA, END_GY, END_STORM, END_DECK, END_PROTECTION],
+    [END_HAND, END_BOARD, END_MANA, END_GY, END_STORM, END_DECK, END_PROTECTION],
         PRIOR_SEQUENCE,
-	COMBINED_SEQUENCE) :-
+    COMBINED_SEQUENCE) :-
     % Verify that we could theoretically get the mana, colors, and required cards (if any)
     all_member_or_tutor(TARGET_CARDS, START_HAND, START_DECK),
     total(TARGET_COST, TARGET_CMC),
-    prune(TARGET_CMC, START_HAND, START_BOARD, START_GY, START_MANA),
+    %zone_type_count(PRIOR_SEQUENCE, land, 1, LAND_DROPS),
+    zone_type_count(PRIOR_SEQUENCE, land, LAND_DROPS),
+    prune(TARGET_CMC, START_HAND, START_BOARD, START_GY, START_DECK, START_MANA, LAND_DROPS),
     total_color_gain(START_HAND, COLORED_MANA_HAND),
     (
         addmana(COLORED_MANA_HAND, START_MANA, COLORED_MANA_MAX),
@@ -84,16 +181,45 @@ makemana_cost_goal(TARGET_COST, TARGET_CARDS,
     spend(COST, START_MANA, NEXT_MANA),
     diff_mana(START_MANA, NEXT_MANA, SPENT_MANA),
     cast(NAME, YIELD, EXTRA_STEPS,
-    	[NEXT_HAND, START_BOARD, NEXT_MANA, START_GY, START_STORM, START_DECK, START_PROTECTION],
-    	[CAST_HAND, CAST_BOARD, CAST_MANA, CAST_GY, CAST_STORM, CAST_DECK, CAST_PROTECTION],
+        [NEXT_HAND, START_BOARD, NEXT_MANA, START_GY, START_STORM, START_DECK, START_PROTECTION],
+        [CAST_HAND, CAST_BOARD, CAST_MANA, CAST_GY, CAST_STORM, CAST_DECK, CAST_PROTECTION],
         SPENT_MANA),
     append(PRIOR_SEQUENCE, [NAME|EXTRA_STEPS], INTERMEDIATE_SEQUENCE),
     addmana(YIELD, CAST_MANA, RESULT_MANA),
     makemana_cost_goal(TARGET_COST, TARGET_CARDS,
         [CAST_HAND, CAST_BOARD, RESULT_MANA, CAST_GY, CAST_STORM, CAST_DECK, CAST_PROTECTION],
-	[END_HAND, END_BOARD, END_MANA, END_GY, END_STORM, END_DECK, END_PROTECTION],
+    [END_HAND, END_BOARD, END_MANA, END_GY, END_STORM, END_DECK, END_PROTECTION],
         INTERMEDIATE_SEQUENCE,
-	COMBINED_SEQUENCE).
+    COMBINED_SEQUENCE).
+
+% Cast any single card from a set
+cast_one(SET, STATE1, STATE2, PRIOR_SEQUENCE, TOTAL_SEQUENCE) :-
+    member(CARD, SET),
+    cast_from_hand(CARD, STATE1, STATE2, PRIOR_SEQUENCE, TOTAL_SEQUENCE).
+cast_one_opt(SET, STATE1, STATE2, PRIOR_SEQUENCE, TOTAL_SEQUENCE) :-
+    cast_one(SET, STATE1, STATE2, PRIOR_SEQUENCE, TOTAL_SEQUENCE).
+cast_one_opt(_, STATE, STATE, PRIOR_SEQUENCE, PRIOR_SEQUENCE).
+
+% Cast as many cards from a given set as we can, in any order
+cast_all(SET, STATE1, STATE3, PRIOR_SEQUENCE, TOTAL_SEQUENCE) :-
+    % Recursive case: cast one, then repeat
+    cast_one(SET, STATE1, STATE2, PRIOR_SEQUENCE, INTERMEDIATE_SEQUENCE),
+    cast_all(SET, STATE2, STATE3, INTERMEDIATE_SEQUENCE, TOTAL_SEQUENCE).
+cast_all(SET, STATE1, STATE1, PRIOR_SEQUENCE, PRIOR_SEQUENCE) :-
+    % Base case: do nothing if we can't cast any
+    not(cast_one(SET, STATE1, _, PRIOR_SEQUENCE, _)), !.
+
+% Cast a series of equivalent sets of cards in a row
+cast_in_order([SET1 | T], STATE1, STATE3, PRIOR_SEQUENCE, TOTAL_SEQUENCE) :-
+    cast_all(SET1, STATE1, STATE2, PRIOR_SEQUENCE, INTERMEDIATE_SEQUENCE),
+    cast_in_order(T, STATE2, STATE3, INTERMEDIATE_SEQUENCE, TOTAL_SEQUENCE).
+cast_in_order([], STATE1, STATE1, PRIOR_SEQUENCE, PRIOR_SEQUENCE).
+
+% if a given card is in hand, try to make enough mana and then cast it
+make_mana_and_cast(TARGET_CARD_NAME, START_STATE, END_STATE, PRIOR_SEQ, TOTAL_SEQ) :-
+    in_hand(TARGET_CARD_NAME, START_STATE),
+    makemana_goal(TARGET_CARD_NAME, START_STATE, MANA_STATE, PRIOR_SEQ, MANA_SEQ),
+    cast_one([TARGET_CARD_NAME], MANA_STATE, END_STATE, MANA_SEQ, TOTAL_SEQ).
 
 % Goal-directed base case: succeed if the target is still there and the mana is already floating.
 %makemana_goal(TARGET_CARD_NAME, START_STATE, START_STATE, []) :-
@@ -115,7 +241,7 @@ makemana_cost_goal(TARGET_COST, TARGET_CARDS,
 %    list_to_assoc(TARGET_DATA, TARGET_CARD),
 %    get_assoc(cost, TARGET_CARD, TARGET_MANA),
 %    total(TARGET_MANA, TARGET_CMC),
-%    prune(TARGET_CMC, START_HAND, START_BOARD, START_GY, START_MANA),
+%    prune(TARGET_CMC, START_HAND, START_BOARD, START_GY, START_DECK, START_MANA),
 %    format('goal: make ~d to cast ~s :: ~w\n', [TARGET_CMC, TARGET_CARD_NAME, START_STATE]),
 %    % Then play another card and recurse
 %    member(NAME, START_HAND),
@@ -156,18 +282,39 @@ update_storm([H, B, M, G, _, D, P], S, [H, B, M, G, S, D, P]).
 update_deck( [H, B, M, G, S, _], D, [H, B, M, G, S, D]).
 update_deck( [H, B, M, G, S, _, P], D, [H, B, M, G, S, D, P]).
 
+apply_to_hand(FUNCTION, STATE1, STATE2) :-
+    state_hand(STATE1, HAND1),
+    call(FUNCTION, HAND1, HAND2),
+    update_hand(STATE1, HAND2, STATE2).
+
 % Require that the maximum sum of mana is at least a certain amount, even in the
 % best situations for the various cards.
-prune(TOTAL_MANA, _, _, _) :- TOTAL_MANA < 1, !.
-prune(TOTAL_MANA, [H | T], BOARD, GY) :-
+prune(TOTAL_MANA, _, _, _, _, _) :- TOTAL_MANA < 1, !.
+prune(TOTAL_MANA, [H | T], BOARD, GY, LIBRARY, 0) :-
+    % base case: target already reached.
     TOTAL_MANA < 1, !;
-    maxnet(H, [H|T], BOARD, GY, NET),
+    % recursive case (play land)
+    istype(H, land),
+    maxnet(H, [H|T], BOARD, GY, LIBRARY, NET),
     REMAINDER is TOTAL_MANA - NET,
-    prune(REMAINDER, T, [H|BOARD], [H|GY]).
-prune(TOTAL_MANA, HAND, BOARD, GY, FLOATING) :-
+    prune(REMAINDER, T, [H|BOARD], GY, LIBRARY, 1), !.
+prune(TOTAL_MANA, [H | T], BOARD, GY, LIBRARY, LANDS) :-
+    % base case: target already reached.
+    TOTAL_MANA < 1, !;
+    % recursive case (play nonland)
+    not(istype(H, land)),
+    maxnet(H, [H|T], BOARD, GY, LIBRARY, NET),
+    REMAINDER is TOTAL_MANA - NET,
+    prune(REMAINDER, T, [H|BOARD], [H|GY], LIBRARY, LANDS), !;
+    % recursive case (skip): if it's a land, consider skipping it
+    istype(H, land),
+    prune(TOTAL_MANA, T, BOARD, GY, LIBRARY, LANDS), !.
+
+prune(TOTAL_MANA, HAND, BOARD, GY, LIBRARY, FLOATING, LANDS) :-
     total(FLOATING, CMC),
     DIFFERENCE is TOTAL_MANA - CMC,
-    prune(DIFFERENCE, HAND, BOARD, GY).
+    prune(DIFFERENCE, HAND, BOARD, GY, LIBRARY, LANDS).
+
 % Require that the total possible protection is at least a certain number
 prune_protection(MIN_PROTECTION, []) :-
    MIN_PROTECTION < 1.
@@ -177,6 +324,15 @@ prune_protection(MIN_PROTECTION, [H|T]) :-
     PROTECTION is max(IS_PROTECTION, FIND_PROTECTION),
     MIN_REMAINING is MIN_PROTECTION - PROTECTION,
     prune_protection(MIN_REMAINING, T).
+
+prune_storm(REQUIRED, STATE) :-
+    state_hand(STATE, HAND),
+    state_storm(STATE, CURRENT_STORM),
+    map_list_to_pairs(card_storm, HAND, PAIRS),
+    pairs_keys(PAIRS, STORM_LIST),
+    total(STORM_LIST, HAND_STORM),
+    MAX_STORM is CURRENT_STORM + HAND_STORM,
+    MAX_STORM >= REQUIRED.
 
 color_gain(NAME, GAIN) :-
     max_yield(NAME, [YW, YU, YB, YR, YG, YC | Y_REST]),
@@ -398,23 +554,61 @@ spendArbitrary([W, U, B, R, G, C, GENERIC], START_MANA, END_MANA) :-
 % Convenience methods for dealing with state tuples
 spend_(MANA, [H, B, M1, G, S, D, P], [H, B, M2, G, S, D, P]) :- spend(MANA, M1, M2).
 spend_generic(MANA, [H, B, M1, G, S, D, P], [H, B, M2, G, S, D, P]) :- spendGeneric(MANA, M1, M2).
+remove_from_board(CARDNAME, [H, B1, M, G, S, D, P], [H, B2, M, G, S, D, P]) :- remove_first(CARDNAME, B1, B2).
 remove_from_hand(CARDNAME, [H1, B, M, G, S, D, P], [H2, B, M, G, S, D, P]) :- remove_first(CARDNAME, H1, H2).
 remove_from_deck(CARDNAME, [H, B, M, G, S, D1, P], [H, B, M, G, S, D2, P]) :- remove_first(CARDNAME, D1, D2).
 remove_from_grave(CARDNAME, [H, B, M, G1, S, D, P], [H, B, M, G2, S, D, P]) :- remove_first(CARDNAME, G1, G2).
 add_to_hand(CARDNAME, [H, B, M, G, S, D, P], [[CARDNAME|H], B, M, G, S, D, P]).
 add_to_board(CARDNAME, [H, B, M, G, S, D, P], [H, [CARDNAME|B], M, G, S, D, P]).
-add_to_grave(CARDNAME, [H, B, M, G, S, D, P], [H, B, M, [CARDNAME|G], S, D, P]).
+add_to_grave(CARDNAME, [H, B, M, G, S, D, P], [H, B, M, [CARDNAME|G], S, D, P]) :- not(exile_grave([H, B, M, G, S, D, P])).
+add_to_grave(_, STATE, STATE) :- exile_grave(STATE).
 add_to_deck(CARDNAME, [H, B, M, G, S, D, P], [H, B, M, G, S, [CARDNAME|D], P]).
-prune_(MANA, [H, B, M, G, _, _, _]) :- prune(MANA, H, B, G, M).
 increment_storm([H, B, M, G, S1, D, P], [H, B, M, G, S2, D, P]) :- S2 is S1 + 1.
 deck_to_board(CARDNAME, STATE1, STATE3) :- remove_from_deck(CARDNAME, STATE1, STATE2), add_to_board(CARDNAME, STATE2, STATE3).
 deck_to_grave(CARDNAME, STATE1, STATE3) :- remove_from_deck(CARDNAME, STATE1, STATE2), add_to_grave(CARDNAME, STATE2, STATE3).
 hand_to_grave(CARDNAME, STATE1, STATE3) :- remove_from_hand(CARDNAME, STATE1, STATE2), add_to_grave(CARDNAME, STATE2, STATE3).
+board_to_grave(CARDNAME, STATE1, STATE3) :- remove_from_board(CARDNAME, STATE1, STATE2), add_to_grave(CARDNAME, STATE2, STATE3).
 grave_to_board(CARDNAME, STATE1, STATE3) :- remove_from_grave(CARDNAME, STATE1, STATE2), add_to_board(CARDNAME, STATE2, STATE3).
+hand_to_board(CARDNAME, STATE1, STATE3) :- remove_from_hand(CARDNAME, STATE1, STATE2), add_to_board(CARDNAME, STATE2, STATE3).
+
+prune_(MANA, [H, B, M, G, _, L, _]) :-
+    zone_type_count(B, land, LANDS),
+    prune(MANA, H, B, G, L, M, LANDS).
+prune_(MANA, [H, B, M, G, _, L, _], SEQ) :-
+    zone_type_count(SEQ, land, LANDS),
+    prune(MANA, H, B, G, L, M, LANDS).
+
+add_mana_(STATE1, M, STATE2) :-
+    state_mana(STATE1, M1),
+    addmana(M1, M, M2),
+    update_mana(STATE1, M2, STATE2).
+
+take_n(LIST, 0, [], LIST).
+take_n(LIST, N, LIST, []) :- length(LIST, N).
+take_n(LIST, N, TAKEN, REMAINDER) :-
+    N > 0,
+    length(LIST, LENGTH),
+    LENGTH >= N,
+    length(TAKEN, N),
+    append(TAKEN, REMAINDER, LIST).
+
+draw(N, START_STATE, END_STATE) :-
+    state_deck(START_STATE, D1),
+    state_hand(START_STATE, H1),
+    take_n(D1, N, DRAWN, D2),
+    append(H1, DRAWN, H2),
+    update_deck(START_STATE, D2, STATE2),
+    update_hand(STATE2, H2, END_STATE).
+draw_up_to(N, START_STATE, END_STATE) :-
+    state_deck(START_STATE, DECK),
+    length(DECK, DECK_SIZE),
+    N_DRAW is min(N, DECK_SIZE),
+    draw(N_DRAW, START_STATE, END_STATE).
 
 in_hand(CARDNAME, [HAND, _, _, _, _, _, _]) :- member(CARDNAME, HAND).
 hand_or_tutor(CARDNAME, [HAND, _, _, _, _, DECK, _]) :- member_or_tutor(CARDNAME, HAND, DECK).
 in_deck(CARDNAME, [_, _, _, _, _, DECK, _]) :- member(CARDNAME, DECK).
+on_board(CARDNAME, [_, BOARD, _, _, _, _, _]) :- member(CARDNAME, BOARD).
 
 first_in_hand([H|_], STATE, H) :- in_hand(H, STATE).
 first_in_hand([H|T], STATE, CARD) :-

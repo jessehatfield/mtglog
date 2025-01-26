@@ -1,4 +1,5 @@
 % To implement:
+% Jack-o'-Lantern
 % Land Grant
 % make Manamorphose draw a card (doesn't it already?)
 % Wish for mana?
@@ -7,6 +8,8 @@
 % Finale of Devastation
 % Once Upon a Time
 % LED + non-targeting Reanimate
+
+nb_setval(reveal_draws, false).
 
 % Placeholder
 card('Unknown', [
@@ -54,6 +57,7 @@ card('Lotus Petal', [
     options - true
 ]).
 card('Lotus Petal_unused', [
+    base   - 'Lotus Petal',
     cost   - [0, 0, 0, 0, 0, 0, 0],
     yield  - [0, 0, 0, 0, 0, 0, 0],
     net    - 0,
@@ -94,7 +98,8 @@ card('Chancellor of the Tangle', [
     types  - [creature],
     spell  - 0,
     board  - 0,
-    gy     - 0
+    gy     - 0,
+    roles  - [pregame]
 ]).
 
 card('Dark Ritual', [
@@ -102,10 +107,11 @@ card('Dark Ritual', [
     yield  - [0, 0, 3, 0, 0, 0, 0],
     net    - 2,
     colors - [b],
-    types  - [],
+    types  - [instant],
     spell  - 1,
     board  - 0,
-    gy     - 1
+    gy     - 1,
+    priority - 10
 ]).
 card('Cabal Ritual', [
     cost   - [0, 0, 1, 0, 0, 0, 1],
@@ -113,7 +119,7 @@ card('Cabal Ritual', [
     net    - 3,
     best   - [0, 0, 5, 0, 0, 0, 0],
     colors - [b],
-    types  - [],
+    types  - [instant],
     spell  - 1,
     board  - 0,
     gy     - 1
@@ -125,7 +131,7 @@ card('Rite of Flame', [
     net    - 4,
     best   - [0, 0, 0, 5, 0, 0, 0],
     colors - [r],
-    types  - [],
+    types  - [sorcery],
     spell  - 1,
     board  - 0,
     gy     - 1,
@@ -136,7 +142,7 @@ card('Pyretic Ritual', [
     yield  - [0, 0, 0, 3, 0, 0, 0],
     net    - 1,
     colors - [r],
-    types  - [],
+    types  - [instant],
     spell  - 1,
     board  - 0,
     gy     - 1
@@ -146,7 +152,7 @@ card('Desperate Ritual', [
     yield  - [0, 0, 0, 3, 0, 0, 0],
     net    - 1,
     colors - [r],
-    types  - [],
+    types  - [instant],
     spell  - 1,
     board  - 0,
     gy     - 1
@@ -156,7 +162,7 @@ card('Seething Song', [
     yield  - [0, 0, 0, 5, 0, 0, 0],
     net    - 2,
     colors - [r],
-    types  - [],
+    types  - [instant],
     spell  - 1,
     board  - 0,
     gy     - 1
@@ -173,6 +179,7 @@ card('Tinder Wall', [
     options - true
 ]).
 card('Tinder Wall_unused', [
+    base   - 'Tinder Wall',
     cost   - [0, 0, 0, 0, 1, 0, 0],
     yield  - [0, 0, 0, 0, 0, 0, 0],
     net    - 0,
@@ -189,7 +196,7 @@ card('Culling the Weak', [
     yield  - [0, 0, 4, 0, 0, 0, 0],
     net    - 3,
     colors - [b],
-    types  - [],
+    types  - [instant],
     spell  - 1,
     board  - 0,
     gy     - 1,
@@ -201,7 +208,7 @@ card('Sacrifice', [
     yield  - [0, 0, 0, 0, 0, 0, 0],
     net    - 0,
     colors - [b],
-    types  - [],
+    types  - [instant],
     spell  - 1,
     board  - 0,
     gy     - 1,
@@ -213,7 +220,7 @@ card('Burnt Offering', [
     yield  - [0, 0, 0, 0, 0, 0, 0],
     net    - 0,
     colors - [b],
-    types  - [],
+    types  - [instant],
     spell  - 1,
     board  - 0,
     gy     - 1,
@@ -251,6 +258,7 @@ card('Lion\'s Eye Diamond', DATA) :-
         gy     - 1
     ].
 card('Lion\'s Eye Diamond_unused', [
+    base   - 'Lion\'s Eye Diamond',
     cost   - [0, 0, 0, 0, 0, 0, 0],
     yield  - [0, 0, 0, 0, 0, 0, 0],
     best   - [0, 0, 0, 0, 0, 0, 0],
@@ -312,7 +320,7 @@ card('Manamorphose', [
     yield  - [0, 0, 0, 0, 0, 0, 2],
     net    - 0,
     colors - [r,g],
-    types  - [],
+    types  - [instant],
     spell  - 1,
     board  - 0,
     gy     - 1
@@ -329,6 +337,7 @@ card('Wild Cantor', [
     options - true
 ]).
 card('Wild Cantor_unused', [
+    base   - 'Wild Cantor',
     cost   - [0, 0, 0, 0, 0, 0, 0, 1],
     yield  - [0, 0, 0, 0, 0, 0, 0],
     net    - 0,
@@ -339,6 +348,29 @@ card('Wild Cantor_unused', [
     gy     - 0,
     cmc    - 1,
     restricted - true
+]).
+card('Crop Rotation', [
+    cost   - [0, 0, 0, 0, 1, 0, 0],
+    yield  - [0, 0, 0, 0, 0, 0, 1],
+    net    - 0,
+    colors - [g],
+    types  - [instant],
+    spell  - 1,
+    board  - 0,
+    gy     - 1,
+    cmc    - 1,
+    restricted - true
+]).
+card('Gold Rush', [
+    cost   - [0, 0, 0, 0, 1, 0, 1],
+    yield  - [0, 0, 0, 0, 0, 0, 1],
+    net    - 0,
+    colors - [g],
+    types  - [instant],
+    spell  - 1,
+    board  - 0,
+    gy     - 1,
+    cmc    - 2
 ]).
 card('Burning-Tree Emissary', [
     cost   - [0, 0, 0, 0, 0, 0, 0, 2],
@@ -412,9 +444,9 @@ card(NAME, [
 card('Summoner\'s Pact', [
     cost   - [0, 0, 0, 0, 0, 0, 0],
     yield  - [0, 0, 0, 0, 0, 0, 0],
-    net    - 1,
+    net    - 0,
     colors - [g],
-    types  - [],
+    types  - [instant],
     spell  - 1,
     board  - 0,
     gy     - 1,
@@ -441,7 +473,7 @@ card('Once Upon a Time_nonfree', [
     yield  - [0, 0, 0, 0, 0, 0, 0],
     net    - 0,
     colors - [g],
-    types  - [],
+    types  - [instant],
     spell  - 1,
     board  - 0,
     gy     - 1,
@@ -521,6 +553,30 @@ card('Unmarked Grave', [
     roles  - [entomb]
 ]).
 
+% Draw
+card('Valakut Awakening', [
+    cost   - [0, 0, 0, 1, 0, 0, 2],
+    yield  - [0, 0, 0, 0, 0, 0, 0],
+    net    - 0,
+    colors - [r],
+    types  - [instant],
+    spell  - 1,
+    board  - 0,
+    gy     - 1,
+    cmc    - 3
+]).
+card('Fateful Showdown', [
+    cost   - [0, 0, 0, 2, 0, 0, 2],
+    yield  - [0, 0, 0, 0, 0, 0, 0],
+    net    - 0,
+    colors - [r],
+    types  - [instant],
+    spell  - 1,
+    board  - 0,
+    gy     - 1,
+    cmc    - 4
+]).
+
 card('Reanimate', [
     cost   - [0, 0, 1, 0, 0, 0, 0],
     yield  - [0, 0, 0, 0, 0, 0, 0],
@@ -558,6 +614,19 @@ card(NAME, [
     gy     - 0
 ]) :- landspell(NAME, COLOR, YIELD).
 
+% Generic land pattern
+card(NAME, [
+    cost   - [0, 0, 0, 0, 0, 0, 0],
+    yield  - YIELD,
+    net    - 1,
+    colors - [],
+    types  - [land|EXTRA_TYPES],
+    spell  - 0,
+    board  - 1,
+    gy     - 0,
+    priority - PRIORITY
+]) :- land(NAME, YIELD, EXTRA_TYPES, PRIORITY).
+
 %card(NAME, DATA) :-
 %    (
 %        NAME=x, COLOR=w, YIELD = [1, 0, 0, 0, 0, 0, 0];
@@ -580,6 +649,7 @@ card(NAME, [
 % Win conditions
 
 card('Undercity Informer', [
+    roles  - [combo],
     cost   - [0, 0, 1, 0, 0, 0, 2],
     yield  - [0, 0, 0, 0, 0, 0, 0],
     net    - 0,
@@ -590,6 +660,7 @@ card('Undercity Informer', [
     gy     - 0
 ]).
 card('Balustrade Spy', [
+    roles  - [combo],
     cost   - [0, 0, 1, 0, 0, 0, 3],
     yield  - [0, 0, 0, 0, 0, 0, 0],
     net    - 0,
@@ -600,6 +671,7 @@ card('Balustrade Spy', [
     gy     - 0
 ]).
 card('Destroy the Evidence', [
+    roles  - [combo],
     cost   - [0, 0, 1, 0, 0, 0, 4],
     yield  - [0, 0, 0, 0, 0, 0, 0],
     net    - 0,
@@ -610,6 +682,7 @@ card('Destroy the Evidence', [
     gy     - 1
 ]).
 card('Cephalid Illusionist', [
+    roles  - [combo],
     cost   - [0, 1, 0, 0, 0, 0, 1],
     yield  - [0, 0, 0, 0, 0, 0, 0],
     net    - 0,
@@ -620,6 +693,7 @@ card('Cephalid Illusionist', [
     gy     - 0
 ]).
 card('Shuko', [
+    roles  - [combo],
     cost   - [0, 0, 0, 0, 0, 0, 1],
     yield  - [0, 0, 0, 0, 0, 0, 0],
     net    - 0,
@@ -630,6 +704,7 @@ card('Shuko', [
     gy     - 0
 ]).
 card('Empty the Warrens', [
+    roles  - [combo],
     cost   - [0, 0, 0, 1, 0, 0, 3],
     yield  - [0, 0, 0, 0, 0, 0, 0],
     net    - 0,
@@ -661,6 +736,7 @@ card('Living Wish', [
     gy     - 0
 ]).
 card('Goblin Charbelcher', [
+    roles  - [combo],
     cost   - [0, 0, 0, 0, 0, 0, 4],
     yield  - [0, 0, 0, 0, 0, 0, 0],
     net    - 0,
@@ -670,6 +746,26 @@ card('Goblin Charbelcher', [
     board  - 1,
     gy     - 0
 ]).
+card('Tendrils of Agony', [
+    cost   - [0, 0, 2, 0, 0, 0, 2],
+    yield  - [0, 0, 0, 0, 0, 0, 0],
+    net    - 0,
+    colors - [b],
+    types  - [sorcery],
+    spell  - 1,
+    board  - 0,
+    gy     - 1
+]).
+card('Brain Freeze', [
+    cost   - [0, 1, 0, 0, 0, 0, 1],
+    yield  - [0, 0, 0, 0, 0, 0, 0],
+    net    - 0,
+    colors - [u],
+    types  - [instant],
+    spell  - 1,
+    board  - 0,
+    gy     - 1
+]).
 
 % Cards used in the combo
 
@@ -678,6 +774,16 @@ card('Narcomoeba', [
     yield  - [0, 0, 0, 0, 0, 0, 0],
     net    - 0,
     colors - [u],
+    types  - [creature],
+    spell  - 1,
+    board  - 1,
+    gy     - 0
+]).
+card('Poxwalkers', [
+    cost   - [0, 0, 1, 0, 0, 0, 2],
+    yield  - [0, 0, 0, 0, 0, 0, 0],
+    net    - 0,
+    colors - [b],
     types  - [creature],
     spell  - 1,
     board  - 1,
@@ -720,7 +826,7 @@ card('Lingering Souls', [
     yield  - [0, 0, 0, 0, 0, 0, 0],
     net    - 0,
     colors - [w],
-    types  - [],
+    types  - [sorcery],
     spell  - 1,
     board  - 0,
     gy     - 1
@@ -755,6 +861,38 @@ card('Thassa\'s Oracle', [
     board  - 1,
     gy     - 0
 ]).
+card('Necrodominance', [
+    roles  - [combo],
+    cost   - [0, 0, 3, 0, 0, 0, 0],
+    yield  - [0, 0, 0, 0, 0, 0, 0],
+    net    - 0,
+    colors - [b],
+    types  - [enchantment],
+    spell  - 1,
+    board  - 1,
+    gy     - 0
+]).
+card('Borne Upon a Wind', [
+    cost   - [0, 1, 0, 0, 0, 0, 1],
+    yield  - [0, 0, 0, 0, 0, 0, 0],
+    net    - 0,
+    colors - [u],
+    types  - [instant],
+    spell  - 1,
+    board  - 0,
+    gy     - 1
+]).
+card('Necrologia', [
+    roles  - [combo],
+    cost   - [0, 0, 2, 0, 0, 0, 3],
+    yield  - [0, 0, 0, 0, 0, 0, 0],
+    net    - 0,
+    colors - [b],
+    types  - [instant],
+    spell  - 1,
+    board  - 0,
+    gy     - 1
+]).
 
 % Protection spells
 card('Pact of Negation', [
@@ -762,10 +900,11 @@ card('Pact of Negation', [
     yield  - [0, 0, 0, 0, 0, 0, 0],
     net    - 0,
     colors - [u],
-    types  - [],
+    types  - [instant],
     spell  - 0,
     board  - 0,
     gy     - 0,
+    roles  - [counterspell],
     protection - 1
 ]).
 card('Force of Will', [
@@ -773,11 +912,12 @@ card('Force of Will', [
     yield  - [0, 0, 0, 0, 0, 0, 0],
     net    - 0,
     colors - [u],
-    types  - [],
+    types  - [instant],
     spell  - 0,
     board  - 0,
     gy     - 0,
     protection - 1,
+    roles  - [counterspell],
     restricted - true
 ]).
 card('Misdirection', [
@@ -785,11 +925,12 @@ card('Misdirection', [
     yield  - [0, 0, 0, 0, 0, 0, 0],
     net    - 0,
     colors - [u],
-    types  - [],
+    types  - [instant],
     spell  - 0,
     board  - 0,
     gy     - 0,
     protection - 1,
+    roles  - [counterspell],
     restricted - true
 ]).
 card('Unmask', [
@@ -797,7 +938,7 @@ card('Unmask', [
     yield  - [0, 0, 0, 0, 0, 0, 0],
     net    - 0,
     colors - [b],
-    types  - [],
+    types  - [sorcery],
     spell  - 1,
     board  - 0,
     gy     - 1,
@@ -827,6 +968,7 @@ card('Chancellor of the Annex', [
     spell  - 0,
     board  - 0,
     gy     - 0,
+    roles  - [pregame],
     protection - 1
 ]).
 card('Leyline of Lifeforce', [
@@ -838,6 +980,7 @@ card('Leyline of Lifeforce', [
     spell  - 0,
     board  - 1,
     gy     - 0,
+    roles  - [pregame],
     protection - 1
 ]).
 card('Leyline of Sanctity', [
@@ -849,6 +992,7 @@ card('Leyline of Sanctity', [
     spell  - 0,
     board  - 1,
     gy     - 0,
+    roles  - [pregame],
     protection - 0
 ]).
 card('Leyline of the Void', [
@@ -860,6 +1004,19 @@ card('Leyline of the Void', [
     spell  - 0,
     board  - 1,
     gy     - 0,
+    roles  - [pregame],
+    protection - 0
+]).
+card('Leyline of Anticipation', [
+    cost   - [0, 0, 0, 0, 0, 0, 0],
+    yield  - [0, 0, 0, 0, 0, 0, 0],
+    net    - 0,
+    colors - [u],
+    types  - [enchantment],
+    spell  - 0,
+    board  - 1,
+    gy     - 0,
+    roles  - [pregame],
     protection - 0
 ]).
 card('Thoughtseize', [
@@ -941,6 +1098,17 @@ card('Defense Grid', [
     gy     - 0,
     protection - 1
 ]).
+card('Into the Flood Maw', [
+    cost   - [0, 1, 0, 0, 0, 0, 0],
+    yield  - [0, 0, 0, 0, 0, 0, 0],
+    net    - 0,
+    colors - [u],
+    types  - [instant],
+    spell  - 1,
+    board  - 0,
+    gy     - 1,
+    protection - 1
+]).
 
 % Cards we don't directly use but might search for for Chrome Mox or otherwise use
 card('Spiritmonger', [
@@ -984,6 +1152,16 @@ card('Memory\'s Journey', [
     types  - [instant],
     spell  - -1,
     board  - 0,
+    gy     - 0
+]).
+card('Jack-o\'-Lantern', [
+    cost   - [0, 0, 0, 0, 0, 0, 1],
+    yield  - [0, 0, 0, 0, 0, 0, 0],
+    net    - 0,
+    colors - [],
+    types  - [artifact],
+    spell  - 1,
+    board  - 1,
     gy     - 0
 ]).
 
@@ -1053,6 +1231,21 @@ card('Lively Dirge', [
     roles  - [entomb, animate]
 ], win).
 
+card('Electrodominance', [
+    roles  - [],
+    cost   - [0, 0, 0, 2, 0, 0, 0],
+    yield  - [0, 0, 0, 0, 0, 0, 0],
+    net    - 0,
+    colors - [r],
+    types  - [instant],
+    spell  - 1,
+    board  - 0,
+    gy     - 1
+], base).
+card('Electrodominance', [
+    cost   - [0, 0, 0, 2, 0, 0, C]
+], C) :- number(C).
+
 card_key_value_default(CARDNAME, KEY, VALUE, DEFAULT) :-
     card(CARDNAME, DATA),
     carddata_key_value_default(DATA, KEY, VALUE, DEFAULT).
@@ -1062,12 +1255,18 @@ carddata_key_value_default([HKEY - _ | T], KEY, VALUE, DEFAULT) :-
     carddata_key_value_default(T, KEY, VALUE, DEFAULT).
 carddata_key_value_default([], _, DEFAULT, DEFAULT).
 
+card_priority(CARDNAME, PRIORITY) :-
+    card_key_value_default(CARDNAME, priority, PRIORITY, 100).
+card_storm(CARDNAME, STORM) :-
+    card_key_value_default(CARDNAME, spell, STORM, 0).
+
 % Mark which cards need to be cast at the start or end of the sequence
 castfirst('Chancellor of the Annex').
 castfirst('Chancellor of the Tangle').
 castfirst('Leyline of Lifeforce').
 castfirst('Leyline of Sanctity').
 castfirst('Leyline of the Void').
+castfirst('Leyline of Anticipation').
 castlast('Pact of Negation').
 castlast('Force of Will').
 castlast('Misdirection').
@@ -1084,8 +1283,21 @@ landspell('Sea Gate Restoration', u, [0, 1, 0, 0, 0, 0, 0]).
 landspell('Agadeem\'s Awakening', b, [0, 0, 1, 0, 0, 0, 0]).
 landspell('Shatterskull Smashing', r, [0, 0, 0, 1, 0, 0, 0]).
 landspell('Turntimber Symbiosis', g, [0, 0, 0, 0, 1, 0, 0]).
+landspell('Fell the Profane', b, [0, 0, 1, 0, 0, 0, 0]).
 landspell('Boggart Trawler', b, [0, 0, 1, 0, 0, 0, 0]).
 landspell('Sink into Stupor', u, [0, 1, 0, 0, 0, 0, 0]).
+landspell('Hydroelectric Specimen', u, [0, 1, 0, 0, 0, 0, 0]).
+landspell('Disciple of Freyalise', g, [0, 0, 0, 0, 1, 0, 0]).
+
+% Concrete instantiations of the land pattern
+land(NAME, YIELD, EXTRA_TYPES, 100) :- land(NAME, YIELD, EXTRA_TYPES).
+
+land('Emergence Zone', [0, 0, 0, 0, 0, 1, 0], [], 2).
+land('Emergence Zone_untapped', [0, 0, 0, 0, 0, 0, 0], []).
+
+land('Gemstone Mine', [0, 0, 0, 0, 0, 0, 1], []).
+land('Undiscovered Paradise', [0, 0, 0, 0, 0, 0, 1], []).
+land('Vault of Whispers', [0, 0, 1, 0, 0, 0, 0], [artifact]).
 
 % Concrete instantiations of the free permanent pattern
 free_permanent('Shield Sphere', [artifact, creature], []).
@@ -1096,29 +1308,33 @@ free_permanent('Memnite', [artifact, creature], []).
 % Special rules for casting / making mana
 
 specialcast(NAME, YIELD, OLD_STATE, NEW_STATE, _, EXTRA_STEPS) :-
+    NAME == 'Chrome Mox', cmox(YIELD, OLD_STATE, NEW_STATE, EXTRA_STEPS);
     NAME == 'Culling the Weak', culling(YIELD, OLD_STATE, NEW_STATE, EXTRA_STEPS);
     NAME == 'Sacrifice', sacrifice(YIELD, OLD_STATE, NEW_STATE, EXTRA_STEPS);
-    NAME == 'Burnt Offering', burnt_offering(YIELD, OLD_STATE, NEW_STATE, EXTRA_STEPS).
+    NAME == 'Burnt Offering', burnt_offering(YIELD, OLD_STATE, NEW_STATE, EXTRA_STEPS);
+    NAME == 'Crop Rotation', crop_rotation(YIELD, OLD_STATE, NEW_STATE, EXTRA_STEPS).
 specialcast(NAME, YIELD, OLD_STATE, NEW_STATE, _, []) :-
     NAME == 'Lion\'s Eye Diamond', led(YIELD, OLD_STATE, NEW_STATE);
     NAME == 'Cabal Ritual', cabal(YIELD, OLD_STATE, NEW_STATE);
-    NAME == 'Chrome Mox', cmox(YIELD, OLD_STATE, NEW_STATE);
     NAME == 'Mox Opal', opal(YIELD, OLD_STATE, NEW_STATE);
     NAME == 'Rite of Flame', rite(YIELD, OLD_STATE, NEW_STATE);
     NAME == 'Chancellor of the Tangle', chancellor(YIELD, OLD_STATE, NEW_STATE);
-    NAME == 'Summoner\'s Pact', spact(YIELD, OLD_STATE, NEW_STATE);
     NAME == 'Manamorphose', cantrip('Manamorphose', YIELD, OLD_STATE, NEW_STATE);
     NAME == 'Street Wraith', cantrip('Street Wraith', YIELD, OLD_STATE, NEW_STATE);
+    NAME == 'Borne Upon a Wind', cantrip('Borne Upon a Wind', YIELD, OLD_STATE, NEW_STATE);
 %    NAME == 'Gitaxian Probe', cantrip('Gitaxian Probe', YIELD, OLD_STATE, NEW_STATE). (banned)
     NAME == 'Chancellor of the Annex', chancellor_annex(YIELD, OLD_STATE, NEW_STATE);
     NAME == 'Wild Cantor', alternate_version('Wild Cantor_unused', YIELD, OLD_STATE, NEW_STATE);
     NAME == 'Tinder Wall', alternate_version('Tinder Wall_unused', YIELD, OLD_STATE, NEW_STATE);
     NAME == 'Lotus Petal', alternate_version('Lotus Petal_unused', YIELD, OLD_STATE, NEW_STATE);
     NAME == 'Lion\'s Eye Diamond', alternate_version('Lion\'s Eye Diamond_unused', YIELD, OLD_STATE, NEW_STATE);
+    NAME == 'Emergence Zone', alternate_version('Emergence Zone_untapped', YIELD, OLD_STATE, NEW_STATE);
     NAME == 'Once Upon a Time', once_upon_a_time(YIELD, OLD_STATE, NEW_STATE).
 specialcast(NAME, YIELD, OLD_STATE, NEW_STATE, SPENT_MANA, []) :-
     NAME == 'Pentad Prism', pentad(YIELD, SPENT_MANA, OLD_STATE, NEW_STATE).
 specialcast(NAME, YIELD, OLD_STATE, NEW_STATE, _, [STEP]) :-
+    NAME == 'Summoner\'s Pact', spact(YIELD, TARGET, OLD_STATE, NEW_STATE),
+    atom_concat('find ', TARGET, STEP);
     (
         NAME == 'Unmask', pitch('Unmask', b, YIELD, OLD_STATE, NEW_STATE, PITCH);
         NAME == 'Grief', pitch('Grief', b, YIELD, OLD_STATE, NEW_STATE, PITCH);
@@ -1153,16 +1369,23 @@ cabal([0,0,5,0,0,0,0],
 
 cmox(YIELD,
     [START_HAND, START_BOARD, START_MANA, START_GY, START_STORM, START_DECK, PROTECTION],
-    [END_HAND, END_BOARD, END_MANA, END_GY, END_STORM, END_DECK, PROTECTION]) :-
+    [END_HAND, END_BOARD, END_MANA, END_GY, END_STORM, END_DECK, PROTECTION],
+    [IMPRINT_STEP]) :-
     normalcast('Chrome Mox', _,
         [START_HAND, START_BOARD, START_MANA, START_GY, START_STORM, START_DECK, PROTECTION],
         [NEXT_HAND, END_BOARD, END_MANA, END_GY, END_STORM, END_DECK, PROTECTION]),
-    % Imprint a card:
-    remove_first(IMPRINT, NEXT_HAND, END_HAND),
-    card(IMPRINT, DATA),
-    list_to_assoc(DATA, CARD),
-    get_assoc(colors, CARD, COLORS),
-    chrome_color(COLORS, YIELD).
+        %(
+        % Imprint a card:
+        remove_first(IMPRINT, NEXT_HAND, END_HAND),
+        card(IMPRINT, DATA),
+        list_to_assoc(DATA, CARD),
+        get_assoc(colors, CARD, COLORS),
+        chrome_color(COLORS, YIELD),
+        atom_concat('imprint ', IMPRINT, IMPRINT_STEP).
+        % or don't:
+        %YIELD = [0, 0, 0, 0, 0, 0, 0],
+        %IMPRINT_STEP = 'no imprint'
+        %).
 chrome_color([H|T], YIELD) :-
     chrome_color(H, YIELD);
     chrome_color(T, YIELD).
@@ -1217,8 +1440,10 @@ chancellor(YIELD,
 alternate_version(ALT_NAME, YIELD,
     [START_HAND, START_BOARD, START_MANA, START_GY, START_STORM, START_DECK, PROTECTION],
     [END_HAND, END_BOARD, END_MANA, END_GY, END_STORM, END_DECK, PROTECTION]) :-
+    %card_property(ALT_NAME, alt, base, BASE_NAME),
+    %remove_first(BASE_NAME, START_HAND, HAND2),
     normalcast(ALT_NAME, YIELD,
-        [[ALT_NAME|START_HAND], START_BOARD, START_MANA, START_GY, START_STORM, START_DECK, PROTECTION],
+        [START_HAND, START_BOARD, START_MANA, START_GY, START_STORM, START_DECK, PROTECTION],
         [END_HAND, END_BOARD, END_MANA, END_GY, END_STORM, END_DECK, PROTECTION]).
 
 culling(YIELD, START_STATE, END_STATE, STEPS) :-
@@ -1239,6 +1464,20 @@ burnt_offering([0, 0, B, R, 0, 0, 0], START_STATE, END_STATE, STEPS) :-
     atom_concat(BS, RS, DISTRIBUTION),
     append(SACRIFICE_STEPS, [DISTRIBUTION], STEPS).
 
+crop_rotation(YIELD, START_STATE, END_STATE, [SAC_STEP, FIND_STEP]) :-
+    normalcast('Crop Rotation', _, START_STATE, CAST_STATE),
+    sacrifice_land(_, CAST_STATE, SAC_STATE, SAC_STEP),
+    land(TARGET, NORMAL_YIELD, _, _),
+    remove_from_deck(TARGET, SAC_STATE, FIND_STATE),
+    atom_concat('find ', TARGET, FIND_STEP),
+    (
+        add_to_board(TARGET, FIND_STATE, END_STATE),
+        YIELD = NORMAL_YIELD;
+        atom_concat(TARGET, '_untapped', UNTAPPED_VERSION),
+        add_to_board(UNTAPPED_VERSION, FIND_STATE, END_STATE),
+        YIELD = [0, 0, 0, 0, 0, 0, 0]
+    ).
+
 concat_n(_, 0, '').
 concat_n(ATOM, 1, ATOM).
 concat_n(ATOM, N, RESULT) :-
@@ -1257,7 +1496,6 @@ cmc(CARDNAME, CMC) :-
             total(COST, CMC)
         )
     ).
-
 
 sacrifice_creature(CARDNAME,
     [HAND, START_BOARD, MANA, START_GY, STORM, DECK, PROTECTION],
@@ -1299,7 +1537,16 @@ sacrifice_bargain(CARDNAME,
     ),
     atom_concat('sacrifice ', CARDNAME, SACRIFICE_STEP).
 
+sacrifice_land(CARDNAME, START_STATE, END_STATE, SACRIFICE_STEP) :-
+    board_to_grave(CARDNAME, START_STATE, END_STATE),
+    card(CARDNAME, DATA),
+    list_to_assoc(DATA, CARD),
+    get_assoc(types, CARD, TYPES),
+    member(land, TYPES),
+    atom_concat('sacrifice ', CARDNAME, SACRIFICE_STEP).
+
 spact(YIELD,
+    CARDNAME,
     [START_HAND, START_BOARD, START_MANA, START_GY, START_STORM, START_DECK, PROTECTION],
     [[CARDNAME | NEXT_HAND], END_BOARD, END_MANA, END_GY, END_STORM, END_DECK, PROTECTION]) :-
     normalcast('Summoner\'s Pact', YIELD,
@@ -1315,10 +1562,18 @@ spact(YIELD,
 
 cantrip(NAME, YIELD,
     [START_HAND, START_BOARD, START_MANA, START_GY, START_STORM, START_DECK, PROTECTION],
-    [["Draw" | END_HAND], END_BOARD, END_MANA, END_GY, END_STORM, END_DECK, PROTECTION]) :-
+    [["(unknown draw)" | END_HAND], END_BOARD, END_MANA, END_GY, END_STORM, END_DECK, PROTECTION]) :-
+    (nb_current(reveal_draws, false); not(nb_current(reveal_draws, true))),
     normalcast(NAME, YIELD,
         [START_HAND, START_BOARD, START_MANA, START_GY, START_STORM, START_DECK, PROTECTION],
         [END_HAND, END_BOARD, END_MANA, END_GY, END_STORM, [ _ | END_DECK], PROTECTION]).
+cantrip(NAME, YIELD,
+    [START_HAND, START_BOARD, START_MANA, START_GY, START_STORM, START_DECK, PROTECTION],
+    [[DRAW | END_HAND], END_BOARD, END_MANA, END_GY, END_STORM, END_DECK, PROTECTION]) :-
+    nb_current(reveal_draws, true),
+    normalcast(NAME, YIELD,
+        [START_HAND, START_BOARD, START_MANA, START_GY, START_STORM, START_DECK, PROTECTION],
+        [END_HAND, END_BOARD, END_MANA, END_GY, END_STORM, [ DRAW | END_DECK], PROTECTION]).
 
 append_n([], [], _, []).
 append_n([], List, 0, List).
@@ -1453,7 +1708,10 @@ isnottype(CARDNAME, TYPE) :-
     card(CARDNAME, DATA),
     list_to_assoc(DATA, CARD),
     get_assoc(types, CARD, TYPES),
-    not_member(TYPE, TYPES).
+    not_member(TYPE, TYPES),
+    !.
+isnottype(CARDNAME, _) :-
+    not(card(CARDNAME, _)).
 metalcraft_possible(HAND, BOARD) :-
     append(HAND, BOARD, EVERYTHING),
     type_threshold(3, artifact, EVERYTHING).
@@ -1482,12 +1740,13 @@ type_max(N, TYPE, [CARDNAME|T]) :-
     type_max(M, TYPE, T).
 zone_type_count([], _, 0).
 zone_type_count([H|T], TYPE, COUNT) :-
-    zone_type_count(T, TYPE, N),
     istype(H, TYPE),
-    COUNT is N+1.
+    zone_type_count(T, TYPE, N),
+    COUNT is N+1,
+    !.
 zone_type_count([H|T], TYPE, COUNT) :-
-    zone_type_count(T, TYPE, COUNT),
-    isnottype(H, TYPE).
+    isnottype(H, TYPE),
+    zone_type_count(T, TYPE, COUNT).
 
 % General rules for casting
 
@@ -1509,14 +1768,22 @@ normalcast(NAME, YIELD,
     get_assoc(gy, CARD, GY),
     get_assoc(board, CARD, BOARD),
     END_STORM is START_STORM + SPELLS,
-    yard(NAME, START_GY, END_GY, GY),
+    yard(NAME, [START_HAND, START_BOARD, START_MANA, START_GY, START_STORM, START_DECK, START_PROTECTION], END_GY, GY),
     board(NAME, START_BOARD, END_BOARD, BOARD),
     type_max(1, land, END_BOARD),
     carddata_key_value_default(DATA, protection, ADDITIONAL_PROTECTION, 0),
     END_PROTECTION is START_PROTECTION + ADDITIONAL_PROTECTION.
-yard(_, START_GY, START_GY, 0).
-yard(NAME, START_GY, END_GY, 1) :-
+
+yard(_, START_STATE, END_GY, 0) :-
+    state_gy(START_STATE, END_GY).
+yard(_, START_STATE, END_GY, 1) :-
+    exile_grave(START_STATE),
+    state_gy(START_STATE, END_GY).
+yard(NAME, START_STATE, END_GY, 1) :-
+    not(exile_grave(START_STATE)),
+    state_gy(START_STATE, START_GY),
     append(START_GY, [NAME], END_GY).
+
 board(_, START_BOARD, START_BOARD, 0).
 board(NAME, START_BOARD, END_BOARD, 1) :-
     append(START_BOARD, [NAME], END_BOARD).
@@ -1524,13 +1791,17 @@ threshold(GRAVEYARD) :-
     length(GRAVEYARD, N),
     N >= 7.
 
+exile_grave(STATE) :-
+    state_board(STATE, BOARD),
+    member('Necrodominance', BOARD).
+
 maxnet(NAME, MAX) :-
     card(NAME, DATA),
     list_to_assoc(DATA, CARD),
     get_assoc(net, CARD, MAX), !;
     MAX = 0.
 
-maxnet(NAME, HAND, BOARD, GY, MAX) :-
+maxnet(NAME, HAND, BOARD, GY, LIBRARY, MAX) :-
     % easy to get max yield for rite of flame
     NAME == 'Rite of Flame',
     count('Rite of Flame', GY, IN_GY),
@@ -1544,6 +1815,11 @@ maxnet(NAME, HAND, BOARD, GY, MAX) :-
     % assume max plausible CMC is 4 for Sacrifice/Burnt Offering
     (NAME == 'Sacrifice'; NAME == 'Burnt Offering'),
     MAX is 3,
+    !;
+    % for Summoner's Pact, check for specific green creatures in library
+    NAME == 'Summoner\'s Pact',
+    (member('Elvish Spirit Guide', LIBRARY); member('Tinder Wall', LIBRARY)),
+    MAX is 1,
     !;
     % for everything else just use the base number
     maxnet(NAME, MAX).
@@ -1586,6 +1862,12 @@ remove_first(ITEM, [H | T], [H | REMOVED]) :-
     dif(ITEM, H),
     remove_first(ITEM, T, REMOVED).
 
+remove_first_opt(_, [], [], []).
+remove_first_opt(ITEM, [ITEM | T], T, [ITEM]).
+remove_first_opt(ITEM, [H | T], [H | T_REMOVED], REMOVED) :-
+    dif(ITEM, H),
+    remove_first_opt(ITEM, T, T_REMOVED, REMOVED).
+
 remove_first_type(TYPE, [CARDNAME | T], T, CARDNAME) :-
     istype(CARDNAME, TYPE).
 remove_first_type(TYPE, [H | T], [H | REMOVED], CARDNAME) :-
@@ -1595,6 +1877,22 @@ remove_first_type(TYPE, [H | T], [H | REMOVED], CARDNAME) :-
 take(ITEM, [ITEM | T], T).
 take(ITEM, [H | T], [H | TAKEN]) :-
     take(ITEM, T, TAKEN).
+
+take_all(LIST, [], [], LIST).
+take_all([], _, [], []).
+take_all([H|T], SET, [H|TAKEN], REMAINDER) :-
+    member(H, SET),
+    take_all(T, SET, TAKEN, REMAINDER).
+take_all([H|T], SET, TAKEN, [H|REMAINDER]) :-
+    not(member(H, SET)),
+    take_all(T, SET, TAKEN, REMAINDER).
+
+remove_n(_, 0, LIST, LIST, []) :- !.
+remove_n(ITEM, N, LIST, REMAINDER, [ITEM|REMOVED]) :-
+    N > 0,
+    remove(ITEM, LIST, PARTIAL),
+    N2 is N - 1,
+    remove_n(ITEM, N2, PARTIAL, REMAINDER, REMOVED).
 
 protection(NAME, N) :-
     card(NAME, DATA),
@@ -1659,6 +1957,11 @@ has_role(CARDNAME, ROLE) :-
     get_assoc(roles, ASSOC, ROLES),
     member(ROLE, ROLES).
 
+all_have_role([], _).
+all_have_role([H|T], ROLE) :-
+    has_role(H, ROLE),
+    all_have_role(T, ROLE).
+
 card_property(CARDNAME, MODE, PROPERTY, VALUE) :-
     % if the card isn't modal, get the default value
     card(CARDNAME, DATA),
@@ -1689,3 +1992,9 @@ in_first_n(TARGET, [H|T], N) :-
     N > 1,
     M is N - 1,
     in_first_n(TARGET, T, M).
+
+n_copies(0, _, []).
+n_copies(N, ITEM, [ITEM|T]) :-
+    N > 0,
+    N2 is N - 1,
+    n_copies(N2, ITEM, T).

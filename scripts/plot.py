@@ -10,13 +10,15 @@ import sys
 	#individual [4, 4, 4, 4, 4, 1, 1, 0, 1, 3, 0, 3, 2, 0, 0, 4, 2, 0, 4, 3, 1, 0, 0, 0, 0, 0, 1, 2, 0, 3, 0, 0, 0, 4, 1, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0]: 0 successes out of 1 ; fitness=0.0
 
 if __name__ == "__main__":
-    if len(sys.argv) != 2:
-        print(f"Usage: {sys.argv[0]} <filename>")
+    if len(sys.argv) < 2 or len(sys.argv) > 3:
+        print(f"Usage: {sys.argv[0]} <filename> [sample size]")
         sys.exit(1)
     filename = sys.argv[1]
+    sample_size = int(sys.argv[2]) if len(sys.argv) > 2 else 0
     re_gen = re.compile('^Generation:? (\d+)$')
     re_fitness = re.compile('^.* ([0-9]+) successes out of ([0-9]+) ; fitness=([0-9.]+)$')
     re_fitness_2 = re.compile('^.* [Ff]itness: ([0-9.]+) .* ([0-9]+) trials.*$')
+    re_fitness_3 = re.compile('^[ \t]*individual [0-9 ]+; Fitness: ([0-9.]+)$')
     current_gen = 0
     data = []
     with open(filename, 'r') as f:
@@ -45,6 +47,13 @@ if __name__ == "__main__":
                 stddev = math.sqrt(p * (1-p) * n) / n
                 data.append({'generation': int(current_gen), 'fitness': p,
                     'p': p, 'stddev': stddev, 'p_lower': p-stddev, 'p_upper': p+stddev})
+            match = re_fitness_3.match(line)
+            if match and sample_size > 0:
+                p = float(match.group(1))
+                stddev = math.sqrt(p * (1-p) * sample_size) / sample_size
+                data.append({'generation': int(current_gen), 'fitness': p,
+                    'p': p, 'stddev': stddev, 'p_lower': p-stddev, 'p_upper': p+stddev})
+
     df = pd.DataFrame(data)
     max_ids = df.groupby(['generation'], sort=True)['fitness'].transform(max) == df['fitness']
     df_best = df[max_ids]

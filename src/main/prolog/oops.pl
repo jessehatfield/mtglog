@@ -39,6 +39,8 @@ win_specific(HAND, DECK, SB, oops, SEQUENCE, TARGET_PROTECTION, WINCON, METADATA
     win_oops(HAND, DECK, SB, SEQUENCE, TARGET_PROTECTION, WINCON, METADATA).
 win_specific(HAND, DECK, SB, empty, SEQUENCE, TARGET_PROTECTION, WINCON, METADATA) :-
     win_empty(HAND, DECK, SB, SEQUENCE, TARGET_PROTECTION, WINCON, METADATA).
+win_specific(HAND, DECK, SB, dragons, SEQUENCE, TARGET_PROTECTION, WINCON, METADATA) :-
+    win_dragons(HAND, DECK, SB, SEQUENCE, TARGET_PROTECTION, WINCON, METADATA).
 
 win(HAND, SEQUENCE) :-
     win(HAND, [], SEQUENCE, _).
@@ -64,8 +66,12 @@ win(HAND, DECK, _, SEQUENCE, PROTECTION, breakfast, _{}) :-
     breakfast(HAND, DECK, SEQUENCE, PROTECTION).
 win(HAND, DECK, _, SEQUENCE, PROTECTION, 'Empty the Warrens', _{}) :-
     etw(HAND, DECK, SEQUENCE, STORM, PROTECTION), STORM >= 4, canpass(SEQUENCE).
+win(HAND, DECK, _, SEQUENCE, PROTECTION, WINCON, _{storm: STORM, dragons: true}) :-
+    dragons(HAND, DECK, SEQUENCE, STORM, PROTECTION, WINCON), STORM >= 2, canpass(SEQUENCE).
 win(HAND, DECK, _, SEQUENCE, PROTECTION, belcher, _{}) :-
     belcher(HAND, DECK, SEQUENCE, PROTECTION).
+win(HAND, DECK, _, SEQUENCE, PROTECTION, 'The One Ring', _{ring: true}) :-
+    ring(HAND, DECK, SEQUENCE, PROTECTION).
 win(HAND, DECK, SB, SEQUENCE, PROTECTION, 'Wish->Empty', _{}) :-
     wish_warrens(HAND, DECK, SB, SEQUENCE, STORM, PROTECTION), STORM >= 4, canpass(SEQUENCE).
 win(HAND, DECK, SB, SEQUENCE, PROTECTION, 'Wish->Spy', _{}) :-
@@ -107,8 +113,11 @@ win_oops(HAND, DECK, SB, SEQUENCE, PROTECTION, WINCON, _{}) :-
     !.
 
 win_empty(HAND, DECK, SB, SEQUENCE, PROTECTION, WINCON, _{}) :-
-    etw(HAND, DECK, SEQUENCE, STORM, PROTECTION), STORM >= 4, canpass(SEQUENCE), WINCON is 'Empty the Warrens';
-    wish_warrens(HAND, DECK, SB, SEQUENCE, STORM, PROTECTION), STORM >= 4, canpass(SEQUENCE), WINCON is 'Wish->Empty'.
+    etw(HAND, DECK, SEQUENCE, STORM, PROTECTION), STORM >= 4, canpass(SEQUENCE), WINCON = 'Empty the Warrens';
+    wish_warrens(HAND, DECK, SB, SEQUENCE, STORM, PROTECTION), STORM >= 4, canpass(SEQUENCE), WINCON = 'Wish->Empty'.
+
+win_dragons(HAND, DECK, _, SEQUENCE, PROTECTION, WINCON, _{storm: STORM, dragons: true}) :-
+    dragons(HAND, DECK, SEQUENCE, STORM, PROTECTION, WINCON), STORM >= 2, canpass(SEQUENCE).
 
 belcher(START_HAND, START_DECK, SEQUENCE, PROTECTION) :-
     belcher(START_HAND, [], [0,0,0,0,0,0,0], [], 0, START_DECK, SEQUENCE, PROTECTION).
@@ -125,6 +134,20 @@ belcher(H1, B1, M1, G1, S1, D1, SEQUENCE, PROTECTION) :-
     makemana([H3, B3, M3, G2, S2, D2, P2], [_, _, M4, _, _, _, PROTECTION], SEQUENCE2, SEQUENCE3),
     append(SEQUENCE2, SEQUENCE3, SEQUENCE),
     spendGeneric(3, M4, _),
+    !.
+
+ring(START_HAND, START_DECK, SEQUENCE, PROTECTION) :-
+    ring(START_HAND, [], [0,0,0,0,0,0,0], [], 0, START_DECK, SEQUENCE, PROTECTION).
+ring(H1, B1, M1, G1, S1, D1, SEQUENCE, PROTECTION) :-
+    member('The One Ring', H1),
+    prune(4, H1, B1, G1, D1, 0),
+    % Make 4 mana, cast
+    makemana([H1, B1, M1, G1, S1, D1, 0], [H2, B2, M2, G2, S2, D2, P2], [], SEQUENCE1),
+    remove('The One Ring', H2, H3),
+    append(B2, ['The One Ring'], B3),
+    spendGeneric(4, M2, M3),
+    append(SEQUENCE1, ['The One Ring'], SEQUENCE2),
+    finalize([H3, B3, M3, G2, S2, D2, P2], [_, _, _, _, _, _, PROTECTION], SEQUENCE2, SEQUENCE),
     !.
 
 % Can mill deck; might not win.
@@ -144,9 +167,12 @@ win_condition(HAND, SB, CARD) :-
     CARD = 'Balustrade Spy', member(CARD, HAND);
     CARD = 'Breakfast Combo', member('Cephalid Illusionist', HAND), member('Shuko', HAND);
     CARD = 'Goblin Charbelcher', member(CARD, HAND);
+    CARD = 'The One Ring', member(CARD, HAND);
     CARD = 'Living Wish', member(CARD, HAND), member('Undercity Informer', SB);
     CARD = 'Living Wish', member(CARD, HAND), member('Balustrade Spy', SB);
-    CARD = 'Empty the Warrens', member(CARD, HAND).
+    CARD = 'Empty the Warrens', member(CARD, HAND),
+    CARD = 'Elemental Eruption', member(CARD, HAND),
+    CARD = 'Stormscale Scion', member(CARD, HAND).
 
 % Various ways to win
 
@@ -486,6 +512,21 @@ etw(H1, B1, M1, G1, S1, D1, SEQUENCE, STORM, PROTECTION) :-
     append(SEQUENCE1, ['Empty the Warrens'], SEQUENCE),
     !.
 
+dragons(START_HAND, START_DECK, SEQUENCE, STORM, PROTECTION, WINCON) :-
+    dragons(START_HAND, [], [0,0,0,0,0,0,0], [], 0, START_DECK, SEQUENCE, STORM, PROTECTION, WINCON).
+dragons(H1, B1, M1, G1, S1, D1, SEQUENCE, STORM, PROTECTION, WINCON) :-
+    (WINCON = 'Stormscale Scion'; WINCON = 'Elemental Eruption'),
+    member(WINCON, H1),
+    prune(6, H1, B1, G1, D1, M1, 0),
+    % Make 4RR mana, cast
+    makemana_goal(WINCON, [H1, B1, M1, G1, S1, D1, 0], [H2, B2, M2, G2, S2, D2, P1], [], SEQUENCE1),
+    remove(WINCON, H2, H3),
+    spend([0, 0, 0, 2, 0, 0, 4], M2, M3),
+    STORM is S2 + 1,
+    append(SEQUENCE1, [WINCON], SEQUENCE2),
+    finalize([H3, B2, M3, G2, STORM, D2, P1], [_, _, _, _, _, _, PROTECTION], SEQUENCE2, SEQUENCE),
+    !.
+
 wish_warrens(START_HAND, START_DECK, SB, SEQUENCE, STORM, PROTECTION) :-
     member('Empty the Warrens', SB),
     wish_warrens(START_HAND, [], [0,0,0,0,0,0,0], [], 0, START_DECK, SEQUENCE, STORM, PROTECTION).
@@ -679,9 +720,9 @@ finalize(STATE, STATE, SEQ, SEQ) :-
     state_hand(STATE, HAND),
     hand_maxprotection(HAND, 0).
 finalize(STATE1, FINAL_STATE, PRIOR_SEQUENCE, TOTAL_SEQUENCE) :-
-    makemana(STATE1, STATE2, PRIOR_SEQUENCE, [H|T]),
-    append(PRIOR_SEQUENCE, [H|T], SEQ3),
-    finalize(STATE2, FINAL_STATE, SEQ3, TOTAL_SEQUENCE).
+    makemana(STATE1, STATE2, PRIOR_SEQUENCE, SEQ2),
+    not(same_length(PRIOR_SEQUENCE, SEQ2)),
+    finalize(STATE2, FINAL_STATE, SEQ2, TOTAL_SEQUENCE).
 finalize(STATE, STATE, SEQ, SEQ).
 
 % Check the existance of a dread-returnable win condition
@@ -797,6 +838,8 @@ hand_maxprotection([H|T], P) :-
     protection(H, P1),
     hand_maxprotection(T, P2),
     P is P1 + P2.
+
+can_always_powder(_, _, _, _).
 
 can_powder(HAND, LIBRARY, 0, []) :-
     member('Serum Powder', HAND),

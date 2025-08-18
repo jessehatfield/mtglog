@@ -8,6 +8,10 @@
 % Finale of Devastation
 % Once Upon a Time
 % LED + non-targeting Reanimate
+% Irencrag Feat
+% Planar Nexus for colored mana
+% Candelabra of Tawnos
+% Mox Diamond
 
 nb_setval(reveal_draws, false).
 
@@ -167,6 +171,17 @@ card('Seething Song', [
     board  - 0,
     gy     - 1
 ]).
+card('Irencrag Feat', [
+    cost   - [0, 0, 0, 3, 0, 0, 1],
+    yield  - [0, 0, 0, 7, 0, 0, 0],
+    net    - 3,
+    colors - [r],
+    types  - [sorcery],
+    spell  - 1,
+    board  - 0,
+    gy     - 1,
+    restricted - true
+]).
 card('Tinder Wall', [
     cost   - [0, 0, 0, 0, 1, 0, 0],
     yield  - [0, 0, 0, 2, 0, 0, 0],
@@ -282,6 +297,17 @@ card('Grim Monolith', [
     gy     - 0
 ]).
 
+card('Basalt Monolith', [
+    cost   - [0, 0, 0, 0, 0, 0, 3],
+    yield  - [0, 0, 0, 0, 0, 3, 0],
+    net    - 1,
+    colors - [],
+    types  - [artifact],
+    spell  - 1,
+    board  - 1,
+    gy     - 0
+]).
+
 card('Throne of Eldraine', [
     cost   - [0, 0, 0, 0, 0, 0, 5],
     yield  - [0, 0, 0, 0, 0, 0, 4],
@@ -293,11 +319,60 @@ card('Throne of Eldraine', [
     gy     - 0
 ]).
 
+card('Voltaic Key', [
+    activate - 'Voltaic Key_tapped',
+    cost   - [0, 0, 0, 0, 0, 0, 1],
+    yield  - [0, 0, 0, 0, 0, 0, 0],
+    best   - [0, 0, 0, 0, 0, 0, 4],
+    net    - 2,
+    colors - [],
+    types  - [artifact],
+    spell  - 1,
+    board  - 1,
+    gy     - 0
+]).
+card('Manifold Key', [
+    activate - 'Manifold Key_tapped',
+    cost   - [0, 0, 0, 0, 0, 0, 1],
+    yield  - [0, 0, 0, 0, 0, 0, 0],
+    best   - [0, 0, 0, 0, 0, 0, 4],
+    net    - 2,
+    colors - [],
+    types  - [artifact],
+    spell  - 1,
+    board  - 1,
+    gy     - 0
+]).
+card('Voltaic Key_tapped', [
+    cost   - [0, 0, 0, 0, 0, 0, 1],
+    yield  - [0, 0, 0, 0, 0, 0, 0],
+    best   - [0, 0, 0, 0, 0, 0, 4],
+    net    - 3,
+    colors - [],
+    types  - [artifact],
+    spell  - 0,
+    board  - 1,
+    gy     - 0,
+    restricted - true
+]).
+card('Manifold Key_tapped', [
+    cost   - [0, 0, 0, 0, 0, 0, 1],
+    yield  - [0, 0, 0, 0, 0, 0, 0],
+    best   - [0, 0, 0, 0, 0, 0, 4],
+    net    - 3,
+    colors - [],
+    types  - [artifact],
+    spell  - 0,
+    board  - 1,
+    gy     - 0,
+    restricted - true
+]).
+
 card('Pentad Prism', DATA) :-
     (
-        YIELD = [0, 0, 0, 0, 0, 0, 5];
-        YIELD = [0, 0, 0, 0, 0, 0, 4];
-        YIELD = [0, 0, 0, 0, 0, 0, 3];
+        %YIELD = [0, 0, 0, 0, 0, 0, 5];
+        %YIELD = [0, 0, 0, 0, 0, 0, 4];
+        %        YIELD = [0, 0, 0, 0, 0, 0, 3];
         YIELD = [0, 0, 0, 0, 0, 0, 2];
         YIELD = [0, 0, 0, 0, 0, 0, 1];
         YIELD = [0, 0, 0, 0, 0, 0, 0]
@@ -618,14 +693,14 @@ card(NAME, [
 card(NAME, [
     cost   - [0, 0, 0, 0, 0, 0, 0],
     yield  - YIELD,
-    net    - 1,
+    net    - NET,
     colors - [],
     types  - [land|EXTRA_TYPES],
     spell  - 0,
     board  - 1,
     gy     - 0,
     priority - PRIORITY
-]) :- land(NAME, YIELD, EXTRA_TYPES, PRIORITY).
+]) :- land(NAME, YIELD, EXTRA_TYPES, PRIORITY), sum_list(YIELD, NET).
 
 %card(NAME, DATA) :-
 %    (
@@ -655,7 +730,7 @@ card('Undercity Informer', [
     net    - 0,
     colors - [b],
     types  - [creature],
-    spell  - -1,
+    spell  - 1,
     board  - 0,
     gy     - 0
 ]).
@@ -666,7 +741,7 @@ card('Balustrade Spy', [
     net    - 0,
     colors - [b],
     types  - [creature],
-    spell  - -1,
+    spell  - 1,
     board  - 1,
     gy     - 0
 ]).
@@ -714,7 +789,31 @@ card('Empty the Warrens', [
     board  - 0,
     gy     - 1,
     protection - 1
-]).
+     ]).
+card('Elemental Eruption', [
+    roles  - [combo],
+    cost   - [0, 0, 0, 2, 0, 0, 4],
+    yield  - [0, 0, 0, 0, 0, 0, 0],
+    net    - 0,
+    colors - [r],
+    types  - [sorcery],
+    spell  - 1,
+    board  - 0,
+    gy     - 1,
+    protection - 0
+     ]).
+card('Stormscale Scion', [
+    roles  - [combo],
+    cost   - [0, 0, 0, 2, 0, 0, 4],
+    yield  - [0, 0, 0, 0, 0, 0, 0],
+    net    - 0,
+    colors - [r],
+    types  - [creature],
+    spell  - 1,
+    board  - 1,
+    gy     - 0,
+    protection - 0
+    ]).
 card('Burning Wish', [
     cost   - [0, 0, 0, 1, 0, 0, 1],
     yield  - [0, 0, 0, 0, 0, 0, 0],
@@ -765,6 +864,61 @@ card('Brain Freeze', [
     spell  - 1,
     board  - 0,
     gy     - 1
+]).
+card('The One Ring', [
+    roles  - [combo, engine],
+    cost   - [0, 0, 0, 0, 0, 0, 4],
+    yield  - [0, 0, 0, 0, 0, 0, 0],
+    net    - 0,
+    colors - [],
+    types  - [artifact],
+    spell  - 1,
+    board  - 1,
+    gy     - 0
+]).
+card('Mystic Forge', [
+    roles  - [combo, engine],
+    cost   - [0, 0, 0, 0, 0, 0, 4],
+    yield  - [0, 0, 0, 0, 0, 0, 0],
+    net    - 0,
+    colors - [],
+    types  - [artifact],
+    spell  - 1,
+    board  - 1,
+    gy     - 0
+]).
+card('Karn, the Great Creator', [
+    roles  - [combo, engine],
+    cost   - [0, 0, 0, 0, 0, 0, 4],
+    yield  - [0, 0, 0, 0, 0, 0, 0],
+    net    - 0,
+    colors - [],
+    types  - [planeswalker],
+    spell  - 1,
+    board  - 1,
+    gy     - 0
+]).
+card('Paradox Engine', [
+    roles  - [engine],
+    cost   - [0, 0, 0, 0, 0, 0, 5],
+    yield  - [0, 0, 0, 0, 0, 0, 0],
+    net    - 0,
+    colors - [],
+    types  - [artifact],
+    spell  - 1,
+    board  - 1,
+    gy     - 0
+]).
+card('Glaring Fleshraker', [
+    roles  - [engine],
+    cost   - [0, 0, 0, 0, 0, 1, 2],
+    yield  - [0, 0, 0, 0, 0, 0, 0],
+    net    - 0,
+    colors - [],
+    types  - [creature],
+    spell  - 1,
+    board  - 1,
+    gy     - 0
 ]).
 
 % Cards used in the combo
@@ -1032,6 +1186,18 @@ card('Thoughtseize', [
     protection - 1,
     roles - [self_discard]
 ]).
+card('Duress', [
+    cost   - [0, 0, 1, 0, 0, 0, 0],
+    cmc    - 1,
+    yield  - [0, 0, 0, 0, 0, 0, 0],
+    net    - 0,
+    colors - [b],
+    types  - [sorcery],
+    spell  - 1,
+    board  - 0,
+    gy     - 1,
+    protection - 1
+]).
 card('Veil of Summer', [
     cost   - [0, 0, 0, 0, 1, 0, 0],
     yield  - [0, 0, 0, 0, 0, 0, 0],
@@ -1176,6 +1342,18 @@ card('Serum Powder', [
     gy     - 0
 ]).
 
+% Template for a castable permanent whose text doesn't matter
+card(NAME, [
+    cost   - COST,
+    yield  - [0, 0, 0, 0, 0, 0, 0],
+    net    - 0,
+    colors - [],
+    types  - TYPES,
+    spell  - 1,
+    board  - 1,
+    gy     - 0
+]) :- permanent_card(NAME, COST, TYPES).
+
 % Special non-real cards
 % Negative storm means uncastable
 
@@ -1247,13 +1425,17 @@ card('Electrodominance', [
 ], C) :- number(C).
 
 card_key_value_default(CARDNAME, KEY, VALUE, DEFAULT) :-
-    card(CARDNAME, DATA),
-    carddata_key_value_default(DATA, KEY, VALUE, DEFAULT).
-carddata_key_value_default([KEY - VALUE | _], KEY, VALUE, _).
-carddata_key_value_default([HKEY - _ | T], KEY, VALUE, DEFAULT) :-
+    findall(DATA, card(CARDNAME, DATA), DATA_LIST),
+    maplist(get_or_default_carddata(KEY, DEFAULT), DATA_LIST, VALUE_LIST),
+    list_to_set(VALUE_LIST, VALUE_SET),
+    member(VALUE, VALUE_SET).
+    %    card(CARDNAME, DATA),
+%    carddata_key_value_default(DATA, KEY, VALUE, DEFAULT).
+get_or_default_carddata(KEY, _, [KEY - VALUE | _], VALUE).
+get_or_default_carddata(KEY, DEFAULT, [HKEY - _ | T], VALUE) :-
     dif(HKEY, KEY),
-    carddata_key_value_default(T, KEY, VALUE, DEFAULT).
-carddata_key_value_default([], _, DEFAULT, DEFAULT).
+    get_or_default_carddata(KEY, DEFAULT, T, VALUE).
+get_or_default_carddata(_, DEFAULT, [], DEFAULT).
 
 card_priority(CARDNAME, PRIORITY) :-
     card_key_value_default(CARDNAME, priority, PRIORITY, 100).
@@ -1278,16 +1460,21 @@ contains_spellsonly([H | T]) :-
     contains_spellsonly(T).
 
 % Concrete instantiations of the land/spell pattern
+landspell('Witch Enchanter', w, [1, 0, 0, 0, 0, 0, 0]).
+landspell('Razorgrass Ambush', w, [1, 0, 0, 0, 0, 0, 0]).
 landspell('Emeria\'s Call', w, [1, 0, 0, 0, 0, 0, 0]).
-landspell('Sea Gate Restoration', u, [0, 1, 0, 0, 0, 0, 0]).
-landspell('Agadeem\'s Awakening', b, [0, 0, 1, 0, 0, 0, 0]).
-landspell('Shatterskull Smashing', r, [0, 0, 0, 1, 0, 0, 0]).
-landspell('Turntimber Symbiosis', g, [0, 0, 0, 0, 1, 0, 0]).
-landspell('Fell the Profane', b, [0, 0, 1, 0, 0, 0, 0]).
-landspell('Boggart Trawler', b, [0, 0, 1, 0, 0, 0, 0]).
 landspell('Sink into Stupor', u, [0, 1, 0, 0, 0, 0, 0]).
 landspell('Hydroelectric Specimen', u, [0, 1, 0, 0, 0, 0, 0]).
+landspell('Sea Gate Restoration', u, [0, 1, 0, 0, 0, 0, 0]).
+landspell('Boggart Trawler', b, [0, 0, 1, 0, 0, 0, 0]).
+landspell('Fell the Profane', b, [0, 0, 1, 0, 0, 0, 0]).
+landspell('Agadeem\'s Awakening', b, [0, 0, 1, 0, 0, 0, 0]).
+landspell('Sundering Eruption', r, [0, 0, 0, 1, 0, 0, 0]).
+landspell('Pinnacle Monk', r, [0, 0, 0, 1, 0, 0, 0]).
+landspell('Shatterskull Smashing', r, [0, 0, 0, 1, 0, 0, 0]).
 landspell('Disciple of Freyalise', g, [0, 0, 0, 0, 1, 0, 0]).
+landspell('Bridgeworks Battle', g, [0, 0, 0, 0, 1, 0, 0]).
+landspell('Turntimber Symbiosis', g, [0, 0, 0, 0, 1, 0, 0]).
 
 % Concrete instantiations of the land pattern
 land(NAME, YIELD, EXTRA_TYPES, 100) :- land(NAME, YIELD, EXTRA_TYPES).
@@ -1297,13 +1484,47 @@ land('Emergence Zone_untapped', [0, 0, 0, 0, 0, 0, 0], []).
 
 land('Gemstone Mine', [0, 0, 0, 0, 0, 0, 1], []).
 land('Undiscovered Paradise', [0, 0, 0, 0, 0, 0, 1], []).
+land('Mana Confluence', [0, 0, 0, 0, 0, 0, 1], []).
+land('City of Brass', [0, 0, 0, 0, 0, 0, 1], []).
+
+land('Ancient Tomb', [0, 0, 0, 0, 0, 2, 0], []).
+land('City of Traitors', [0, 0, 0, 0, 0, 2, 0], []).
+land('Crystal Vein', [0, 0, 0, 0, 0, 2, 0], []).
+land('Urza\'s Saga', [0, 0, 0, 0, 0, 1, 0], [enchantment]).
+land('Wastes', [0, 0, 0, 0, 0, 1, 0], []).
+
+land('Planar Nexus', [0, 0, 0, 0, 0, 1, 0], []).
+land('Urza\'s Tower', [0, 0, 0, 0, 0, 1, 0], []).
+land('Urza\'s Workshop', [0, 0, 0, 0, 0, 1, 0], []).
+
+land('Plains', [1, 0, 0, 0, 0, 0, 0], []).
+land('Island', [0, 1, 0, 0, 0, 0, 0], []).
+land('Swamp', [0, 0, 1, 0, 0, 0, 0], []).
+land('Mountain', [0, 0, 0, 1, 0, 0, 0], []).
+land('Forest', [0, 0, 0, 0, 1, 0, 0], []).
+
+land('Ancient Den', [1, 0, 0, 0, 0, 0, 0], [artifact]).
+land('Seat of the Synod', [0, 1, 0, 0, 0, 0, 0], [artifact]).
 land('Vault of Whispers', [0, 0, 1, 0, 0, 0, 0], [artifact]).
+land('Great Furnace', [0, 0, 0, 1, 0, 0, 0], [artifact]).
+land('Tree of Tales', [0, 0, 0, 0, 1, 0, 0], [artifact]).
+land('Darksteel Citadel', [0, 0, 0, 0, 0, 1, 0], [artifact]).
 
 % Concrete instantiations of the free permanent pattern
 free_permanent('Shield Sphere', [artifact, creature], []).
 free_permanent('Phyrexian Walker', [artifact, creature], []).
 free_permanent('Ornithopter', [artifact, creature], []).
 free_permanent('Memnite', [artifact, creature], []).
+free_permanent('Mishra\'s Bauble', [artifact], []).
+free_permanent('Urza\'s Bauble', [artifact], []).
+
+% Concrete instantiations of the generic permanent pattern
+permanent_card('Ghost Vacuum', [0, 0, 0, 0, 0, 0, 1], [artifact]).
+permanent_card('Candelabra of Tawnos', [0, 0, 0, 0, 0, 0, 1], [artifact]). % TODO: should be implemented explicitly
+permanent_card('Disruptor Flute', [0, 0, 0, 0, 0, 0, 2], [artifact]).
+permanent_card('Pithing Needle', [0, 0, 0, 0, 0, 0, 1], [artifact]).
+permanent_card('Mishra\'s Research Desk', [0, 0, 0, 0, 0, 0, 1], [artifact]).
+permanent_card('Soul-Guide Lantern', [0, 0, 0, 0, 0, 0, 1], [artifact]).
 
 % Special rules for casting / making mana
 
@@ -1343,6 +1564,11 @@ specialcast(NAME, YIELD, OLD_STATE, NEW_STATE, _, [STEP]) :-
         NAME == 'Misdirection', pitch('Misdirection', u, YIELD, OLD_STATE, NEW_STATE, PITCH);
         NAME == 'Vine Dryad', pitch('Vine Dryad', g, YIELD, OLD_STATE, NEW_STATE, PITCH)
     ), atom_concat('pitch ', PITCH, STEP).
+specialcast(NAME, YIELD, OLD_STATE, NEW_STATE, _, SPENT_MANA, EXTRA_STEPS) :-
+    specialcast(NAME, YIELD, OLD_STATE, NEW_STATE, SPENT_MANA, EXTRA_STEPS).
+specialcast(NAME, YIELD, OLD_STATE, NEW_STATE, PRIOR_STEPS, _, EXTRA_STEPS) :-
+    (NAME = 'Voltaic Key_tapped'; NAME = 'Manifold Key_tapped'),
+    activate_key(NAME, YIELD, OLD_STATE, NEW_STATE, PRIOR_STEPS, EXTRA_STEPS).
 
 led(YIELD,
     [START_HAND, START_BOARD, START_MANA, START_GY, START_STORM, START_DECK, PROTECTION],
@@ -1377,10 +1603,7 @@ cmox(YIELD,
         %(
         % Imprint a card:
         remove_first(IMPRINT, NEXT_HAND, END_HAND),
-        card(IMPRINT, DATA),
-        list_to_assoc(DATA, CARD),
-        get_assoc(colors, CARD, COLORS),
-        chrome_color(COLORS, YIELD),
+        chrome_yield(IMPRINT, YIELD),
         atom_concat('imprint ', IMPRINT, IMPRINT_STEP).
         % or don't:
         %YIELD = [0, 0, 0, 0, 0, 0, 0],
@@ -1394,6 +1617,11 @@ chrome_color(u, [0, 1, 0, 0, 0, 0, 0]).
 chrome_color(b, [0, 0, 1, 0, 0, 0, 0]).
 chrome_color(r, [0, 0, 0, 1, 0, 0, 0]).
 chrome_color(g, [0, 0, 0, 0, 1, 0, 0]).
+chrome_yield(IMPRINT_NAME, YIELD) :-
+    card(IMPRINT_NAME, DATA),
+    list_to_assoc(DATA, CARD),
+    get_assoc(colors, CARD, COLORS),
+    chrome_color(COLORS, YIELD).
 
 opal(YIELD,
     [START_HAND, START_BOARD, START_MANA, START_GY, START_STORM, START_DECK, PROTECTION],
@@ -1631,6 +1859,20 @@ once_upon_a_time(YIELD,
 %    remove_first(CARDNAME, TOP, MINUS_CHOSEN),
 %    append(REMAINDER, MINUS_CHOSEN, END_DECK).
 
+activate_key(ACTIVATED_KEY, YIELD, [H, START_BOARD, M, G, S, D, P], [H, END_BOARD, M, G, S, D, P], HISTORY, [STEP]) :-
+    atom_concat(KEY, "_tapped", ACTIVATED_KEY),
+    remove_first(KEY, START_BOARD, BOARD2),
+    member(TARGET, BOARD2),
+    (   TARGET = 'Grim Monolith', YIELD = [0, 0, 0, 0, 0, 3, 0]
+    ;   TARGET = 'Mox Opal', metalcraft(H, START_BOARD), YIELD = [0, 0, 0, 0, 0, 0, 1]
+    ;   TARGET = 'Chrome Mox',
+        member(IMPRINT_STEP, HISTORY),
+        atom_concat('imprint ', IMPRINT_NAME, IMPRINT_STEP),
+        chrome_yield(IMPRINT_NAME, YIELD)
+    ),
+    atom_concat("untap ", TARGET, STEP),
+    append(BOARD2, [ACTIVATED_KEY], END_BOARD).
+
 pentad([0, 0, 0, 0, 0, 0, NUM_COUNTERS], SPENT_MANA, START_STATE, END_STATE) :-
     sunburst(SPENT_MANA, NUM_COUNTERS),
     normalcast('Pentad Prism', [0, 0, 0, 0, 0, 0, NUM_COUNTERS], START_STATE, END_STATE).
@@ -1748,6 +1990,14 @@ zone_type_count([H|T], TYPE, COUNT) :-
     isnottype(H, TYPE),
     zone_type_count(T, TYPE, COUNT).
 
+zone_type_cards([], _, []).
+zone_type_cards([H | T_ZONE], TYPE, [H | T_TYPE]) :-
+    istype(H, TYPE),
+    zone_type_cards(T_ZONE, TYPE, T_TYPE).
+zone_type_cards([H | T_ZONE], TYPE, T_TYPE) :-
+    isnottype(H, TYPE),
+    zone_type_cards(T_ZONE, TYPE, T_TYPE).
+
 % General rules for casting
 
 cast(NAME, YIELD, STEPS, OLD_STATE, NEW_STATE, SPENT_MANA) :-
@@ -1771,7 +2021,7 @@ normalcast(NAME, YIELD,
     yard(NAME, [START_HAND, START_BOARD, START_MANA, START_GY, START_STORM, START_DECK, START_PROTECTION], END_GY, GY),
     board(NAME, START_BOARD, END_BOARD, BOARD),
     type_max(1, land, END_BOARD),
-    carddata_key_value_default(DATA, protection, ADDITIONAL_PROTECTION, 0),
+    get_or_default_carddata(protection, 0, DATA, ADDITIONAL_PROTECTION),
     END_PROTECTION is START_PROTECTION + ADDITIONAL_PROTECTION.
 
 yard(_, START_STATE, END_GY, 0) :-
@@ -1820,6 +2070,18 @@ maxnet(NAME, HAND, BOARD, GY, LIBRARY, MAX) :-
     NAME == 'Summoner\'s Pact',
     (member('Elvish Spirit Guide', LIBRARY); member('Tinder Wall', LIBRARY)),
     MAX is 1,
+    !;
+    % for Voltaic/Manifold Key, use the best artifact between hand and board
+    (   member(NAME, ['Voltaic Key', 'Manifold Key']), KEY_COST = 2 % still in hand
+    ;   member(NAME, ['Voltaic Key_tapped', 'Manifold Key_tapped']), KEY_COST = 1 % already on board
+    ),
+    append(HAND, BOARD, HAND_AND_BOARD),
+    zone_type_cards(HAND_AND_BOARD, artifact, ARTIFACTS),
+    subtract(ARTIFACTS, ['Voltaic Key', 'Manifold Key', 'Voltaic Key_tapped', 'Manifold Key_tapped'], MINUS_KEYS),
+    maplist(max_yield, MINUS_KEYS, ARTIFACT_YIELDS),
+    maplist(sum_list, ARTIFACT_YIELDS, CONVERTED),
+    max_list([KEY_COST | CONVERTED], MAX_YIELD),
+    MAX is MAX_YIELD - KEY_COST,
     !;
     % for everything else just use the base number
     maxnet(NAME, MAX).
@@ -1997,4 +2259,18 @@ n_copies(0, _, []).
 n_copies(N, ITEM, [ITEM|T]) :-
     N > 0,
     N2 is N - 1,
-    n_copies(N2, ITEM, T).
+    n_copies(N2, ITEM, T),
+    !.
+
+activates(UNUSED_NAME, ACTIVATED_NAME) :-
+    card(UNUSED_NAME, UNUSED_DATA),
+    list_to_assoc(UNUSED_DATA, UNUSED_CARD),
+    get_assoc(activate, UNUSED_CARD, ACTIVATED_NAME).
+
+possible_activations([], []).
+possible_activations([H|T], ACTIVATED_T) :-
+    not(activates(H, _)),
+    possible_activations(T, ACTIVATED_T).
+possible_activations([H|T], [ACTIVATED_H | ACTIVATED_T]) :-
+    activates(H, ACTIVATED_H),
+    possible_activations(T, ACTIVATED_T).

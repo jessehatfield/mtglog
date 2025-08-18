@@ -8,8 +8,8 @@ load_necro :-
 
 run_necro_tests :-
     load_necro,
-    debug,
-    use_module(library(prolog_stack)),
+    %debug,
+    %use_module(library(prolog_stack)),
     time(test_cast_necro),
     time(test_necro_no_payoff),
     time(test_necro_cant_cast),

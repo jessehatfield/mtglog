@@ -18,6 +18,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.BiConsumer;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
@@ -62,6 +63,20 @@ public class PrologEngine {
         this.timeoutMs = timeoutMs;
     }
 
+    private Term convertParameter(final Object val) {
+        if (val instanceof Integer) {
+            return new org.jpl7.Integer((Integer) val);
+        } else if (val instanceof String) {
+            return new Atom((String) val);
+        } else if (val instanceof List) {
+            final Stream<Object> stream = ((List) val).stream();
+            final List<Term> terms = stream.map(t -> convertParameter(t)).collect(Collectors.toList());
+            return Term.termArrayToList(terms.toArray(new Term[] {}));
+        } else {
+            return null;
+        }
+    }
+
     /**
      * Test a specific hand, putting back cards as required.
      * @param objective The problem to test; sources should already be loaded
@@ -78,13 +93,12 @@ public class PrologEngine {
         for (Map.Entry<String, Object> entry : objective.getParams().entrySet()) {
             final String key = entry.getKey();
             final Object val = entry.getValue();
-            if (val instanceof Integer) {
-                params.put(new Atom(key), new org.jpl7.Integer((Integer) val));
-            } else if (val instanceof String) {
-                params.put(new Atom(key), new Atom((String) val));
-            } else {
+            final Term prologParam = convertParameter(val);
+            if (prologParam == null) {
                 throw new IllegalArgumentException("Doesn't know how to convert parameter "
                         + key + ": " + val + " of type " + val.getClass() + " into Prolog term");
+            } else {
+                params.put(new Atom(key), prologParam);
             }
         }
         final Variable outputs = new Variable("Outputs");

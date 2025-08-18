@@ -132,6 +132,7 @@ public class DeckTemplate implements Serializable {
                             distinct.putIfAbsent(name, newBlock);
                             if (entry == null) {
                                 entry = new Entry(name, minCount, maxCount);
+                                newBlock = false;
                             } else {
                                 entry.add(name, minCount, maxCount);
                             }

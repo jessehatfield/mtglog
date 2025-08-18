@@ -64,4 +64,8 @@ public class DecklistVectorSpecies extends IntegerVectorSpecies {
         state.parameters.set(base.push("max-gene"), "" + overallMax);
         super.setup(state, base);
     }
+
+    public DeckTemplate getTemplate() {
+        return template;
+    }
 }

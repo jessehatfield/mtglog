@@ -28,6 +28,7 @@ public class BinomialPosteriorFitness extends StochasticFitness {
     private int historySize = 0;
     private boolean useMemory = false;
     private double lowerBoundConfidence = 0;
+    private BinomialFitnessMemory historicalTotals;
 
     private int successes;
     private int failures;
@@ -45,6 +46,7 @@ public class BinomialPosteriorFitness extends StochasticFitness {
         other.lowerBoundConfidence = lowerBoundConfidence;
         other.successes = successes;
         other.failures = failures;
+        other.historicalTotals = historicalTotals;
         return other;
     }
 
@@ -137,17 +139,28 @@ public class BinomialPosteriorFitness extends StochasticFitness {
     }
 
     public double getP() {
-        return ((double) successes) / trials.size();
+        int nSuccess = successes;
+        int nTotal = trials.size();
+        if (historicalTotals != null) {
+            nSuccess += historicalTotals.getNSuccesses(latestInd);
+            nTotal += historicalTotals.getNTotal(latestInd);
+        }
+        return ((double) nSuccess) / nTotal;
     }
 
     public double getQuantile(final double q) {
-        return new BetaDistribution(priorAlpha + successes, priorBeta + failures)
-                .inverseCumulativeProbability(q);
+        double alpha = priorAlpha + successes;
+        double beta = priorBeta + failures;
+        if (historicalTotals != null) {
+            int historicalSuccesses = historicalTotals.getNSuccesses(latestInd);
+            alpha += historicalSuccesses;
+            beta += (historicalTotals.getNTotal(latestInd) - historicalSuccesses);
+        }
+        return new BetaDistribution(alpha, beta).inverseCumulativeProbability(q);
     }
 
-    public double getUpperBound(final double quantile) {
-        return new BetaDistribution(priorAlpha + successes, priorBeta + failures)
-                .inverseCumulativeProbability(quantile);
+    public void setHistory(final BinomialFitnessMemory historicalTotals) {
+        this.historicalTotals = historicalTotals;
     }
 
     @Override
@@ -215,7 +228,11 @@ public class BinomialPosteriorFitness extends StochasticFitness {
     public double stddev() {
         final double p = fitness();
         final double q = 1 - p;
-        return Math.sqrt(trials.size() * p * q) / trials.size();
+        int nTotal = trials.size();
+        if (historicalTotals != null) {
+            nTotal += historicalTotals.getNTotal(latestInd);
+        }
+        return Math.sqrt(nTotal * p * q) / nTotal;
     }
 
     public static void main(final String[] args) {

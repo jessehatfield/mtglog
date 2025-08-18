@@ -205,15 +205,24 @@ public class Results {
     public int getNTotal() { return nTotal; }
     public int getNSuccesses() { return nSuccesses; }
     public int getNFailures() { return nFailures; }
-    public int getNWithProperty(final String property) {
+    public int getNWithProperty(final String property, final boolean strict) {
         if (getNSuccesses() == 0) {
             return 0;
         }
         if (!booleanMetadataCounts.containsKey(property)) {
-            throw new IllegalArgumentException("Results don't contain boolean property '"
-                    + property + "'. Boolean properties found: " + booleanMetadataCounts);
+            final String message = "Results don't contain boolean property '"
+                + property + "'. Boolean properties found: " + booleanMetadataCounts;
+            if (strict) {
+                throw new IllegalArgumentException(message);
+            } else {
+                System.err.println("WARNING: " + message);
+                return 0;
+            }
         }
         return booleanMetadataCounts.get(property);
+    }
+    public int getNWithProperty(final String property) {
+        return getNWithProperty(property, false);
     }
 
     public int getPropertySum(final String property) {
@@ -229,7 +238,7 @@ public class Results {
 
     public Map<String, Integer> getValueDistribution(final String key) {
         if (!stringMetadataCounts.containsKey(key)) {
-            throw new IllegalArgumentException("Results don't contain string property '"
+            System.err.println("WARNING: Results don't contain string property '"
                     + key + "'. String properties found: " + stringMetadataCounts);
         }
         return stringMetadataCounts.get(key);

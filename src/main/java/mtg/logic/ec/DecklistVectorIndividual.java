@@ -5,6 +5,10 @@ import ec.util.Parameter;
 import ec.vector.IntegerVectorIndividual;
 import ec.vector.IntegerVectorSpecies;
 
+import java.io.IOException;
+import java.io.LineNumberReader;
+import java.io.StringReader;
+
 /**
  * Individual represented by a vector of integers with a constant sum. Based on
  * IntegerVectorIndividual but enforces the constant sum constraint after mutation by randomly
@@ -17,6 +21,13 @@ public class DecklistVectorIndividual extends IntegerVectorIndividual {
     public int genomeTotal;
     public int minSumIndividual;
     public int maxSumIndividual;
+
+    public DecklistVectorIndividual() {
+    }
+
+    public DecklistVectorIndividual(final EvolutionState state, final String code) throws IOException {
+        parseGenotype(state, new LineNumberReader(new StringReader(code)));
+    }
 
     @Override
     public void setup(EvolutionState state, Parameter base) {

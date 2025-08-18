@@ -2,6 +2,7 @@ package mtg.logic.ec;
 
 import ec.EvolutionState;
 import ec.Individual;
+import ec.Statistics;
 import ec.multiobjective.MultiObjectiveFitness;
 import ec.simple.SimpleFitness;
 import ec.util.Log;
@@ -19,7 +20,10 @@ import mtg.logic.SecondaryObjective;
 import mtg.logic.SingleObjectivePrologProblem;
 import mtg.logic.Results;
 import mtg.logic.ec.stochastic.AdaptiveTrialsFitness;
+import mtg.logic.ec.stochastic.BinomialFitnessMemory;
 import mtg.logic.ec.stochastic.BinomialNSGA2Fitness;
+import mtg.logic.ec.stochastic.BinomialPosteriorFitness;
+import mtg.logic.ec.stochastic.GameCountWriter;
 import mtg.logic.ec.stochastic.StochasticProblem;
 
 import java.io.File;
@@ -30,6 +34,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class MtgProblem extends StochasticProblem {
     private static final long serialVersionUID = 1;
@@ -42,6 +47,7 @@ public class MtgProblem extends StochasticProblem {
     private String adaptive;
     private int progressFraction = 20;
     private int timeoutMs = 0;
+    private BinomialFitnessMemory history;
 
     public static final String PROLOG_SRC_PROPERTY = "prolog.src.dir";
 
@@ -52,6 +58,8 @@ public class MtgProblem extends StochasticProblem {
     public static final String P_ADAPT = "adapt-sampling";
     public static final String P_PROGRESS_FRACTION = "progress-fraction";
     public static final String P_TIMEOUT_MS = "timeout-ms";
+    public static final String P_HISTORY = "add-history";
+    public static final String P_HISTORY_LOG = "log-history";
 
     public static final String ADAPTIVE_CATCHUP = "catchup";
     public static final String ADAPTIVE_GENERATION_SQRT = "sqrt-gen";
@@ -132,6 +140,9 @@ public class MtgProblem extends StochasticProblem {
         if (ind.evaluated) {
             return;
         }
+        if (history != null && history.getSpecies() == null) {
+            history.setSpecies((DecklistVectorSpecies) ind.species);
+        }
         final IntegerVectorIndividual vectorInd = (IntegerVectorIndividual) ind;
         final DecklistVectorSpecies species = (DecklistVectorSpecies) ind.species;
         final Deck deck = species.template.toDeck(vectorInd.genome);
@@ -139,6 +150,9 @@ public class MtgProblem extends StochasticProblem {
         int newTrials = trialsGen(state);
         if (vectorInd.fitness instanceof AdaptiveTrialsFitness) {
             ((AdaptiveTrialsFitness) vectorInd.fitness).setNTrials(newTrials);
+        }
+        if (history != null && vectorInd.fitness instanceof BinomialPosteriorFitness) {
+            ((BinomialPosteriorFitness) vectorInd.fitness).setHistory(history);
         }
         if (vectorInd.fitness instanceof MultiObjectiveFitness) {
             final double[] o = objectives(vectorInd, deck, padTrials, newTrials, state, threadnum);
@@ -208,7 +222,26 @@ public class MtgProblem extends StochasticProblem {
                     base.push(P_HAND_LOG), def.push(P_HAND_LOG));
             }
         }
+        final boolean addHistoryToFitness = state.parameters.getBoolean(base.push(P_HISTORY), def.push(P_HISTORY), false);
+        final boolean logHistory = state.parameters.getBoolean(base.push(P_HISTORY_LOG), def.push(P_HISTORY_LOG),
+                addHistoryToFitness);
+        if (addHistoryToFitness) {
+            state.output.message("Fitness will include previous results for re-discovered individuals.");
+        }
+        if (addHistoryToFitness || logHistory) {
+            history = new BinomialFitnessMemory();
+        }
         initProlog(state);
+    }
+
+    private static Stream<Statistics> getAllStatistics(final Statistics parent) {
+        if (parent == null) {
+            return Stream.empty();
+        }
+        if (parent.children == null || parent.children.length == 0) {
+            return Stream.of(parent);
+        }
+        return Stream.of(parent.children).flatMap(MtgProblem::getAllStatistics);
     }
 
     private String getLogMessage(final String[] hand, final Results individualResult) {
@@ -225,11 +258,28 @@ public class MtgProblem extends StochasticProblem {
         if (state != null && handLogNum >= 0) {
             prolog.addCallback((h, r) -> state.output.println(getLogMessage(h, r), handLogNum));
         }
+        if (history != null) {
+            prolog.addFinalCallback(history);
+        }
+    }
+
+    @Override
+    public void initializeContacts(EvolutionState state) {
+        getAllStatistics(state.statistics).forEach(statistics -> {
+            if (statistics instanceof GameCountWriter) {
+                ((GameCountWriter) statistics).setHistory(history);
+            }
+        });
     }
 
     @Override
     public void reinitializeContacts(EvolutionState state) {
         initProlog(state);
+        getAllStatistics(state.statistics).forEach(statistics -> {
+            if (statistics instanceof GameCountWriter) {
+                ((GameCountWriter) statistics).setHistory(history);
+            }
+        });
     }
 
     private Results evaluateDeck(final SingleObjectivePrologProblem objective,
@@ -278,10 +328,14 @@ public class MtgProblem extends StochasticProblem {
         }
         for (final String categoricalVar : objective.getCategoricalOutputs()) {
             final Map<String, Integer> distribution = results.getValueDistribution(categoricalVar);
-            for (final Map.Entry<String, Integer> entry : distribution.entrySet()) {
-                System.out.println("    " + entry.getValue()
-                        + " successes with " + categoricalVar
-                        + " == " + entry.getKey());
+            if (distribution == null) {
+                System.out.println("    0 instances of variable " + categoricalVar);
+            } else {
+                for (final Map.Entry<String, Integer> entry : distribution.entrySet()) {
+                    System.out.println("    " + entry.getValue()
+                            + " successes with " + categoricalVar
+                            + " == " + entry.getKey());
+                }
             }
         }
         final int nMull = results.getNWithProperty("mulligan");

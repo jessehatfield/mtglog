@@ -39,12 +39,21 @@ fast_tests :-
     time(test_pentad),
     time(test_makemana_goal(_, _)),
     time(test_timing),
+    time(test_journey),
+    !.
+
+run :-
+    load_oops,
+    debug,
+    use_module(library(prolog_stack)),
+    test_dirge,
     !.
 
 slow_tests :-
     time(test_hand_5),
     time(test_hand_6),
-    time(test_hand_7).
+    time(test_hand_7),
+    time(test_hand_8).
 
 
 % Should be a simple win, but can take up to 5 minutes to process because of trivial choices
@@ -120,6 +129,24 @@ test_hand_7 :-
     HAND = ['Lion\'s Eye Diamond', 'Lotus Petal', 'Thoughtseize', 'Agadeem\'s Awakening', 'Summoner\'s Pact', 'Undercity Informer', 'Chrome Mox'],
     not(hand_wins_(HAND, LIBRARY, [], 0, 1)),
     hand_wins_(HAND, LIBRARY, [], 0, 0, 'Undercity Informer').
+
+% Simple win with many options for sequencing including Cabal Ritual, none of which let it cast Therapy or Journey
+test_hand_8 :-
+    format("\nTest case 8: Dirge win with many options for mana sequencing, none of which enable Journey or Therapy\n", []),
+    Hand = ['Simian Spirit Guide', 'Summoner\'s Pact', 'Cabal Therapy', 'Summoner\'s Pact', 'Cabal Ritual', 'Lively Dirge', 'Boggart Trawler'],
+    Library = ['Balustrade Spy', 'Summoner\'s Pact', 'Boggart Trawler', 'Dark Ritual', 'Elvish Spirit Guide',
+        'Disciple of Freyalise', 'Bridge from Below', 'Narcomoeba', 'Summoner\'s Pact', 'Agadeem\'s Awakening',
+        'Narcomoeba', 'Pact of Negation', 'Agadeem\'s Awakening', 'Cabal Ritual', 'Elvish Spirit Guide',
+        'Narcomoeba', 'Cabal Ritual', 'Undercity Informer', 'Pact of Negation', 'Lotus Petal',
+        'Thassa\'s Oracle', 'Lotus Petal', 'Undercity Informer', 'Balustrade Spy', 'Simian Spirit Guide',
+        'Lotus Petal', 'Agadeem\'s Awakening', 'Pact of Negation', 'Balustrade Spy', 'Wild Cantor',
+        'Simian Spirit Guide', 'Undercity Informer', 'Boggart Trawler', 'Reanimate', 'Thoughtseize',
+        'Cabal Ritual', 'Dark Ritual', 'Pact of Negation', 'Cabal Therapy', 'Agadeem\'s Awakening',
+        'Thoughtseize', 'Balustrade Spy', 'Undercity Informer', 'Dark Ritual', 'Simian Spirit Guide',
+        'Boggart Trawler', 'Poxwalkers', 'Dark Ritual', 'Disciple of Freyalise', 'Dread Return',
+        'Elvish Spirit Guide', 'Elvish Spirit Guide', 'Lotus Petal', 'Memory\'s Journey'],
+    hand_wins_(Hand, Library, [], 0, 0, 'Lively Dirge', _{journey: false}),
+    not(hand_wins_(Hand, Library, [], 0, 1, 'Lively Dirge', _{})).
 
 test_wish_led :-
     format("\nLiving Wish with LED should work, if there's a win condition in the sideboard\n", []),
@@ -371,7 +398,12 @@ test_dirge :-
     not(hand_wins_(['Lotus Petal'|['Agadeem\'s Awakening'|HAND]], LIBRARY, [], 0, 0)),
     not(hand_wins_(['Lotus Petal'|['Elvish Spirit Guide'|HAND]], ['Narcomoeba'|LIBRARY], [], 0, 0)),
     hand_wins_(['Lotus Petal'|['Agadeem\'s Awakening'|HAND]], ['Balustrade Spy'|LIBRARY], [], 0, 0, 'Lively Dirge'),
-    hand_wins_(['Grim Monolith'|['Elvish Spirit Guide'|HAND]], ['Balustrade Spy'|LIBRARY], [], 0, 0, 'Lively Dirge').
+    hand_wins_(['Grim Monolith'|['Elvish Spirit Guide'|HAND]], ['Balustrade Spy'|LIBRARY], [], 0, 0, 'Lively Dirge'),
+    PACT_HAND = ['Pact of Negation' | ['Lotus Petal' | ['Agadeem\'s Awakening' | HAND]]],
+    hand_wins_(PACT_HAND, ['Balustrade Spy'|LIBRARY], [], 0, 1, 'Lively Dirge'),
+    hand_wins_(PACT_HAND, ['Balustrade Spy'|LIBRARY], [], 1, 0, 'Lively Dirge'),
+    not(hand_wins_(PACT_HAND, ['Balustrade Spy'|LIBRARY], [], 1, 1)).
+
 
 test_entomb :-
     format("\nTest various combinations of Entomb effect -> Reanimate effect\n", []),
@@ -417,6 +449,33 @@ test_discard_animate :-
     hand_wins_(['Lotus Petal' | ['Cabal Therapy' | HAND_2]], LIBRARY, [], 0, 0),
     hand_wins_(['Unmask' | ['Undercity Informer' | HAND_2]], LIBRARY, [], 0, 0),
     not(hand_wins_(['Unmask' | ['Undercity Informer' | HAND_2]], LIBRARY, [], 0, 1)).
+
+test_journey :-
+    format("\nTest whether the ability to cast Journey is properly determined\n", []),
+    Library = ['Narcomoeba', 'Narcomoeba', 'Thassa\'s Oracle', 'Dread Return', 'Narcomoeba'],
+    JourneyLibrary = ['Memory\'s Journey' | Library],
+    LanternLibrary = ['Jack-o\'-Lantern' | Library],
+    LanternJourneyLibrary = ['Jack-o\'-Lantern' | JourneyLibrary],
+    SpyHand = ['Lotus Petal', 'Dark Ritual', 'Balustrade Spy', 'Boggart Trawler'],
+    InformerHand = ['Lotus Petal', 'Dark Ritual', 'Undercity Informer', 'Boggart Trawler'],
+    hand_wins_(SpyHand, Library, [], 0, 0, 'Balustrade Spy', _{journey: false}),
+    hand_wins_(SpyHand, JourneyLibrary, [], 0, 0, 'Balustrade Spy', _{journey: false}),
+    hand_wins_(['Elvish Spirit Guide'|SpyHand], Library, [], 0, 0, 'Balustrade Spy', _{journey: false}),
+    hand_wins_(['Elvish Spirit Guide'|SpyHand], JourneyLibrary, [], 0, 0, 'Balustrade Spy', _{journey: true}),
+    hand_wins_(InformerHand, Library, [], 0, 0, 'Undercity Informer', _{journey: false}),
+    hand_wins_(InformerHand, JourneyLibrary, [], 0, 0, 'Undercity Informer', _{journey: false}),
+    hand_wins_(['Elvish Spirit Guide'|InformerHand], Library, [], 0, 0, 'Undercity Informer', _{journey: false}),
+    hand_wins_(['Elvish Spirit Guide'|InformerHand], JourneyLibrary, [], 0, 0, 'Undercity Informer', _{journey: true}),
+    NoGreenHand = ['Boggart Trawler', 'Dark Ritual', 'Dark Ritual', 'Undercity Informer'],
+    hand_wins_(NoGreenHand, Library, [], 0, 0, 'Undercity Informer', _{journey: false}),
+    hand_wins_(NoGreenHand, JourneyLibrary, [], 0, 0, 'Undercity Informer', _{journey: false}),
+    hand_wins_(NoGreenHand, LanternLibrary, [], 0, 0, 'Undercity Informer', _{journey: false}),
+    hand_wins_(NoGreenHand, LanternJourneyLibrary, [], 0, 0, 'Undercity Informer', _{journey: true}),
+    JourneyHand = ['Simian Spirit Guide', 'Boggart Trawler', 'Dark Ritual', 'Dark Ritual', 'Undercity Informer', 'Memory\'s Journey'],
+    hand_wins_(JourneyHand, LanternLibrary, [], 0, 0, 'Undercity Informer', _{journey: true}),
+    PactHand = ['Cabal Ritual', 'Boggart Trawler', 'Dark Ritual', 'Undercity Informer', 'Summoner\'s Pact'],
+    hand_wins_(PactHand, JourneyLibrary, [], 0, 0, 'Undercity Informer', _{journey: false}),
+    hand_wins_(PactHand, ['Elvish Spirit Guide'|JourneyLibrary], [], 0, 0, 'Undercity Informer', _{journey: true}).
 
 hand_wins_(HAND, LIBRARY, SB, MULLIGANS, PROTECTION, WINCON, REQUIRED_OUTPUTS) :-
     format('~w\n', [HAND]),

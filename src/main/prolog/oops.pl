@@ -50,20 +50,29 @@ win(HAND, DECK, SEQUENCE, PROTECTION) :-
     win(HAND, DECK, [], SEQUENCE, PROTECTION, _).
 win(HAND, DECK, SB, SEQUENCE, PROTECTION, WINCON) :-
     win(HAND, DECK, SB, SEQUENCE, PROTECTION, WINCON, _{}).
-win(HAND, DECK, _, SEQUENCE, PROTECTION, 'Undercity Informer', _{}) :-
-    informer(HAND, DECK, SEQUENCE, PROTECTION).
-win(HAND, DECK, _, SEQUENCE, PROTECTION, 'Balustrade Spy', _{}) :-
-    spy(HAND, DECK, SEQUENCE, PROTECTION).
-win(HAND, DECK, _, SEQUENCE, PROTECTION, 'Destroy the Evidence', _{}) :-
-    destroy(HAND, DECK, SEQUENCE, PROTECTION).
-win(HAND, DECK, _, SEQUENCE, PROTECTION, 'Lively Dirge', _{}) :-
-    dirge_spy(HAND, DECK, SEQUENCE, PROTECTION).
-win(HAND, DECK, _, SEQUENCE, PROTECTION, WINCON, _{}) :-
-    entomb_reanimate(HAND, DECK, SEQUENCE, PROTECTION, WINCON).
-win(HAND, DECK, _, SEQUENCE, PROTECTION, WINCON, _{}) :-
-    discard_reanimate(HAND, DECK, SEQUENCE, PROTECTION, WINCON).
-win(HAND, DECK, _, SEQUENCE, PROTECTION, breakfast, _{}) :-
-    breakfast(HAND, DECK, SEQUENCE, PROTECTION).
+win(HAND, DECK, _, SEQUENCE, PROTECTION, OOPS_WINCON, METADATA) :-
+    ( OOPS_WINCON = 'Undercity Informer', CMC = 4
+    ; OOPS_WINCON = 'Balustrade Spy', CMC = 4
+    ; OOPS_WINCON = 'Destroy the Evidence', CMC = 5
+    ; OOPS_WINCON = 'Lively Dirge', CMC = 5
+    ),
+    (
+        PLUS_ONE is CMC + 1,
+        prune(PLUS_ONE, HAND, [], [], DECK, 0),
+        win_oops_optimized(HAND, DECK, _, SEQUENCE, PROTECTION, OOPS_WINCON, METADATA),
+        METADATA.journey,
+        !
+    ;
+        win_oops_optimized(HAND, DECK, _, SEQUENCE, PROTECTION, OOPS_WINCON, METADATA),
+        not(METADATA.journey),
+        !
+    ).
+win(HAND, DECK, _, SEQUENCE, PROTECTION, WINCON, METADATA) :-
+    entomb_reanimate(HAND, DECK, SEQUENCE, PROTECTION, WINCON, METADATA).
+win(HAND, DECK, _, SEQUENCE, PROTECTION, WINCON, METADATA) :-
+    discard_reanimate(HAND, DECK, SEQUENCE, PROTECTION, WINCON, METADATA).
+win(HAND, DECK, _, SEQUENCE, PROTECTION, breakfast, METADATA) :-
+    breakfast(HAND, DECK, SEQUENCE, PROTECTION, METADATA).
 win(HAND, DECK, _, SEQUENCE, PROTECTION, 'Empty the Warrens', _{}) :-
     etw(HAND, DECK, SEQUENCE, STORM, PROTECTION), STORM >= 4, canpass(SEQUENCE).
 win(HAND, DECK, _, SEQUENCE, PROTECTION, WINCON, _{storm: STORM, dragons: true}) :-
@@ -74,14 +83,14 @@ win(HAND, DECK, _, SEQUENCE, PROTECTION, 'The One Ring', _{ring: true}) :-
     ring(HAND, DECK, SEQUENCE, PROTECTION).
 win(HAND, DECK, SB, SEQUENCE, PROTECTION, 'Wish->Empty', _{}) :-
     wish_warrens(HAND, DECK, SB, SEQUENCE, STORM, PROTECTION), STORM >= 4, canpass(SEQUENCE).
-win(HAND, DECK, SB, SEQUENCE, PROTECTION, 'Wish->Spy', _{}) :-
-    wish_spy(HAND, DECK, SB, SEQUENCE, PROTECTION).
-win(HAND, DECK, SB, SEQUENCE, PROTECTION, 'Wish->Informer', _{}) :-
-    wish_informer(HAND, DECK, SB, SEQUENCE, PROTECTION).
-win(HAND, DECK, SB, SEQUENCE, PROTECTION, 'Eldritch->Informer', _{}) :-
-    ee_informer(HAND, DECK, SB, SEQUENCE, PROTECTION).
-win(HAND, DECK, SB, SEQUENCE, PROTECTION, 'Eldritch->Spy', _{}) :-
-    ee_spy(HAND, DECK, SB, SEQUENCE, PROTECTION).
+win(HAND, DECK, SB, SEQUENCE, PROTECTION, 'Wish->Spy', METADATA) :-
+    wish_spy(HAND, DECK, SB, SEQUENCE, PROTECTION, METADATA).
+win(HAND, DECK, SB, SEQUENCE, PROTECTION, 'Wish->Informer', METADATA) :-
+    wish_informer(HAND, DECK, SB, SEQUENCE, PROTECTION, METADATA).
+win(HAND, DECK, SB, SEQUENCE, PROTECTION, 'Eldritch->Informer', METADATA) :-
+    ee_informer(HAND, DECK, SB, SEQUENCE, PROTECTION, METADATA).
+win(HAND, DECK, SB, SEQUENCE, PROTECTION, 'Eldritch->Spy', METADATA) :-
+    ee_spy(HAND, DECK, SB, SEQUENCE, PROTECTION, METADATA).
 win(HAND, DECK, _, SEQUENCE, PROTECTION, 'Beseech->Spy', METADATA) :-
     beseech_spy(HAND, DECK, SEQUENCE, PROTECTION, METADATA).
 win(HAND, DECK, _, SEQUENCE, PROTECTION, 'Necrodominance', METADATA) :-
@@ -90,6 +99,15 @@ win(HAND, DECK, _, SEQUENCE, PROTECTION, 'Beseech->Necro', METADATA) :-
     beseech_necro(HAND, DECK, SEQUENCE, PROTECTION, METADATA).
 win(HAND, DECK, _, SEQUENCE, PROTECTION, 'Necrologia', METADATA) :-
     necrologia(HAND, DECK, SEQUENCE, PROTECTION, METADATA).
+
+win_oops_optimized(HAND, DECK, _, SEQUENCE, PROTECTION, 'Undercity Informer', METADATA) :-
+    informer(HAND, DECK, SEQUENCE, PROTECTION, METADATA).
+win_oops_optimized(HAND, DECK, _, SEQUENCE, PROTECTION, 'Balustrade Spy', METADATA) :-
+    spy(HAND, DECK, SEQUENCE, PROTECTION, METADATA).
+win_oops_optimized(HAND, DECK, _, SEQUENCE, PROTECTION, 'Destroy the Evidence', METADATA) :-
+    destroy(HAND, DECK, SEQUENCE, PROTECTION, METADATA).
+win_oops_optimized(HAND, DECK, _, SEQUENCE, PROTECTION, 'Lively Dirge', METADATA) :-
+    dirge_spy(HAND, DECK, SEQUENCE, PROTECTION, METADATA).
 
 win_oops(HAND, DECK, SB, SEQUENCE, PROTECTION, WINCON, _{}) :-
     member([
@@ -176,20 +194,19 @@ win_condition(HAND, SB, CARD) :-
 
 % Various ways to win
 
-informer(START_HAND, START_DECK, SEQUENCE, PROTECTION) :-
-    informer(START_HAND, [], [0,0,0,0,0,0,0], [], 0, START_DECK, SEQUENCE, PROTECTION).
-informer(H1, B1, M1, G1, S1, D1, SEQUENCE, PROTECTION) :-
+informer(START_HAND, START_DECK, SEQUENCE, PROTECTION, METADATA) :-
+    informer(START_HAND, [], [0,0,0,0,0,0,0], [], 0, START_DECK, SEQUENCE, PROTECTION, METADATA).
+informer(H1, B1, M1, G1, S1, D1, SEQUENCE, PROTECTION, METADATA) :-
     % Verify that its possible in the best case scenario for mana sequencing
     member_or_tutor('Undercity Informer', H1, D1),
     prune(4, H1, B1, G1, D1, M1, 0),
     canInformer(H1, G1, D1),
-    informerCombo(H1, B1, D1, G1, M1, [], _, _),
+    informerCombo(H1, B1, D1, G1, M1, [], _, _, _),
     % Then attempt it for real
     informer_mill(H1, B1, M1, G1, S1, D1, H2, B2, M2, G2, _, D2, [], SEQUENCE1, P1),
-    informerCombo(H2, B2, D2, G2, M2, SEQUENCE1, SEQUENCE, P2),
+    informerCombo(H2, B2, D2, G2, M2, SEQUENCE1, SEQUENCE, P2, METADATA),
     not(contains_spellsonly(SEQUENCE)),
-    PROTECTION is P1 + P2,
-    !.
+    PROTECTION is P1 + P2.
 informer_mill(H1, B1, M1, G1, S1, D1, H4, B3, M5, G3, S3, D3, SEQUENCE_PRIOR, SEQUENCE_FINAL, PROTECTION) :-
     prune(4, H1, B1, G1, D1, M1, 0),
     % Make 2B mana, cast
@@ -198,27 +215,24 @@ informer_mill(H1, B1, M1, G1, S1, D1, H4, B3, M5, G3, S3, D3, SEQUENCE_PRIOR, SE
     spend([0, 0, 1, 0, 0, 0, 2], M2, M3),
     append(SEQUENCE2, ['Undercity Informer'], SEQUENCE3),
     % Make 1 more, activate
-    makemana([H3, B2, M3, G2, S2, D2, P2], [H4, B3, M4, G3, S3, D3, PROTECTION], SEQUENCE3, SEQUENCE4),
-    append(SEQUENCE3, SEQUENCE4, SEQUENCE_FINAL),
+    makemana([H3, B2, M3, G2, S2, D2, P2], [H4, B3, M4, G3, S3, D3, PROTECTION], SEQUENCE3, SEQUENCE_FINAL),
     spendGeneric(1, M4, M5).
 informer_mill(START_HAND, START_DECK, SEQUENCE, PROTECTION) :-
     member_or_tutor('Undercity Informer', START_HAND, START_DECK),
-    informer_mill(START_HAND, [], [0,0,0,0,0,0,0], [], 0, START_DECK, _, _, _, _, _, [], SEQUENCE, PROTECTION),
-    !.
+    informer_mill(START_HAND, [], [0,0,0,0,0,0,0], [], 0, START_DECK, _, _, _, _, _, [], SEQUENCE, PROTECTION).
 
-spy(START_HAND, START_DECK, SEQUENCE, PROTECTION) :-
-    spy(START_HAND, [], [0,0,0,0,0,0,0], [], 0, START_DECK, SEQUENCE, PROTECTION).
-spy(H1, B1, M1, G1, S1, D1, SEQUENCE, PROTECTION) :-
+spy(START_HAND, START_DECK, SEQUENCE, PROTECTION, METADATA) :-
+    spy(START_HAND, [], [0,0,0,0,0,0,0], [], 0, START_DECK, SEQUENCE, PROTECTION, METADATA).
+spy(H1, B1, M1, G1, S1, D1, SEQUENCE, PROTECTION, METADATA) :-
     % Verify that its possible in the best case scenario for mana sequencing
     member_or_tutor('Balustrade Spy', H1, D1),
     prune(4, H1, B1, G1, D1, M1, 0),
     canInformer(H1, G1, D1),
-    informerCombo(H1, ['Balustrade Spy'|B1], D1, G1, M1, [], _, _),
+    informerCombo(H1, ['Balustrade Spy'|B1], D1, G1, M1, [], _, _, _),
     % Then attempt it for real
     spy_mill(H1, B1, M1, G1, S1, D1, H2, B2, M2, G2, _, D2, [], SEQUENCE1, P1),
-    informerCombo(H2, B2, D2, G2, M2, SEQUENCE1, SEQUENCE, P2),
-    PROTECTION is P1 + P2,
-    !.
+    informerCombo(H2, B2, D2, G2, M2, SEQUENCE1, SEQUENCE, P2, METADATA),
+    PROTECTION is P1 + P2.
 spy_mill(H1, B1, M1, G1, S1, D1, H3, B3, M3, G2, S2, D2, SEQUENCE_PRIOR, SEQUENCE_FINAL, PROTECTION) :-
     prune(4, H1, B1, G1, D1, M1, 0),
     % Make 3B mana, cast
@@ -229,23 +243,21 @@ spy_mill(H1, B1, M1, G1, S1, D1, H3, B3, M3, G2, S2, D2, SEQUENCE_PRIOR, SEQUENC
     append(B2, ['Balustrade Spy'], B3).
 spy_mill(START_HAND, START_DECK, SEQUENCE, PROTECTION) :-
     member_or_tutor('Balustrade Spy', START_HAND, START_DECK),
-    spy_mill(START_HAND, [0,0,0,0,0,0,0], [], 0, START_DECK, _, _, _, _, _, [], SEQUENCE, PROTECTION),
-    !.
+    spy_mill(START_HAND, [0,0,0,0,0,0,0], [], 0, START_DECK, _, _, _, _, _, [], SEQUENCE, PROTECTION).
 
-destroy(START_HAND, START_DECK, SEQUENCE, PROTECTION) :-
-    destroy(START_HAND, [], [0,0,0,0,0,0,0], [], 0, START_DECK, SEQUENCE, PROTECTION).
-destroy(H1, B1, M1, G1, S1, D1, SEQUENCE, PROTECTION) :-
+destroy(START_HAND, START_DECK, SEQUENCE, PROTECTION, METADATA) :-
+    destroy(START_HAND, [], [0,0,0,0,0,0,0], [], 0, START_DECK, SEQUENCE, PROTECTION, METADATA).
+destroy(H1, B1, M1, G1, S1, D1, SEQUENCE, PROTECTION, METADATA) :-
     % Verify that its possible in the best case scenario for mana sequencing
     member_or_tutor('Destroy the Evidence', H1, D1),
     type_threshold(1, land, H1),
     prune(5, H1, B1, G1, D1, M1, 0),
     canInformer(H1, G1, D1),
-    informerCombo(H1, ['Destroy the Evidence'|B1], D1, G1, M1, [], _, _),
+    informerCombo(H1, ['Destroy the Evidence'|B1], D1, G1, M1, [], _, _, _),
     % Then attempt it for real
     destroy_mill(H1, B1, M1, G1, S1, D1, H2, B2, M2, G2, _, D2, [], SEQUENCE1, P1),
-    informerCombo(H2, B2, D2, G2, M2, SEQUENCE1, SEQUENCE, P2),
-    PROTECTION is P1 + P2,
-    !.
+    informerCombo(H2, B2, D2, G2, M2, SEQUENCE1, SEQUENCE, P2, METADATA),
+    PROTECTION is P1 + P2.
 destroy_mill(H1, B1, M1, G1, S1, D1, H3, B3, M3, G3, S2, D2, SEQUENCE_PRIOR, SEQUENCE_FINAL, PROTECTION) :-
     prune(5, H1, B1, G1, D1, M1, 0),
     % Make 4B mana, cast
@@ -257,8 +269,7 @@ destroy_mill(H1, B1, M1, G1, S1, D1, H3, B3, M3, G3, S2, D2, SEQUENCE_PRIOR, SEQ
     append(G2, [REMOVED_LAND, 'Destroy the Evidence'], G3).
 destroy_mill(START_HAND, START_DECK, SEQUENCE, PROTECTION) :-
     member_or_tutor('Destroy the Evidence', START_HAND, START_DECK),
-    destroy_mill(START_HAND, [0,0,0,0,0,0,0], [], 0, START_DECK, _, _, _, _, _, [], SEQUENCE, PROTECTION),
-    !.
+    destroy_mill(START_HAND, [0,0,0,0,0,0,0], [], 0, START_DECK, _, _, _, _, _, [], SEQUENCE, PROTECTION).
 
 beseech_spy(START_HAND, START_DECK, SEQUENCE, PROTECTION, EXTRAS) :-
     beseech_spy(START_HAND, [], [0,0,0,0,0,0,0], [], 0, START_DECK, SEQUENCE, PROTECTION, EXTRAS).
@@ -268,12 +279,12 @@ beseech_spy(H1, B1, M1, G1, S1, D1, SEQUENCE, PROTECTION, EXTRAS) :-
     member('Balustrade Spy', D1),
     prune(4, H1, B1, G1, D1, M1, 0),
     canInformer(H1, G1, D1),
-    informerCombo(H1, ['Balustrade Spy'|B1], D1, G1, M1, [], _, _),
+    informerCombo(H1, ['Balustrade Spy'|B1], D1, G1, M1, [], _, _, _),
     % Then attempt it for real
     beseech_for_target('Balustrade Spy', [H1, B1, M1, G1, S1, D1, 0], [H2, B2, M2, G2, _, D2, P1], [], SEQUENCE1, SACRIFICE),
-    informerCombo(H2, B2, D2, G2, M2, SEQUENCE1, SEQUENCE, P2),
+    informerCombo(H2, B2, D2, G2, M2, SEQUENCE1, SEQUENCE, P2, METADATA),
     PROTECTION is P1 + P2,
-    EXTRAS = _{bargain:SACRIFICE},
+    EXTRAS = METADATA.put(_{bargain:SACRIFICE}),
     !.
 
 beseech_for_target(TARGET, START_STATE, END_STATE, SEQUENCE_PRIOR, SEQUENCE_FINAL, SACRIFICE) :-
@@ -297,20 +308,19 @@ cast_beseech(TARGET, START_STATE, END_STATE, SEQUENCE_PRIOR, SEQUENCE_FINAL, SAC
     append(SEQUENCE_PRIOR, SEQUENCE_SAC, SEQUENCE_FINAL),
     increment_storm(STATE4, END_STATE).
 
-dirge_spy(START_HAND, START_DECK, SEQUENCE, PROTECTION) :-
-    dirge_spy(START_HAND, [], [0,0,0,0,0,0,0], [], 0, START_DECK, SEQUENCE, PROTECTION).
-dirge_spy(H1, B1, M1, G1, S1, D1, SEQUENCE, PROTECTION) :-
+dirge_spy(START_HAND, START_DECK, SEQUENCE, PROTECTION, METADATA) :-
+    dirge_spy(START_HAND, [], [0,0,0,0,0,0,0], [], 0, START_DECK, SEQUENCE, PROTECTION, METADATA).
+dirge_spy(H1, B1, M1, G1, S1, D1, SEQUENCE, PROTECTION, METADATA) :-
     % Verify that its possible in the best case scenario for mana sequencing
     member_or_tutor('Lively Dirge', H1, D1),
     member('Balustrade Spy', D1),
     prune(5, H1, B1, G1, D1, M1, 0),
     canInformer(H1, G1, D1),
-    informerCombo(H1, ['Balustrade Spy'|B1], D1, G1, M1, [], _, _),
+    informerCombo(H1, ['Balustrade Spy'|B1], D1, G1, M1, [], _, _, _),
     % Then attempt it for real
     dirge_spy_mill([H1, B1, M1, G1, S1, D1, 0], [H2, B2, M2, G2, _, D2, P1], [], SEQUENCE1),
-    informerCombo(H2, B2, D2, G2, M2, SEQUENCE1, SEQUENCE, P2),
-    PROTECTION is P1 + P2,
-    !.
+    informerCombo(H2, B2, D2, G2, M2, SEQUENCE1, SEQUENCE, P2, METADATA),
+    PROTECTION is P1 + P2.
 dirge_spy_mill(STATE1, STATE_FINAL, SEQUENCE_PRIOR, SEQUENCE_FINAL) :-
     % STATE1 == [H1, B1, M1, G1, S1, D1, P1]
     prune_(5, STATE1),
@@ -321,12 +331,14 @@ dirge_spy_mill(STATE1, STATE_FINAL, SEQUENCE_PRIOR, SEQUENCE_FINAL) :-
     remove_from_deck('Balustrade Spy', STATE4, STATE5),
     add_to_board('Balustrade Spy', STATE5, STATE6),
     add_to_grave('Lively Dirge', STATE6, STATE7),
-    increment_storm(STATE7, STATE_FINAL),
-    append(SEQUENCE2, ['Lively Dirge->Balustrade Spy'], SEQUENCE_FINAL).
+    increment_storm(STATE7, STATE8),
+    append(SEQUENCE2, ['Lively Dirge->Balustrade Spy'], SEQUENCE3),
+    % cast additional spells if necessary
+    makemana(STATE8, STATE_FINAL, SEQUENCE3, SEQUENCE_FINAL).
 
-entomb_reanimate(START_HAND, START_DECK, SEQUENCE, PROTECTION, WINCON) :-
-    entomb_reanimate([START_HAND, [], [0,0,0,0,0,0,0], [], 0, START_DECK, 0], SEQUENCE, PROTECTION, WINCON).
-entomb_reanimate(START_STATE, SEQUENCE, PROTECTION, WINCON) :-
+entomb_reanimate(START_HAND, START_DECK, SEQUENCE, PROTECTION, WINCON, METADATA) :-
+    entomb_reanimate([START_HAND, [], [0,0,0,0,0,0,0], [], 0, START_DECK, 0], SEQUENCE, PROTECTION, WINCON, METADATA).
+entomb_reanimate(START_STATE, SEQUENCE, PROTECTION, WINCON, METADATA) :-
     % Check that the pieces exist in hand
     role_in_hand(START_STATE, entomb, ENTOMB),
     role_in_hand(START_STATE, animate, ANIMATE),
@@ -339,7 +351,7 @@ entomb_reanimate(START_STATE, SEQUENCE, PROTECTION, WINCON) :-
     % Check that the combo would work if we could get the Spy in play
     canInformer(START_STATE),
     add_to_board('Balustrade Spy', START_STATE, HYPOTHETICAL_STATE),
-    informerCombo(HYPOTHETICAL_STATE, [], _, _),
+    informerCombo(HYPOTHETICAL_STATE, [], _, _, _),
     % Then look for actual sequences to generate the mana and combo
     card_property(ENTOMB, entomb, cost, ENTOMB_COST),
     card_property(ANIMATE, animate, cost, ANIMATE_COST),
@@ -355,15 +367,15 @@ entomb_reanimate(START_STATE, SEQUENCE, PROTECTION, WINCON) :-
     append(SEQUENCE2, [ANIMATE], ANIMATE_SEQUENCE),
     append(ENTOMB_SEQUENCE, ANIMATE_SEQUENCE, SEQUENCE3),
     append(SEQUENCE3, ['->Balustrade Spy'], MILL_SEQUENCE),
-    informerCombo(STATE9, MILL_SEQUENCE, SEQUENCE, P2),
+    informerCombo(STATE9, MILL_SEQUENCE, SEQUENCE, P2, METADATA),
     state_protection(START_STATE, P1),
     PROTECTION is P1 + P2,
     string_concat(ENTOMB, '->', ENTOMB_PART),
     string_concat(ENTOMB_PART, ANIMATE, WINCON).
 
-discard_reanimate(START_HAND, START_DECK, SEQUENCE, PROTECTION, WINCON) :-
-    discard_reanimate([START_HAND, [], [0,0,0,0,0,0,0], [], 0, START_DECK, 0], SEQUENCE, PROTECTION, WINCON).
-discard_reanimate(START_STATE, SEQUENCE, PROTECTION, WINCON) :-
+discard_reanimate(START_HAND, START_DECK, SEQUENCE, PROTECTION, WINCON, METADATA) :-
+    discard_reanimate([START_HAND, [], [0,0,0,0,0,0,0], [], 0, START_DECK, 0], SEQUENCE, PROTECTION, WINCON, METADATA).
+discard_reanimate(START_STATE, SEQUENCE, PROTECTION, WINCON, METADATA) :-
     % Check that the pieces exist in hand
     role_in_hand(START_STATE, self_discard, DISCARD),
     role_in_hand(START_STATE, animate, ANIMATE),
@@ -384,9 +396,9 @@ discard_reanimate(START_STATE, SEQUENCE, PROTECTION, WINCON) :-
     (
         SPY = 'Balustrade Spy',
         add_to_board(SPY, START_STATE, HYPOTHETICAL_STATE),
-        informerCombo(HYPOTHETICAL_STATE, [], _, _);
+        informerCombo(HYPOTHETICAL_STATE, [], _, _, _);
         SPY = 'Undercity Informer',
-        informerCombo(START_STATE, [], _, _)
+        informerCombo(START_STATE, [], _, _, _)
     ),
     % Then look for actual sequences to generate the mana and combo
     card_property_default(DISCARD, self_discard, cost, [0, 0, 0, 0, 0, 0, 0], DISCARD_COST),
@@ -417,7 +429,7 @@ discard_reanimate(START_STATE, SEQUENCE, PROTECTION, WINCON) :-
         spend_generic(1, REANIMATE_STATE, MILL_STATE),
         append(ACTIVATE_SEQUENCE, ['activate'], MILL_SEQUENCE)
     ),
-    informerCombo(MILL_STATE, MILL_SEQUENCE, SEQUENCE, P2),
+    informerCombo(MILL_STATE, MILL_SEQUENCE, SEQUENCE, P2, METADATA),
     state_protection(START_STATE, P1),
     PROTECTION is P1 + P2,
     atomic_list_concat([DISCARD_STEP, '->', ANIMATE], WINCON).
@@ -473,14 +485,14 @@ necrologia(START_STATE, SEQUENCE, END_STATE) :-
     append(SEQUENCE1, ['Necrologia'], NECRO_SEQUENCE),
     makemana(STATE4, END_STATE, NECRO_SEQUENCE, SEQUENCE).
 
-breakfast(START_HAND, START_DECK, SEQUENCE, PROTECTION) :-
-    breakfast(START_HAND, [], [0,0,0,0,0,0,0], [], 0, START_DECK, SEQUENCE, PROTECTION).
-breakfast(H1, B1, M1, G1, S1, D1, SEQUENCE, PROTECTION) :-
+breakfast(START_HAND, START_DECK, SEQUENCE, PROTECTION, METADATA) :-
+    breakfast(START_HAND, [], [0,0,0,0,0,0,0], [], 0, START_DECK, SEQUENCE, PROTECTION, METADATA).
+breakfast(H1, B1, M1, G1, S1, D1, SEQUENCE, PROTECTION, METADATA) :-
     member_or_tutor('Cephalid Illusionist', H1, D1),
     member_or_tutor('Shuko', H1, D1),
     canInformer(H1, G1, D1),
     breakfast_mill(H1, B1, M1, G1, S1, D1, H2, B2, M2, G2, _, D2, [], SEQUENCE1, P1),
-    informerCombo(H2, B2, D2, G2, M2, SEQUENCE1, SEQUENCE, P2),
+    informerCombo(H2, B2, D2, G2, M2, SEQUENCE1, SEQUENCE, P2, METADATA),
     PROTECTION is P1 + P2,
     !.
 breakfast_mill(H1, B1, M1, G1, S1, D1, H4, B3, M3, G2, S2, D2, SEQUENCE_PRIOR, SEQUENCE_FINAL, PROTECTION) :-
@@ -547,15 +559,15 @@ wish_warrens(H1, B1, M1, G1, S1, D1, SEQUENCE, STORM, PROTECTION) :-
     append(SEQUENCE3, ['Empty the Warrens'], SEQUENCE),
     !.
 
-wish_spy(START_HAND, START_DECK, SB, SEQUENCE, PROTECTION) :-
+wish_spy(START_HAND, START_DECK, SB, SEQUENCE, PROTECTION, METADATA) :-
     member('Balustrade Spy', SB),
-    wish_spy(START_HAND, [], [0,0,0,0,0,0,0], [], 0, START_DECK, SEQUENCE, PROTECTION).
-wish_spy(H1, B1, M1, G1, S1, D1, SEQUENCE, PROTECTION) :-
+    wish_spy(START_HAND, [], [0,0,0,0,0,0,0], [], 0, START_DECK, SEQUENCE, PROTECTION, METADATA).
+wish_spy(H1, B1, M1, G1, S1, D1, SEQUENCE, PROTECTION, METADATA) :-
     % Verify that its possible in the best case scenario for mana sequencing
     member('Living Wish', H1),
     prune(6, H1, B1, G1, D1, M1, 0),
     canInformer(H1, G1, D1),
-    informerCombo(H1, B1, D1, G1, M1, [], _, _),
+    informerCombo(H1, B1, D1, G1, M1, [], _, _, _),
     % Then attempt it for real
     % Cast Living Wish
     makemana([H1, B1, M1, G1, S1, D1, 0], [H2, B2, M2, G2, S2, D2, P2], [], SEQUENCE1),
@@ -567,22 +579,22 @@ wish_spy(H1, B1, M1, G1, S1, D1, SEQUENCE, PROTECTION) :-
     makemana([H3, B2, M3, G2, S3, D2, P2], [H4, B3, M4, G3, _, D3, P3], SEQUENCE2, SEQUENCE3),
     spend([0, 0, 1, 0, 0, 0, 3], M4, M5),
     append(SEQUENCE3, ['Balustrade Spy'], SEQUENCE4),
-    informerCombo(H4, B3, D3, G3, M5, SEQUENCE4, SEQUENCE, P4),
+    informerCombo(H4, B3, D3, G3, M5, SEQUENCE4, SEQUENCE, P4, METADATA),
     PROTECTION is P3 + P4,
     !.
 
-wish_informer(START_HAND, START_DECK, SB, SEQUENCE, PROTECTION) :-
+wish_informer(START_HAND, START_DECK, SB, SEQUENCE, PROTECTION, METADATA) :-
     member('Undercity Informer', SB),
-    wish_informer(START_HAND, [], [0,0,0,0,0,0,0], [], 0, START_DECK, SEQUENCE, PROTECTION).
-wish_informer(H1, B1, M1, G1, S1, D1, SEQUENCE, PROTECTION) :-
+    wish_informer(START_HAND, [], [0,0,0,0,0,0,0], [], 0, START_DECK, SEQUENCE, PROTECTION, METADATA).
+wish_informer(H1, B1, M1, G1, S1, D1, SEQUENCE, PROTECTION, METADATA) :-
     % Verify that its possible in the best case scenario for mana sequencing
     member('Living Wish', H1),
     prune(6, H1, B1, G1, D1, M1, 0),
     canInformer(H1, G1, D1),
-    informerCombo(H1, B1, D1, G1, M1, [], _, _),
+    informerCombo(H1, B1, D1, G1, M1, [], _, _, _),
     % Then attempt it for real
     wish_informer_mill(H1, B1, M1, G1, S1, D1, 0, H2, B2, M2, G2, _, D2, SEQUENCE_MILL, P1),
-    informerCombo(H2, B2, D2, G2, M2, SEQUENCE_MILL, SEQUENCE, P2),
+    informerCombo(H2, B2, D2, G2, M2, SEQUENCE_MILL, SEQUENCE, P2, METADATA),
     not(contains_spellsonly(SEQUENCE)),
     PROTECTION is P1 + P2,
     !.
@@ -607,15 +619,15 @@ wish_informer_mill(START_HAND, START_DECK, SB, SEQUENCE) :-
     wish_informer_mill(START_HAND, [], [0,0,0,0,0,0,0], [], 0, START_DECK, _, _, _, _, _, [], SEQUENCE),
     !.
 
-ee_informer(START_HAND, START_DECK, _, SEQUENCE, PROTECTION) :-
+ee_informer(START_HAND, START_DECK, _, SEQUENCE, PROTECTION, METADATA) :-
     member('Undercity Informer', START_DECK),
-    ee_informer(START_HAND, [], [0,0,0,0,0,0,0], [], 0, START_DECK, SEQUENCE, PROTECTION).
-ee_informer(H1, B1, M1, G1, S1, D1, SEQUENCE, PROTECTION) :-
+    ee_informer(START_HAND, [], [0,0,0,0,0,0,0], [], 0, START_DECK, SEQUENCE, PROTECTION, METADATA).
+ee_informer(H1, B1, M1, G1, S1, D1, SEQUENCE, PROTECTION, METADATA) :-
     % Verify that its possible in the best case scenario for mana sequencing
     member('Eldritch Evolution', H1),
     prune(3, H1, B1, G1, D1, M1, 0),
     canInformer(H1, G1, D1),
-    informerCombo(H1, B1, D1, G1, M1, [], _, _),
+    informerCombo(H1, B1, D1, G1, M1, [], _, _, _),
     % Then attempt it for real
     makemana([H1, B1, M1, G1, S1, D1, 0], [H2, B2, M2, G2, S2, D2, P2], [], SEQUENCE1),
     remove('Eldritch Evolution', H2, H3),
@@ -633,20 +645,20 @@ ee_informer(H1, B1, M1, G1, S1, D1, SEQUENCE, PROTECTION) :-
     % Make 1 more, activate
     makemana([H4, B3, M4, G3, S3, D4, P3], [H5, B4, M5, G4, _, D5, P4], SEQUENCE4, SEQUENCE5),
     spendGeneric(1, M5, M6),
-    informerCombo(H5, B4, D5, ['Undercity Informer'|G4], M6, SEQUENCE5, SEQUENCE, P5),
+    informerCombo(H5, B4, D5, ['Undercity Informer'|G4], M6, SEQUENCE5, SEQUENCE, P5, METADATA),
     not(contains_spellsonly(SEQUENCE)),
     PROTECTION is P4 + P5,
     !.
 
-ee_spy(START_HAND, START_DECK, _, SEQUENCE, PROTECTION) :-
+ee_spy(START_HAND, START_DECK, _, SEQUENCE, PROTECTION, METADATA) :-
     member('Balustrade Spy', START_DECK),
-    ee_spy(START_HAND, [], [0,0,0,0,0,0,0], [], 0, START_DECK, SEQUENCE, PROTECTION).
-ee_spy(H1, B1, M1, G1, S1, D1, SEQUENCE, PROTECTION) :-
+    ee_spy(START_HAND, [], [0,0,0,0,0,0,0], [], 0, START_DECK, SEQUENCE, PROTECTION, METADATA).
+ee_spy(H1, B1, M1, G1, S1, D1, SEQUENCE, PROTECTION, METADATA) :-
     % Verify that its possible in the best case scenario for mana sequencing
     member('Eldritch Evolution', H1),
     prune(3, H1, B1, G1, D1, M1, 0),
     canInformer(H1, G1, D1),
-    informerCombo(H1, B1, D1, G1, M1, [], _, _),
+    informerCombo(H1, B1, D1, G1, M1, [], _, _, _),
     % Then attempt it for real
     makemana([H1, B1, M1, G1, S1, D1, 0], [H2, B2, M2, G2, S2, D2, P2], [], SEQUENCE1),
     remove('Eldritch Evolution', H2, H3),
@@ -661,28 +673,55 @@ ee_spy(H1, B1, M1, G1, S1, D1, SEQUENCE, PROTECTION) :-
     get_assoc(cmc, CARD, CMC),
     CMC >= 2,
     remove('Balustrade Spy', D3, D4),
-    informerCombo(H4, ['Balustrade Spy'|B3], D4, G3, M4, SEQUENCE4, SEQUENCE, P4),
+    informerCombo(H4, ['Balustrade Spy'|B3], D4, G3, M4, SEQUENCE4, SEQUENCE, P4, METADATA),
     PROTECTION is P3 + P4,
     !.
 
-informerCombo([HAND, BOARD, MANA, GRAVEYARD, _, LIBRARY, _], PRIOR_SEQUENCE, TOTAL_SEQUENCE, PROTECTION) :-
-    informerCombo(HAND, BOARD, LIBRARY, GRAVEYARD, MANA, PRIOR_SEQUENCE, TOTAL_SEQUENCE, PROTECTION).
+informerCombo([HAND, BOARD, MANA, GRAVEYARD, _, LIBRARY, _], PRIOR_SEQUENCE, TOTAL_SEQUENCE, PROTECTION, METADATA) :-
+    informerCombo(HAND, BOARD, LIBRARY, GRAVEYARD, MANA, PRIOR_SEQUENCE, TOTAL_SEQUENCE, PROTECTION, METADATA).
 
-informerCombo(HAND, BOARD, LIBRARY, START_GY, MANA, PRIOR_SEQUENCE, TOTAL_SEQUENCE, PROTECTION) :-
+informerCombo(HAND, BOARD, LIBRARY, START_GY, MANA, PRIOR_SEQUENCE, TOTAL_SEQUENCE, PROTECTION, METADATA) :-
     zone_type_count(BOARD, creature, START_CREATURES),
-    informerCombo(HAND, BOARD, LIBRARY, START_GY, MANA, START_CREATURES, PRIOR_SEQUENCE, TOTAL_SEQUENCE, PROTECTION).
-informerCombo(HAND, START_BOARD, LIBRARY, START_GY, MANA, START_CREATURES, PRIOR_SEQUENCE, TOTAL_SEQUENCE, PROTECTION) :-
+    informerCombo(HAND, BOARD, LIBRARY, START_GY, MANA, START_CREATURES, PRIOR_SEQUENCE, TOTAL_SEQUENCE, PROTECTION, METADATA).
+informerCombo(HAND, START_BOARD, LIBRARY, START_GY, MANA, START_CREATURES, PRIOR_SEQUENCE, TOTAL_SEQUENCE, PROTECTION, METADATA) :-
     % Mill the deck and make Narcomoebas
     count('Narcomoeba', LIBRARY, N_MOEBAS),
     CREATURES is START_CREATURES + N_MOEBAS,
     append(START_GY, LIBRARY, GY_TRIGGER),
     remove_all('Narcomoeba', GY_TRIGGER, GY, MOEBAS),
     append(START_BOARD, MOEBAS, BOARD),
-    informer_win(HAND, BOARD, GY, MANA, CREATURES, PRIOR_SEQUENCE, TOTAL_SEQUENCE, PROTECTION),
+    informer_win(HAND, BOARD, GY, MANA, CREATURES, PRIOR_SEQUENCE, TOTAL_SEQUENCE, PROTECTION, METADATA),
     !.
-informer_win(HAND, BOARD, GY, MANA, CREATURES, PRIOR_SEQUENCE, TOTAL_SEQUENCE, PROTECTION) :-
-    informer_win_dr(HAND, BOARD, GY, MANA, CREATURES, PRIOR_SEQUENCE, TOTAL_SEQUENCE, PROTECTION);
+informer_win(HAND, BOARD, GY, MANA, CREATURES, PRIOR_SEQUENCE, TOTAL_SEQUENCE, PROTECTION, METADATA) :-
+    informer_win_dr(HAND, BOARD, GY, MANA, CREATURES, PRIOR_SEQUENCE, TOTAL_SEQUENCE, PROTECTION, METADATA);
     informer_win_cast(HAND, BOARD, GY, MANA, PRIOR_SEQUENCE, TOTAL_SEQUENCE, PROTECTION).
+informer_win_dr(HAND, BOARD, GY, MANA, CREATURES, PRIOR_SEQUENCE, TOTAL_SEQUENCE, PROTECTION, _{journey: true}) :-
+    % Flashback Journey and win
+    remove_first('Memory\'s Journey', GY, G2),
+    makemana_cost_goal([0, 0, 0, 0, 1, 0, 0],
+        [],
+        [HAND, BOARD, MANA, G2, 0, [], 0],
+        [H2, B2, M2, G3, _, _, _],
+        PRIOR_SEQUENCE,
+        SEQ2),
+    append(SEQ2, ['flashback Memory\'s Journey'], SEQ3),
+    informer_win_dr(H2, B2, G3, M2, CREATURES, SEQ3, TOTAL_SEQUENCE, PROTECTION),
+    !.
+informer_win_dr(HAND, BOARD, GY, MANA, CREATURES, PRIOR_SEQUENCE, TOTAL_SEQUENCE, PROTECTION, _{journey: true}) :-
+    % Cast Journey from hand and win
+    makemana_goal('Memory\'s Journey',
+        [HAND, BOARD, MANA, GY, 0, [], 0],
+        [H2, B2, M2, G2, _, _, _],
+        PRIOR_SEQUENCE,
+        SEQ2),
+    remove_first('Memory\'s Journey', H2, H3),
+    spend([0, 1, 0, 0, 0, 0, 1], M2, M3),
+    append(SEQ2, ['Memory\'s Journey'], SEQ3),
+    informer_win_dr(H3, B2, G2, M3, CREATURES, SEQ3, TOTAL_SEQUENCE, PROTECTION),
+    !.
+informer_win_dr(HAND, BOARD, GY, MANA, CREATURES, PRIOR_SEQUENCE, TOTAL_SEQUENCE, PROTECTION, _{journey: false}) :-
+    % Win without casting Journey
+    informer_win_dr(HAND, BOARD, GY, MANA, CREATURES, PRIOR_SEQUENCE, TOTAL_SEQUENCE, PROTECTION).
 informer_win_dr(HAND, BOARD, GY, MANA, CREATURES, PRIOR_SEQUENCE, TOTAL_SEQUENCE, PROTECTION) :-
     % Do anything we might need to before DR. In addition to total number of
     % creatures, track how many are tokens (should be zero at this point).
@@ -732,7 +771,7 @@ canInformer(HAND, GY, DECK) :-
 canInformer([HAND, _, _, GY, _, DECK, _]) :- canInformer(HAND, GY, DECK).
 
 haveCard(NAME, [H | T]) :-
-    member(NAME, H);
+    member(NAME, H), !;
     haveCard(NAME, T).
 
 % Given a hand and library, make sure the library contains enough cards to win

@@ -204,8 +204,11 @@ makemana_cost_goal(TARGET_COST, TARGET_CARDS,
     total_color_gain(START_HAND, COLORED_MANA_HAND),
     possible_activations(START_BOARD, POSSIBLE_ACTIVATIONS),
     total_color_gain(POSSIBLE_ACTIVATIONS, COLORED_MANA_BOARD),
+    possible_activations_gy(START_GY, POSSIBLE_ACTIVATIONS_GY),
+    total_color_gain(POSSIBLE_ACTIVATIONS_GY, COLORED_MANA_GY),
     (
-        addmana(COLORED_MANA_HAND, COLORED_MANA_BOARD, COLORED_MANA_GAIN),
+        addmana(COLORED_MANA_HAND, COLORED_MANA_BOARD, COLORED_MANA_HAND_BOARD),
+        addmana(COLORED_MANA_HAND_BOARD, COLORED_MANA_GY, COLORED_MANA_GAIN),
         addmana(COLORED_MANA_GAIN, START_MANA, COLORED_MANA_MAX),
         spend(TARGET_COST, COLORED_MANA_MAX, _),
         !
@@ -223,11 +226,16 @@ makemana_cost_goal(TARGET_COST, TARGET_CARDS,
             [CAST_HAND, CAST_BOARD, CAST_MANA, CAST_GY, CAST_STORM, CAST_DECK, CAST_PROTECTION],
             SPENT_MANA),
         append(PRIOR_SEQUENCE, [NAME|EXTRA_STEPS], INTERMEDIATE_SEQUENCE)
-    ;   % Or activating something in play
-        member(NAME, START_BOARD),
-        card(NAME, ON_BOARD_DATA),
-        list_to_assoc(ON_BOARD_DATA, CARD),
-        get_assoc(activate, CARD, ACTIVATED_NAME),
+    ;   % Or activating something
+        (   member(NAME, START_BOARD),
+            card(NAME, ON_BOARD_DATA),
+            list_to_assoc(ON_BOARD_DATA, CARD),
+            get_assoc(activate, CARD, ACTIVATED_NAME)
+        ;   member(NAME, START_GY),
+            card(NAME, GY_CARD_DATA),
+            list_to_assoc(GY_CARD_DATA, CARD),
+            get_assoc(activate_gy, CARD, ACTIVATED_NAME)
+        ),
         card(ACTIVATED_NAME, ACTIVATION_DATA),
         list_to_assoc(ACTIVATION_DATA, ACTIVATION_CARD),
         check_timing(ACTIVATED_NAME, PRIOR_SEQUENCE),

@@ -1,5 +1,5 @@
 % To implement:
-% Jack-o'-Lantern
+% cast Jack-o'-Lantern from hand, then sacrifice, then exile (3 generic -> 1 of any)
 % Land Grant
 % make Manamorphose draw a card (doesn't it already?)
 % Wish for mana?
@@ -8,10 +8,17 @@
 % Finale of Devastation
 % Once Upon a Time
 % LED + non-targeting Reanimate
+% Warp creatures + Neoform / Eldritch Evolution
+% + Pinnacle Emissary triggers for Mox Opal
+% Neoform -> Griselbrand, Atraxa, etc.
+% Selective Memory / Doomsday
+%
+% for artifacts:
 % Irencrag Feat
 % Planar Nexus for colored mana
 % Candelabra of Tawnos
 % Mox Diamond
+% Transmute Artifact
 
 nb_setval(reveal_draws, false).
 
@@ -1321,6 +1328,7 @@ card('Memory\'s Journey', [
     gy     - 0
 ]).
 card('Jack-o\'-Lantern', [
+    activate_gy - 'exile Jack-o\'-Lantern',
     cost   - [0, 0, 0, 0, 0, 0, 1],
     yield  - [0, 0, 0, 0, 0, 0, 0],
     net    - 0,
@@ -1328,6 +1336,16 @@ card('Jack-o\'-Lantern', [
     types  - [artifact],
     spell  - 1,
     board  - 1,
+    gy     - 0
+]).
+card('exile Jack-o\'-Lantern', [
+    cost   - [0, 0, 0, 0, 0, 0, 1],
+    yield  - [0, 0, 0, 0, 0, 0, 1],
+    net    - 0,
+    colors - [],
+    types  - [artifact],
+    spell  - 0,
+    board  - 0,
     gy     - 0
 ]).
 
@@ -1550,7 +1568,8 @@ specialcast(NAME, YIELD, OLD_STATE, NEW_STATE, _, []) :-
     NAME == 'Lotus Petal', alternate_version('Lotus Petal_unused', YIELD, OLD_STATE, NEW_STATE);
     NAME == 'Lion\'s Eye Diamond', alternate_version('Lion\'s Eye Diamond_unused', YIELD, OLD_STATE, NEW_STATE);
     NAME == 'Emergence Zone', alternate_version('Emergence Zone_untapped', YIELD, OLD_STATE, NEW_STATE);
-    NAME == 'Once Upon a Time', once_upon_a_time(YIELD, OLD_STATE, NEW_STATE).
+    NAME == 'Once Upon a Time', once_upon_a_time(YIELD, OLD_STATE, NEW_STATE);
+    NAME == 'exile Jack-o\'-Lantern', activate_jackolantern(YIELD, OLD_STATE, NEW_STATE).
 specialcast(NAME, YIELD, OLD_STATE, NEW_STATE, SPENT_MANA, []) :-
     NAME == 'Pentad Prism', pentad(YIELD, SPENT_MANA, OLD_STATE, NEW_STATE).
 specialcast(NAME, YIELD, OLD_STATE, NEW_STATE, _, [STEP]) :-
@@ -1873,6 +1892,9 @@ activate_key(ACTIVATED_KEY, YIELD, [H, START_BOARD, M, G, S, D, P], [H, END_BOAR
     atom_concat("untap ", TARGET, STEP),
     append(BOARD2, [ACTIVATED_KEY], END_BOARD).
 
+activate_jackolantern([0, 0, 0, 0, 0, 0, 1], [H, B, M, G1, S, D, P], [H, B, M, G2, S, D, P]) :-
+    remove_first('Jack-o\'-Lantern', G1, G2).
+
 pentad([0, 0, 0, 0, 0, 0, NUM_COUNTERS], SPENT_MANA, START_STATE, END_STATE) :-
     sunburst(SPENT_MANA, NUM_COUNTERS),
     normalcast('Pentad Prism', [0, 0, 0, 0, 0, 0, NUM_COUNTERS], START_STATE, END_STATE).
@@ -2001,11 +2023,11 @@ zone_type_cards([H | T_ZONE], TYPE, T_TYPE) :-
 % General rules for casting
 
 cast(NAME, YIELD, STEPS, OLD_STATE, NEW_STATE, SPENT_MANA) :-
-    specialcast(NAME, YIELD, OLD_STATE, NEW_STATE, SPENT_MANA, STEPS);
     STEPS = [],
     not(only_special(NAME)),
     (special_optional(NAME); not(specialcast(NAME, _, OLD_STATE, _, _, _))),
-    normalcast(NAME, YIELD, OLD_STATE, NEW_STATE).
+    normalcast(NAME, YIELD, OLD_STATE, NEW_STATE);
+    specialcast(NAME, YIELD, OLD_STATE, NEW_STATE, SPENT_MANA, STEPS).
 
 normalcast(NAME, YIELD,
     [START_HAND, START_BOARD, START_MANA, START_GY, START_STORM, START_DECK, START_PROTECTION],
@@ -2214,10 +2236,18 @@ tutors_for_('Once Upon a Time', TARGET_NAME, TARGET_ASSOC, DECK) :-
     (member(creature, TYPES); member(land, TYPES)).
 
 has_role(CARDNAME, ROLE) :-
-    card(CARDNAME, DATA),
-    list_to_assoc(DATA, ASSOC),
-    get_assoc(roles, ASSOC, ROLES),
-    member(ROLE, ROLES).
+    ( 
+        card(CARDNAME, DATA),
+        list_to_assoc(DATA, ASSOC),
+        get_assoc(roles, ASSOC, ROLES),
+        member(ROLE, ROLES),
+        !
+    ;   sub_string(CARDNAME, LENGTH_BEFORE, 2, LENGTH_AFTER, '->'),
+        !,
+        sub_atom(CARDNAME, 0, LENGTH_BEFORE, _, CARD1),
+        sub_atom(CARDNAME, _, LENGTH_AFTER, 0, CARD2),
+        (has_role(CARD1, ROLE), !; has_role(CARD2, ROLE))
+    ).
 
 all_have_role([], _).
 all_have_role([H|T], ROLE) :-
@@ -2267,6 +2297,11 @@ activates(UNUSED_NAME, ACTIVATED_NAME) :-
     list_to_assoc(UNUSED_DATA, UNUSED_CARD),
     get_assoc(activate, UNUSED_CARD, ACTIVATED_NAME).
 
+activates_gy(UNUSED_NAME, ACTIVATED_NAME) :-
+    card(UNUSED_NAME, UNUSED_DATA),
+    list_to_assoc(UNUSED_DATA, UNUSED_CARD),
+    get_assoc(activate_gy, UNUSED_CARD, ACTIVATED_NAME).
+
 possible_activations([], []).
 possible_activations([H|T], ACTIVATED_T) :-
     not(activates(H, _)),
@@ -2274,3 +2309,11 @@ possible_activations([H|T], ACTIVATED_T) :-
 possible_activations([H|T], [ACTIVATED_H | ACTIVATED_T]) :-
     activates(H, ACTIVATED_H),
     possible_activations(T, ACTIVATED_T).
+
+possible_activations_gy([], []).
+possible_activations_gy([H|T], ACTIVATED_T) :-
+    not(activates_gy(H, _)),
+    possible_activations_gy(T, ACTIVATED_T).
+possible_activations_gy([H|T], [ACTIVATED_H | ACTIVATED_T]) :-
+    activates_gy(H, ACTIVATED_H),
+    possible_activations_gy(T, ACTIVATED_T).

@@ -156,10 +156,6 @@
                                 <key>prolog.src.dir</key>
                                 <value>${project.basedir}/src/main/prolog</value>
                             </systemProperty>
-                            <systemProperty>
-                                <key>log4j2.level</key>
-                                <value>info</value>
-                            </systemProperty>
                         </systemProperties>
                     </configuration>
                 </execution>
@@ -176,8 +172,8 @@
                                 <value>${project.basedir}/src/main/prolog</value>
                             </systemProperty>
                             <systemProperty>
-                                <key>log4j2.level</key>
-                                <value>debug</value>
+                                <key>mtglog.log.level</key>
+                                <value>trace</value>
                             </systemProperty>
                         </systemProperties>
                     </configuration>

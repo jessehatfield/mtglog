@@ -29,6 +29,7 @@
     <httpclient.version>5.3.1</httpclient.version>
     <log4j.version>2.14.1</log4j.version>
     <mongodb.version>4.3.2</mongodb.version>
+    <picocli.version>4.7.7</picocli.version>
     <spring.boot.version>2.7.18</spring.boot.version>
   </properties>
 
@@ -118,6 +119,11 @@
       <groupId>net.minidev</groupId>
       <artifactId>json-smart</artifactId>
       <version>${json.smart.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>info.picocli</groupId>
+      <artifactId>picocli</artifactId>
+      <version>${picocli.version}</version>
     </dependency>
 
     <!-- testing -->

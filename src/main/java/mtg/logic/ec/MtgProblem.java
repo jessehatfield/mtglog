@@ -25,28 +25,55 @@ import mtg.logic.ec.stochastic.BinomialNSGA2Fitness;
 import mtg.logic.ec.stochastic.BinomialPosteriorFitness;
 import mtg.logic.ec.stochastic.GameCountWriter;
 import mtg.logic.ec.stochastic.StochasticProblem;
+import picocli.CommandLine;
 
+import java.io.BufferedOutputStream;
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.IOException;
+import java.io.OutputStream;
+import java.io.PrintStream;
+import java.io.PrintWriter;
+import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.Callable;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public class MtgProblem extends StochasticProblem {
+@CommandLine.Command(name="MtgProblem", mixinStandardHelpOptions=true,
+        description="Test a single decklist according to a given problem.")
+public class MtgProblem extends StochasticProblem implements Callable<Integer> {
     private static final long serialVersionUID = 1;
 
-    private String prologSrcDir;
-    private int baseTrials;
-    private transient PrologEngine prolog;
+    @CommandLine.Parameters(index="0", converter=ProblemReader.class, description="Problem specification file")
     private PrologProblem problem;
+
+    @CommandLine.Parameters(index="1", description="Decklist file")
+    private String decklistFile;
+
+    @CommandLine.Parameters(index="2", defaultValue="-1", description="Number of trials (hands). " +
+        " If not given or not positive, test all possible hands.")
+    private int baseTrials;
+
+    @CommandLine.Option(names = {"-m", "--mongo"}, arity="2", required=false,
+            description="MongoDB connection string and database name, if results should be stored in an external DB.")
+    private String[] mongoParameters;
+
+    @CommandLine.Option(names={"-l", "--log"}, description="Log all hands tested to this file.")
+    private File handLogFile = null;
+
+    private String prologSrcDir;
+    private transient PrologEngine prolog;
     private int handLogNum = -1;
     private String adaptive;
     private int progressFraction = 20;
-    private int timeoutMs = 0;
+    private int timeoutMs = 30000;
     private BinomialFitnessMemory history;
 
     public static final String PROLOG_SRC_PROPERTY = "prolog.src.dir";
@@ -207,7 +234,7 @@ public class MtgProblem extends StochasticProblem {
                     +  "use all.",
                     Log.D_STDOUT);
         }
-        final File handLogFile = state.parameters.getFile(
+        handLogFile = state.parameters.getFile(
                 base.push(P_HAND_LOG), def.push(P_HAND_LOG));
         if (handLogFile == null) {
             state.output.warning("Not logging individual hands; provide filename to record and time them all",
@@ -245,10 +272,14 @@ public class MtgProblem extends StochasticProblem {
     }
 
     private String getLogMessage(final String[] hand, final Results individualResult) {
-        return individualResult.getDuration(0)
+        String message = individualResult.getDuration(0)
                 + "\t" + Arrays.deepToString(hand)
                 + "\t" + individualResult.isSuccess(0)
                 + "\t" + individualResult.getMulliganCounts(0);
+        message += "\t" + individualResult.getBooleanMetadata(0).entrySet().stream()
+                .map(entry -> entry.getKey() + "==" + entry.getValue())
+                .collect(Collectors.joining(";"));
+        return message;
     }
 
     private void initProlog(final EvolutionState state) {
@@ -383,32 +414,41 @@ public class MtgProblem extends StochasticProblem {
         }
     }
 
-    public static void main(String[] args) throws IOException {
-        if (args.length >= 2) {
-            final MtgProblem app = new MtgProblem();
-            app.problem = PrologProblem.fromYaml(args[0]);
-            final String decklistFile = args[1];
-            app.baseTrials = args.length > 2 ? Integer.parseInt(args[2]) : -1;
-            app.timeoutMs = 30000;
-            app.initProlog(null);
+    private static class ProblemReader implements CommandLine.ITypeConverter<PrologProblem> {
+        @Override
+        public PrologProblem convert(String s) throws Exception {
+            return PrologProblem.fromYaml(s);
+        }
+    }
+
+    public Integer call() throws Exception {
+        if (decklistFile != null) {
+            initProlog(null);
             ResultStore store = null;
-            if (args.length >= 5) {
-                store = new MongoResultStore(args[3], args[4]);
+            if (mongoParameters != null) {
+                store = new MongoResultStore(mongoParameters[0], mongoParameters[1]);
                 store.setCacheSize(100);
-                app.prolog.addFinalCallback(store);
+                prolog.addFinalCallback(store);
             }
             final Deck deck = Deck.fromFile(decklistFile);
             final MersenneTwisterFast rng = new MersenneTwisterFast();
             final Map<String, Results> resultsMap = new HashMap<>();
-            for (final SingleObjectivePrologProblem objective : app.problem.getObjectives()) {
+            final PrintWriter out = handLogFile == null ? null : new PrintWriter(
+                    new BufferedWriter(new FileWriter(handLogFile, true)));
+            if (out != null) {
+                prolog.addCallback((h, r) -> {
+                    out.println(getLogMessage(h, r));
+                });
+            }
+            for (final SingleObjectivePrologProblem objective : problem.getObjectives()) {
                 System.out.println("Objective: " + objective.getName());
                 final Results objectiveResults;
-                if (app.baseTrials > 0) {
-                    objectiveResults = app.evaluateDeck(objective, deck, app.baseTrials, rng);
+                if (baseTrials > 0) {
+                    objectiveResults = evaluateDeck(objective, deck, baseTrials, rng);
                 } else {
-                    objectiveResults = app.evaluateDeckExhaustive(objective, deck, rng);
+                    objectiveResults = evaluateDeckExhaustive(objective, deck, rng);
                 }
-                app.printResults(objective, objectiveResults);
+                printResults(objective, objectiveResults);
                 resultsMap.put(objective.getName(), objectiveResults);
                 if (store != null) {
                     store.flushResults();
@@ -417,16 +457,25 @@ public class MtgProblem extends StochasticProblem {
             if (store != null) {
                 store.close();
             }
-            if (app.problem instanceof MultiObjectivePrologProblem) {
+            if (out != null) {
+                out.close();
+            }
+            if (problem instanceof MultiObjectivePrologProblem) {
                 for (final SecondaryObjective secondaryObjective :
-                        ((MultiObjectivePrologProblem) app.problem).getSecondaryObjectives()) {
+                        ((MultiObjectivePrologProblem) problem).getSecondaryObjectives()) {
                     System.out.println("Objective: " + secondaryObjective.getName());
                     final Results mainResults = resultsMap.get(secondaryObjective.getObjective());
-                    app.printResults(secondaryObjective, mainResults);
+                    printResults(secondaryObjective, mainResults);
                 }
             }
+            return 0;
         } else {
             System.out.println("Usage: MtgProblem <problem spec file> <decklist> <n games>");
+            return 1;
         }
+    }
+
+    public static void main(String[] args) {
+        System.exit(new CommandLine(new MtgProblem()).execute(args));
     }
 }

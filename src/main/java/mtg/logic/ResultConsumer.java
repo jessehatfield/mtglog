@@ -1,5 +1,6 @@
 package mtg.logic;
 
+@FunctionalInterface
 public interface ResultConsumer {
     /**
      * Process a single result.

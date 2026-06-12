@@ -169,15 +169,15 @@ ring(H1, B1, M1, G1, S1, D1, SEQUENCE, PROTECTION) :-
     !.
 
 % Can mill deck; might not win.
-mill(HAND, SEQUENCE) :-
-    mill(HAND, [], SEQUENCE).
-mill(HAND, DECK, SEQUENCE) :-
-    mill(HAND, DECK, [], SEQUENCE).
-mill(HAND, DECK, SB, SEQUENCE) :-
-    informer_mill(HAND, DECK, SEQUENCE);
-    spy_mill(HAND, DECK, SEQUENCE);
-    breakfast_mill(HAND, DECK, SEQUENCE);
-    wish_informer_mill(HAND, DECK, SB, SEQUENCE).
+%mill(HAND, SEQUENCE) :-
+%    mill(HAND, [], SEQUENCE).
+%mill(HAND, DECK, SEQUENCE) :-
+%    mill(HAND, DECK, [], SEQUENCE).
+%mill(HAND, DECK, SB, SEQUENCE) :-
+%    informer_mill(HAND, DECK, SEQUENCE);
+%    spy_mill(HAND, DECK, SEQUENCE);
+%    breakfast_mill(HAND, DECK, SEQUENCE);
+%    wish_informer_mill(HAND, DECK, SB, SEQUENCE).
 
 % Has win condition, may not be able to use it.
 win_condition(HAND, SB, CARD) :-
@@ -230,20 +230,22 @@ spy(H1, B1, M1, G1, S1, D1, SEQUENCE, PROTECTION, METADATA) :-
     canInformer(H1, G1, D1),
     informerCombo(H1, ['Balustrade Spy'|B1], D1, G1, M1, [], _, _, _),
     % Then attempt it for real
-    spy_mill(H1, B1, M1, G1, S1, D1, H2, B2, M2, G2, _, D2, [], SEQUENCE1, P1),
+    spy_mill([H1, B1, M1, G1, S1, D1, 0], [H2, B2, M2, G2, _, D2, P1], [], SEQUENCE1),
     informerCombo(H2, B2, D2, G2, M2, SEQUENCE1, SEQUENCE, P2, METADATA),
     PROTECTION is P1 + P2.
-spy_mill(H1, B1, M1, G1, S1, D1, H3, B3, M3, G2, S2, D2, SEQUENCE_PRIOR, SEQUENCE_FINAL, PROTECTION) :-
-    prune(4, H1, B1, G1, D1, M1, 0),
+spy_mill(START_STATE, END_STATE, SEQUENCE_PRIOR, SEQUENCE_FINAL) :-
+    prune(4, START_STATE),
     % Make 3B mana, cast
-    makemana_goal('Balustrade Spy', [H1, B1, M1, G1, S1, D1, 0], [H2, B2, M2, G2, S2, D2, PROTECTION], SEQUENCE_PRIOR, SEQUENCE2),
+    makemana_goal('Balustrade Spy', START_STATE, [H2, B2, M2, G2, S2, D2, P2], SEQUENCE_PRIOR, SEQUENCE2),
     remove('Balustrade Spy', H2, H3),
     spend([0, 0, 1, 0, 0, 0, 3], M2, M3),
-    append(SEQUENCE2, ['Balustrade Spy'], SEQUENCE_FINAL),
-    append(B2, ['Balustrade Spy'], B3).
-spy_mill(START_HAND, START_DECK, SEQUENCE, PROTECTION) :-
-    member_or_tutor('Balustrade Spy', START_HAND, START_DECK),
-    spy_mill(START_HAND, [0,0,0,0,0,0,0], [], 0, START_DECK, _, _, _, _, _, [], SEQUENCE, PROTECTION).
+    append(SEQUENCE2, ['Balustrade Spy'], SEQUENCE3),
+    append(B2, ['Balustrade Spy'], B3),
+    % cast additional spells if necessary
+    makemana([H3, B3, M3, G2, S2, D2, P2], END_STATE, SEQUENCE3, SEQUENCE_FINAL).
+%spy_mill(START_HAND, START_DECK, SEQUENCE, PROTECTION) :-
+%    member_or_tutor('Balustrade Spy', START_HAND, START_DECK),
+%    spy_mill([START_HAND, [], [0,0,0,0,0,0,0], [], 0, START_DECK, []], [_, _, _, _, _, [], SEQUENCE, PROTECTION]).
 
 destroy(START_HAND, START_DECK, SEQUENCE, PROTECTION, METADATA) :-
     destroy(START_HAND, [], [0,0,0,0,0,0,0], [], 0, START_DECK, SEQUENCE, PROTECTION, METADATA).
@@ -281,8 +283,9 @@ beseech_spy(H1, B1, M1, G1, S1, D1, SEQUENCE, PROTECTION, EXTRAS) :-
     canInformer(H1, G1, D1),
     informerCombo(H1, ['Balustrade Spy'|B1], D1, G1, M1, [], _, _, _),
     % Then attempt it for real
-    beseech_for_target('Balustrade Spy', [H1, B1, M1, G1, S1, D1, 0], [H2, B2, M2, G2, _, D2, P1], [], SEQUENCE1, SACRIFICE),
-    informerCombo(H2, B2, D2, G2, M2, SEQUENCE1, SEQUENCE, P2, METADATA),
+    beseech_for_target('Balustrade Spy', [H1, B1, M1, G1, S1, D1, 0], STATE_SPY, [], SEQUENCE1, SACRIFICE),
+    makemana(STATE_SPY, [H2, B2, M2, G2, _, D2, P1], SEQUENCE1, SEQUENCE2),
+    informerCombo(H2, B2, D2, G2, M2, SEQUENCE2, SEQUENCE, P2, METADATA),
     PROTECTION is P1 + P2,
     EXTRAS = METADATA.put(_{bargain:SACRIFICE}),
     !.
@@ -367,11 +370,12 @@ entomb_reanimate(START_STATE, SEQUENCE, PROTECTION, WINCON, METADATA) :-
     append(SEQUENCE2, [ANIMATE], ANIMATE_SEQUENCE),
     append(ENTOMB_SEQUENCE, ANIMATE_SEQUENCE, SEQUENCE3),
     append(SEQUENCE3, ['->Balustrade Spy'], MILL_SEQUENCE),
-    informerCombo(STATE9, MILL_SEQUENCE, SEQUENCE, P2, METADATA),
-    state_protection(START_STATE, P1),
+    makemana(STATE9, STATE10, MILL_SEQUENCE, POST_MILL_SEQUENCE),
+    informerCombo(STATE10, POST_MILL_SEQUENCE, SEQUENCE, P2, METADATA),
+    state_protection(STATE10, P1),
     PROTECTION is P1 + P2,
-    string_concat(ENTOMB, '->', ENTOMB_PART),
-    string_concat(ENTOMB_PART, ANIMATE, WINCON).
+    atomic_list_concat([ENTOMB, '->', ANIMATE], WINCON).
+
 
 discard_reanimate(START_HAND, START_DECK, SEQUENCE, PROTECTION, WINCON, METADATA) :-
     discard_reanimate([START_HAND, [], [0,0,0,0,0,0,0], [], 0, START_DECK, 0], SEQUENCE, PROTECTION, WINCON, METADATA).
@@ -402,35 +406,41 @@ discard_reanimate(START_STATE, SEQUENCE, PROTECTION, WINCON, METADATA) :-
     ),
     % Then look for actual sequences to generate the mana and combo
     card_property_default(DISCARD, self_discard, cost, [0, 0, 0, 0, 0, 0, 0], DISCARD_COST),
+    card_property_default(DISCARD, base, protection, 0, BASE_PROTECTION),
     card_property(ANIMATE, animate, cost, ANIMATE_COST),
     makemana_goal(DISCARD, self_discard, START_STATE, STATE2, [], SEQUENCE1),
     spend_(DISCARD_COST, STATE2, STATE3),
     remove_from_hand(DISCARD, STATE3, STATE4),
-    cast(DISCARD, _, SEQUENCE_CAST_DISCARD, STATE4, STATE5, _),
+    cast(DISCARD, _, SEQUENCE_CAST_DISCARD, STATE4, STATE5_EXTRA_PROTECTION, _),
+    state_protection(STATE5_EXTRA_PROTECTION, P5),
+    P5_FIXED is P5 - BASE_PROTECTION,
+    update_protection(STATE5_EXTRA_PROTECTION, P5_FIXED, STATE5),
     hand_to_grave(SPY, STATE5, STATE6),
     atomic_list_concat([DISCARD, ' self (', SPY, ')'], DISCARD_STEP),
     append(SEQUENCE1, [DISCARD_STEP], DISCARD_SEQUENCE_PARTIAL),
     append(DISCARD_SEQUENCE_PARTIAL, SEQUENCE_CAST_DISCARD, DISCARD_SEQUENCE),
-    makemana_goal(ANIMATE, animate, STATE6, STATE7, [], SEQUENCE2),
+    makemana_goal(ANIMATE, animate, STATE6, STATE7, DISCARD_SEQUENCE, ANIMATE_MANA_SEQUENCE),
     spend_(ANIMATE_COST, STATE7, STATE8),
     remove_from_hand(ANIMATE, STATE8, STATE9),
-    cast(ANIMATE, _, SEQUENCE_CAST_ANIMATE, STATE9, STATE10, _),
-    grave_to_board(SPY, STATE10, STATE11),
-    append(SEQUENCE2, [ANIMATE|SEQUENCE_CAST_ANIMATE], ANIMATE_SEQUENCE),
-    append(DISCARD_SEQUENCE, ANIMATE_SEQUENCE, SEQUENCE3),
+    cast(ANIMATE, _, ANIMATE_STEPS, STATE9, STATE10, _),
+    append(ANIMATE_MANA_SEQUENCE, [ANIMATE|ANIMATE_STEPS], ANIMATE_CAST_SEQUENCE),
+    string_concat('->', SPY, SPY_INTO_PLAY),
+    append(ANIMATE_CAST_SEQUENCE, [SPY_INTO_PLAY], ANIMATE_RESOLVING_SEQUENCE),
+    makemana(STATE10, STATE11, ANIMATE_RESOLVING_SEQUENCE, ANIMATE_SEQUENCE),
+    grave_to_board(SPY, STATE11, STATE12),
     (
         % If we reanimated a Spy, mill happens automatically
         SPY = 'Balustrade Spy',
-        MILL_STATE = STATE11,
-        MILL_SEQUENCE = SEQUENCE3;
+        MILL_STATE = STATE12,
+        MILL_SEQUENCE = ANIMATE_SEQUENCE;
         % If the best we could do was Informer, make 1 more mana and activate
         SPY = 'Undercity Informer',
-        makemana_cost_goal([0,0,0,0,0,0,1], [], STATE11, REANIMATE_STATE, SEQUENCE3, ACTIVATE_SEQUENCE),
+        makemana_cost_goal([0,0,0,0,0,0,1], [], STATE12, REANIMATE_STATE, ANIMATE_SEQUENCE, ACTIVATE_SEQUENCE),
         spend_generic(1, REANIMATE_STATE, MILL_STATE),
         append(ACTIVATE_SEQUENCE, ['activate'], MILL_SEQUENCE)
     ),
     informerCombo(MILL_STATE, MILL_SEQUENCE, SEQUENCE, P2, METADATA),
-    state_protection(START_STATE, P1),
+    state_protection(MILL_STATE, P1),
     PROTECTION is P1 + P2,
     atomic_list_concat([DISCARD_STEP, '->', ANIMATE], WINCON).
 
@@ -495,15 +505,14 @@ breakfast(H1, B1, M1, G1, S1, D1, SEQUENCE, PROTECTION, METADATA) :-
     informerCombo(H2, B2, D2, G2, M2, SEQUENCE1, SEQUENCE, P2, METADATA),
     PROTECTION is P1 + P2,
     !.
-breakfast_mill(H1, B1, M1, G1, S1, D1, H4, B3, M3, G2, S2, D2, SEQUENCE_PRIOR, SEQUENCE_FINAL, PROTECTION) :-
+breakfast_mill(H1, B1, M1, G1, S1, D1, H2, B2, M2, G2, S2, D2, SEQUENCE_PRIOR, SEQUENCE_FINAL, PROTECTION) :-
     prune(3, H1, B1, G1, D1, M1, 0),
     % Make 2U, cast combo
-    makemana([H1, B1, M1, G1, S1, D1, 0], [H2, B2, M2, G2, S2, D2, PROTECTION], SEQUENCE_PRIOR, SEQUENCE2),
-    remove('Shuko', H2, H3),
-    remove('Cephalid Illusionist', H3, H4),
-    spend([0, 1, 0, 0, 0, 0, 2], M2, M3),
-    append(SEQUENCE2, ['Shuko', 'Cephalid Illusionist'], SEQUENCE_FINAL),
-    append(B2, ['Shuko', 'Cephalid Illusionist'], B3).
+    ENKOR = 'Shuko',
+    make_mana_and_cast(ENKOR, [H1, B1, M1, G1, S1, D1, 0], CAST_STATE_A, SEQUENCE_PRIOR, CAST_SEQ_A),
+    make_mana_and_cast('Cephalid Illusionist', CAST_STATE_A, CAST_STATE_B, CAST_SEQ_A, CAST_SEQ_B),
+    makemana(CAST_STATE_B, [H2, B2, M2, G2, S2, D2, PROTECTION], CAST_SEQ_B, SEQUENCE_FINAL).
+
 breakfast_mill(START_HAND, START_DECK, SEQUENCE, PROTECTION) :-
     member_or_tutor('Shuko', START_HAND, START_DECK),
     member_or_tutor('Cephalid Illusionist', START_HAND, START_DECK),

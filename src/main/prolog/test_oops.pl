@@ -40,20 +40,17 @@ fast_tests :-
     time(test_makemana_goal(_, _)),
     time(test_timing),
     time(test_journey),
-    !.
-
-run :-
-    load_oops,
-    debug,
-    use_module(library(prolog_stack)),
-    test_dirge,
+    time(test_breakfast),
+    time(test_pact),
     !.
 
 slow_tests :-
     time(test_hand_5),
     time(test_hand_6),
     time(test_hand_7),
-    time(test_hand_8).
+    time(test_hand_8),
+    time(test_hand_9),
+    time(test_hand_10).
 
 
 % Should be a simple win, but can take up to 5 minutes to process because of trivial choices
@@ -147,6 +144,44 @@ test_hand_8 :-
         'Elvish Spirit Guide', 'Elvish Spirit Guide', 'Lotus Petal', 'Memory\'s Journey'],
     hand_wins_(Hand, Library, [], 0, 0, 'Lively Dirge', _{journey: false}),
     not(hand_wins_(Hand, Library, [], 0, 1, 'Lively Dirge', _{})).
+
+% Should be a success, but timed out in testing
+test_hand_9 :-
+    format("\nTest case 9: Dirge win with multiple Summoner's Pacts and an uncastable Therapy\n", []),
+    LIBRARY = ['UNKNOWN', 'Narcomoeba', 'Narcomoeba', 'Elvish Spirit Guide', 'Dread Return', 'Elvish Spirit Guide', 'Thassa\'s Oracle', 'Balustrade Spy'],
+    HAND = ['Boggart Trawler', 'Cabal Ritual', 'Summoner\'s Pact', 'Cabal Therapy', 'Lively Dirge', 'Simian Spirit Guide', 'Summoner\'s Pact'],
+    not(hand_wins_(HAND, LIBRARY, [], 0, 1)),
+    hand_wins_(HAND, LIBRARY, [], 0, 0, 'Lively Dirge').
+
+% Should be a success, but timed out in testing
+test_hand_10 :-
+    format("\nTest case 10: Dirge win with multiple Summoner's Pacts and a Chrome Mox\n", []),
+    LIBRARY = ['UNKNOWN', 'Narcomoeba', 'Narcomoeba', 'Elvish Spirit Guide', 'Dread Return', 'Elvish Spirit Guide', 'Thassa\'s Oracle', 'Balustrade Spy'],
+    HAND = ['Chrome Mox', 'Lotus Petal', 'Summoner\'s Pact', 'Summoner\'s Pact', 'Simian Spirit Guide', 'Lively Dirge', 'Agadeem\'s Awakening'],
+    not(hand_wins_(HAND, LIBRARY, [], 0, 1)),
+    hand_wins_(HAND, LIBRARY, [], 0, 0, 'Lively Dirge').
+
+test_pact :-
+    format("\nTest that Pact is correctly played after the win condition\n", []),
+    LIBRARY = ['Thassa\'s Oracle', 'Narcomoeba', 'Narcomoeba', 'Dread Return', 'Balustrade Spy'],
+    HAND = ['Lotus Petal', 'Cabal Ritual', 'Chrome Mox', 'Lively Dirge', 'Simian Spirit Guide', 'Pact of Negation', 'Balustrade Spy'],
+    hand_wins_(HAND, LIBRARY, [], 0, 1, 'Balustrade Spy'),
+    HAND_2 = ['Balustrade Spy', 'Boggart Trawler', 'Elvish Spirit Guide', 'Dark Ritual', 'Dark Ritual', 'Pact of Negation', 'Cabal Ritual'],
+    hand_wins_(HAND_2, LIBRARY, [], 0, 1, 'Balustrade Spy'),
+    BESEECH_HAND = ['Pact of Negation', 'Beseech the Mirror', 'Chrome Mox', 'Dark Ritual', 'Dread Return', 'Elvish Spirit Guide'],
+    hand_wins_(BESEECH_HAND, LIBRARY, [], 0, 1, 'Beseech->Spy'),
+    DISCARD_REANIMATE_HAND = ['Lotus Petal', 'Reanimate', 'Lotus Petal', 'Pact of Negation', 'Balustrade Spy'],
+    hand_wins_(['Cabal Therapy' | DISCARD_REANIMATE_HAND], LIBRARY, [], 0, 1, 'Cabal Therapy self (Balustrade Spy)->Reanimate'),
+    hand_wins_(['Thoughtseize' | DISCARD_REANIMATE_HAND], LIBRARY, [], 0, 1, 'Thoughtseize self (Balustrade Spy)->Reanimate'),
+    hand_wins_(['Unmask' | ['Unmask' | DISCARD_REANIMATE_HAND]], LIBRARY, [], 0, 1, 'Unmask self (Balustrade Spy)->Reanimate'),
+    DISCARD_ANIMATE_DEAD_HAND = ['Lotus Petal', 'Animate Dead', 'Lotus Petal', 'Elvish Spirit Guide', 'Pact of Negation', 'Balustrade Spy'],
+    hand_wins_(['Cabal Therapy' | DISCARD_ANIMATE_DEAD_HAND], LIBRARY, [], 0, 1, 'Cabal Therapy self (Balustrade Spy)->Animate Dead'),
+    hand_wins_(['Thoughtseize' | DISCARD_ANIMATE_DEAD_HAND], LIBRARY, [], 0, 1, 'Thoughtseize self (Balustrade Spy)->Animate Dead'),
+    hand_wins_(['Unmask' | ['Unmask' | DISCARD_ANIMATE_DEAD_HAND]], LIBRARY, [], 0, 1, 'Unmask self (Balustrade Spy)->Animate Dead'),
+    ENTOMB_HAND = ['Lotus Petal', 'Dark Ritual', 'Pact of Negation', 'Lively Dirge', 'Simian Spirit Guide'],
+    hand_wins_(['Reanimate' | ENTOMB_HAND], LIBRARY, [], 0, 1, 'Lively Dirge->Reanimate'),
+    BREAKFAST_HAND = ['Cephalid Illusionist', 'Pact of Negation', 'Lotus Petal', 'Hydroelectric Specimen', 'Shuko', 'Elvish Spirit Guide'],
+    hand_wins_(BREAKFAST_HAND, LIBRARY, [], 0, 1, 'breakfast').
 
 test_wish_led :-
     format("\nLiving Wish with LED should work, if there's a win condition in the sideboard\n", []),
@@ -352,6 +387,14 @@ test_beseech :-
     hand_wins_(HAND_2, LIBRARY, [], 0, 0, 'Beseech->Spy', _{bargain: 'Defense Grid'}),
     not(hand_wins_(HAND_2, LIBRARY, [], 0, 1)).
 
+test_breakfast :-
+    format("\nTest Breakfast lines\n", []),
+    LIBRARY = ['Narcomoeba', 'Narcomoeba', 'Thassa\'s Oracle', 'Dread Return'],
+    COMBO = ['Shuko', 'Cephalid Illusionist'],
+    hand_wins_(['Elvish Spirit Guide' | ['Lotus Petal' | [ 'Simian Spirit Guide' | COMBO]]], LIBRARY, [], 0, 0, 'breakfast'),
+    hand_wins_(['Mox Opal' | ['Lotus Petal' | [ 'Lotus Petal' | COMBO]]], LIBRARY, [], 0, 0, 'breakfast'),
+    hand_wins_(['Mox Opal' | ['Lotus Petal' | [ 'Simian Spirit Guide' | COMBO]]], LIBRARY, [], 0, 0, 'breakfast').
+
 test_throne :-
     format("\nTest Throne of Eldraine\n", []),
     LIBRARY = ['Narcomoeba', 'Narcomoeba', 'Thassa\'s Oracle', 'Dread Return'],
@@ -413,25 +456,25 @@ test_entomb :-
     not(hand_wins_(ENTOMB_REANIMATE_HAND, LIBRARY, [], 0, 0)),
     not(hand_wins_(['Elvish Spirit Guide' | ENTOMB_REANIMATE_HAND], LIBRARY, [], 0, 0)),
     not(hand_wins_(['Lotus Petal'|ENTOMB_REANIMATE_HAND], NO_SPY, [], 0, 0)),
-    hand_wins_(['Lotus Petal'|ENTOMB_REANIMATE_HAND], LIBRARY, [], 0, 0, "Entomb->Reanimate"),
+    hand_wins_(['Lotus Petal'|ENTOMB_REANIMATE_HAND], LIBRARY, [], 0, 0, 'Entomb->Reanimate'),
     DIRGE_REANIMATE_HAND = ['Elvish Spirit Guide', 'Simian Spirit Guide', 'Lively Dirge', 'Reanimate'],
     not(hand_wins_(DIRGE_REANIMATE_HAND, LIBRARY, [], 0, 0)),
     not(hand_wins_(['Lotus Petal' | DIRGE_REANIMATE_HAND], LIBRARY, [], 0, 0)),
     not(hand_wins_(['Elvish Spirit Guide' | ['Lotus Petal' | DIRGE_REANIMATE_HAND ]], LIBRARY, [], 0, 0)),
     not(hand_wins_(['Agadeem\'s Awakening' | ['Lotus Petal' | DIRGE_REANIMATE_HAND ]], NO_SPY, [], 0, 0)),
-    hand_wins_(['Agadeem\'s Awakening' | ['Lotus Petal' | DIRGE_REANIMATE_HAND ]], LIBRARY, [], 0, 0, "Lively Dirge->Reanimate"),
+    hand_wins_(['Agadeem\'s Awakening' | ['Lotus Petal' | DIRGE_REANIMATE_HAND ]], LIBRARY, [], 0, 0, 'Lively Dirge->Reanimate'),
     BA_REANIMATE_HAND = ['Elvish Spirit Guide', 'Simian Spirit Guide', 'Buried Alive', 'Reanimate'],
     not(hand_wins_(BA_REANIMATE_HAND, LIBRARY, [], 0, 0)),
     not(hand_wins_(['Lotus Petal' | BA_REANIMATE_HAND], LIBRARY, [], 0, 0)),
     not(hand_wins_(['Elvish Spirit Guide' | ['Lotus Petal' | BA_REANIMATE_HAND ]], LIBRARY, [], 0, 0)),
     not(hand_wins_(['Agadeem\'s Awakening' | ['Lotus Petal' | BA_REANIMATE_HAND ]], NO_SPY, [], 0, 0)),
-    hand_wins_(['Agadeem\'s Awakening' | ['Lotus Petal' | BA_REANIMATE_HAND ]], LIBRARY, [], 0, 0, "Buried Alive->Reanimate"),
+    hand_wins_(['Agadeem\'s Awakening' | ['Lotus Petal' | BA_REANIMATE_HAND ]], LIBRARY, [], 0, 0, 'Buried Alive->Reanimate'),
     UG_REANIMATE_HAND = ['Unmarked Grave', 'Elvish Spirit Guide', 'Reanimate'],
     not(hand_wins_(UG_REANIMATE_HAND, LIBRARY, [], 0, 0)),
     not(hand_wins_(['Lotus Petal' | UG_REANIMATE_HAND], LIBRARY, [], 0, 0)),
     not(hand_wins_(['Elvish Spirit Guide' | ['Lotus Petal' | UG_REANIMATE_HAND ]], LIBRARY, [], 0, 0)),
     not(hand_wins_(['Agadeem\'s Awakening' | ['Lotus Petal' | UG_REANIMATE_HAND ]], NO_SPY, [], 0, 0)),
-    hand_wins_(['Agadeem\'s Awakening' | ['Lotus Petal' | UG_REANIMATE_HAND ]], LIBRARY, [], 0, 0, "Unmarked Grave->Reanimate").
+    hand_wins_(['Agadeem\'s Awakening' | ['Lotus Petal' | UG_REANIMATE_HAND ]], LIBRARY, [], 0, 0, 'Unmarked Grave->Reanimate').
 
 test_discard_animate :-
     format("\nTest various combinations of self-discard -> Reanimate effect\n", []),

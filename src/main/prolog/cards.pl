@@ -770,12 +770,12 @@ card('Cephalid Illusionist', [
     net    - 0,
     colors - [u],
     types  - [creature],
-    spell  - -1,
+    spell  - 1,
     board  - 1,
     gy     - 0
 ]).
 card('Shuko', [
-    roles  - [combo],
+    roles  - [combo, enkor],
     cost   - [0, 0, 0, 0, 0, 0, 1],
     yield  - [0, 0, 0, 0, 0, 0, 0],
     net    - 0,

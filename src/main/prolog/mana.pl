@@ -346,6 +346,7 @@ update_storm([H, B, M, G, _, D], S, [H, B, M, G, S, D]).
 update_storm([H, B, M, G, _, D, P], S, [H, B, M, G, S, D, P]).
 update_deck( [H, B, M, G, S, _], D, [H, B, M, G, S, D]).
 update_deck( [H, B, M, G, S, _, P], D, [H, B, M, G, S, D, P]).
+update_protection([H, B, M, G, S, D, _], P, [H, B, M, G, S, D, P]).
 start_state(Hand, Library, [Hand, [], [0,0,0,0,0,0,0], [], 0, Library, 0]).
 
 apply_to_hand(FUNCTION, STATE1, STATE2) :-
@@ -392,6 +393,9 @@ prune(TOTAL_MANA, HAND, BOARD, GY, LIBRARY, FLOATING, LANDS) :-
     total(FLOATING, CMC),
     DIFFERENCE is TOTAL_MANA - CMC,
     prune(DIFFERENCE, HAND, BOARD, GY, LIBRARY, LANDS).
+
+prune(TOTAL_MANA, [H, B, M, G, _, D, _]) :-
+    prune(TOTAL_MANA, H, B, G, D, M, 0).
 
 % Require that the total possible protection is at least a certain number
 prune_protection(MIN_PROTECTION, []) :-

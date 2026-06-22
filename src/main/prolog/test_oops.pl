@@ -17,12 +17,13 @@ run_oops_tests :-
 run_fast_tests :-
     load_oops,
     debug,
-    use_module(library(prolog_stack)),
+    %use_module(library(prolog_stack)),
     fast_tests.
 
 fast_tests :-
     time(test_spend),
     time(test_powder_check),
+    time(test_makemana_goal(_, _)),
     time(test_hand_1),
     time(test_hand_2),
     time(test_hand_3),
@@ -30,18 +31,19 @@ fast_tests :-
     time(test_entomb),
     time(test_discard_animate),
     time(test_culling),
-    time(test_wish_led),
     time(test_etw),
     time(test_beseech),
     time(test_destroy),
     time(test_dirge),
     time(test_throne),
     time(test_pentad),
-    time(test_makemana_goal(_, _)),
     time(test_timing),
     time(test_journey),
     time(test_breakfast),
     time(test_pact),
+    time(test_pinnacle),
+    time(test_eldritch),
+    time(test_wish_led),
     !.
 
 slow_tests :-
@@ -274,21 +276,27 @@ test_eldritch :-
     HAND_1 = ['Elvish Spirit Guide', 'Simian Spirit Guide', 'Simian Spirit Guide', 'Burning-Tree Emissary', 'Eldritch Evolution'],
     not(hand_wins_(HAND_1, LIBRARY_1, [], 0, 0)),
     not(hand_wins_(HAND_1, LIBRARY_2, [], 0, 0)),
-    hand_wins_(HAND_1, LIBRARY_3, [], 0, 0, 'Eldritch->Spy'),
+    hand_wins_(HAND_1, LIBRARY_3, [], 0, 0, 'Eldritch Evolution->Balustrade Spy'),
     HAND_2 = ['Elvish Spirit Guide', 'Elvish Spirit Guide', 'Simian Spirit Guide', 'Elvish Spirit Guide', 'Tinder Wall', 'Eldritch Evolution'],
     not(hand_wins_(HAND_2, LIBRARY_1, [], 0, 0)),
     not(hand_wins_(HAND_2, LIBRARY_2, [], 0, 0)),
     not(hand_wins_(HAND_2, LIBRARY_3, [], 0, 0)),
     HAND_3 = ['Simian Spirit Guide'|HAND_2],
     not(hand_wins_(HAND_3, LIBRARY_1, [], 0, 0)),
-    hand_wins_(HAND_3, LIBRARY_2, [], 0, 0, 'Eldritch->Informer'),
+    hand_wins_(HAND_3, LIBRARY_2, [], 0, 0, 'Eldritch Evolution->Undercity Informer'),
     not(hand_wins_(HAND_3, LIBRARY_3, [], 0, 0)),
     HAND_4 = ['Summoner\'s Pact', 'Elvish Spirit Guide', 'Chancellor of the Tangle', 'Simian Spirit Guide', 'Eldritch Evolution'],
     not(hand_wins_(HAND_4, LIBRARY_1, [], 0, 0)),
     not(hand_wins_(HAND_4, LIBRARY_2, [], 0, 0)),
     not(hand_wins_(HAND_4, LIBRARY_3, [], 0, 0)),
     LIBRARY_4 = ['Vine Dryad'|LIBRARY_3],
-    hand_wins_(HAND_4, LIBRARY_4, [], 0, 0, 'Eldritch->Spy').
+    hand_wins_(HAND_4, LIBRARY_4, [], 0, 0, 'Eldritch Evolution->Balustrade Spy'),
+    SentinelHand = ['Quirion Sentinel', 'Elvish Spirit Guide', 'Elvish Spirit Guide', 'Elvish Spirit Guide'],
+    not(hand_wins_(['Neoform' | SentinelHand], LIBRARY_2, [], 0, 0, 'Neoform->Undercity Informer')),
+    not(hand_wins_(['Elvish Spirit Guide' | ['Neoform' | SentinelHand]], LIBRARY_3, [], 0, 0, _)),
+    not(hand_wins_(['Elvish Spirit Guide' | ['Eldritch Evolution' | SentinelHand]], LIBRARY_2, [], 0, 0, _)),
+    hand_wins_(['Elvish Spirit Guide' | ['Neoform' | SentinelHand]], LIBRARY_2, [], 0, 0, 'Neoform->Undercity Informer'),
+    hand_wins_(['Elvish Spirit Guide' | ['Eldritch Evolution' | SentinelHand]], LIBRARY_3, [], 0, 0, 'Eldritch Evolution->Balustrade Spy').
 
 test_pitch :-
     format("\nTest hands with various castable and uncastable pitch spells\n", []),
@@ -520,6 +528,25 @@ test_journey :-
     hand_wins_(PactHand, JourneyLibrary, [], 0, 0, 'Undercity Informer', _{journey: false}),
     hand_wins_(PactHand, ['Elvish Spirit Guide'|JourneyLibrary], [], 0, 0, 'Undercity Informer', _{journey: true}).
 
+test_pinnacle :-
+    format("\nTest whether we can warp Pinnacle Emissary and use its trigger\n", []),
+    Library = ['Narcomoeba', 'Narcomoeba', 'Thassa\'s Oracle', 'Dread Return', 'Narcomoeba'],
+    CullingHand = ['Boggart Trawler', 'Pinnacle Emissary', 'Culling the Weak', 'Balustrade Spy', 'Simian Spirit Guide'],
+    hand_wins_(CullingHand, Library, [], 0, 0, 'Balustrade Spy', _{}),
+    BeseechHand = ['Boggart Trawler', 'Pinnacle Emissary', 'Dark Ritual', 'Cabal Ritual', 'Simian Spirit Guide', 'Beseech the Mirror'],
+    not(hand_wins_(BeseechHand, Library, [], 0, 0, _, _{})),
+    hand_wins_(BeseechHand, ['Balustrade Spy' | Library], [], 0, 0, 'Beseech->Spy', _{}),
+    OpalHand = ['Pinnacle Emissary', 'Mox Opal', 'Dark Ritual', 'Cabal Ritual', 'Balustrade Spy'],
+    hand_wins_(['Simian Spirit Guide' | OpalHand], Library, [], 0, 0, 'Balustrade Spy', _{}),
+    hand_wins_(['Sink into Stupor' | OpalHand], Library, [], 0, 0, 'Balustrade Spy', _{}),
+    not(hand_wins_(['ElvishSpiritGuide' | OpalHand], Library, [], 0, 0, _, _{})),
+    EldritchHand = ['Elvish Spirit Guide', 'Elvish Spirit Guide', 'Pinnacle Emissary', 'Eldritch Evolution', 'Elvish Spirit Guide', 'Simian Spirit Guide'],
+    not(hand_wins_(EldritchHand, Library, [], 0, 0, _, _{})),
+    hand_wins_(EldritchHand, ['Balustrade Spy' | Library], [], 0, 0, 'Eldritch Evolution->Balustrade Spy', _{}),
+    NeoformHand = ['Sink into Stupor', 'Pinnacle Emissary', 'Neoform', 'Elvish Spirit Guide', 'Simian Spirit Guide'],
+    not(hand_wins_(NeoformHand, Library, [], 0, 0, _, _{})),
+    hand_wins_(NeoformHand, ['Balustrade Spy' | Library], [], 0, 0, 'Neoform->Balustrade Spy', _{}).
+
 hand_wins_(HAND, LIBRARY, SB, MULLIGANS, PROTECTION, WINCON, REQUIRED_OUTPUTS) :-
     format('~w\n', [HAND]),
     play_oops_hand(HAND, LIBRARY, SB, MULLIGANS, _{protection:1}, OUTPUTS),
@@ -560,7 +587,7 @@ test_spend :-
     !.
 
 test_powder_check :-
-    format("\nTest logic related to Serum Poder\n", []),
+    format("\nTest logic related to Serum Powder\n", []),
     ONE_MOEBA = ['Pact of Negation', 'Agadeem\'s Awakening', 'Summoner\'s Pact',
         'Cabal Ritual', 'Summoner\'s Pact', 'Summoner\'s Pact', 'Summoner\'s Pact', 'Narcomoeba',
         'Wild Cantor', 'Bridge from Below', 'Dark Ritual', 'Chrome Mox', 'Chrome Mox', 'Chrome Mox',

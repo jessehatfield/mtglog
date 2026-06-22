@@ -71,6 +71,9 @@ win(HAND, DECK, _, SEQUENCE, PROTECTION, WINCON, METADATA) :-
     entomb_reanimate(HAND, DECK, SEQUENCE, PROTECTION, WINCON, METADATA).
 win(HAND, DECK, _, SEQUENCE, PROTECTION, WINCON, METADATA) :-
     discard_reanimate(HAND, DECK, SEQUENCE, PROTECTION, WINCON, METADATA).
+win(HAND, DECK, SB, SEQUENCE, PROTECTION, WINCON, METADATA) :-
+    ee_informer(HAND, DECK, SB, SEQUENCE, PROTECTION, METADATA, WINCON);
+    ee_spy(HAND, DECK, SB, SEQUENCE, PROTECTION, METADATA, WINCON).
 win(HAND, DECK, _, SEQUENCE, PROTECTION, breakfast, METADATA) :-
     breakfast(HAND, DECK, SEQUENCE, PROTECTION, METADATA).
 win(HAND, DECK, _, SEQUENCE, PROTECTION, 'Empty the Warrens', _{}) :-
@@ -87,10 +90,6 @@ win(HAND, DECK, SB, SEQUENCE, PROTECTION, 'Wish->Spy', METADATA) :-
     wish_spy(HAND, DECK, SB, SEQUENCE, PROTECTION, METADATA).
 win(HAND, DECK, SB, SEQUENCE, PROTECTION, 'Wish->Informer', METADATA) :-
     wish_informer(HAND, DECK, SB, SEQUENCE, PROTECTION, METADATA).
-win(HAND, DECK, SB, SEQUENCE, PROTECTION, 'Eldritch->Informer', METADATA) :-
-    ee_informer(HAND, DECK, SB, SEQUENCE, PROTECTION, METADATA).
-win(HAND, DECK, SB, SEQUENCE, PROTECTION, 'Eldritch->Spy', METADATA) :-
-    ee_spy(HAND, DECK, SB, SEQUENCE, PROTECTION, METADATA).
 win(HAND, DECK, _, SEQUENCE, PROTECTION, 'Beseech->Spy', METADATA) :-
     beseech_spy(HAND, DECK, SEQUENCE, PROTECTION, METADATA).
 win(HAND, DECK, _, SEQUENCE, PROTECTION, 'Necrodominance', METADATA) :-
@@ -99,6 +98,11 @@ win(HAND, DECK, _, SEQUENCE, PROTECTION, 'Beseech->Necro', METADATA) :-
     beseech_necro(HAND, DECK, SEQUENCE, PROTECTION, METADATA).
 win(HAND, DECK, _, SEQUENCE, PROTECTION, 'Necrologia', METADATA) :-
     necrologia(HAND, DECK, SEQUENCE, PROTECTION, METADATA).
+win(HAND, DECK, _, SEQUENCE, PROTECTION, 'The Fantasticar', _{cars: true}) :-
+    car(HAND, DECK, SEQUENCE, PROTECTION).
+win(HAND, DECK, _, SEQUENCE, PROTECTION, 'Beseech->Fantasticar', METADATA) :-
+    beseech_car(HAND, DECK, SEQUENCE, PROTECTION, EXTRA_METADATA),
+    METADATA = EXTRA_METADATA.put(_{cars: true}).
 
 win_oops_optimized(HAND, DECK, _, SEQUENCE, PROTECTION, 'Undercity Informer', METADATA) :-
     informer(HAND, DECK, SEQUENCE, PROTECTION, METADATA).
@@ -168,6 +172,40 @@ ring(H1, B1, M1, G1, S1, D1, SEQUENCE, PROTECTION) :-
     finalize([H3, B3, M3, G2, S2, D2, P2], [_, _, _, _, _, _, PROTECTION], SEQUENCE2, SEQUENCE),
     !.
 
+car(START_HAND, START_DECK, SEQUENCE, PROTECTION) :-
+    member('The Fantasticar', START_HAND),
+    START_STATE = [START_HAND, [], [0,0,0,0,0,0,0], [], 0, START_DECK, 0],
+    prune_(3, START_STATE),
+    makemana_goal('The Fantasticar', START_STATE, MANA_STATE, [], MANA_SEQUENCE),
+    canpass(MANA_SEQUENCE),
+    noncreature_storm(MANA_SEQUENCE, X),
+    X < 3,
+    spend_generic(3, MANA_STATE, SPEND_STATE),
+    increment_storm(SPEND_STATE, CAST_STATE),
+    hand_to_board('The Fantasticar', CAST_STATE, RESOLVE_STATE),
+    append(MANA_SEQUENCE, ['The Fantasticar'], RESOLVE_SEQUENCE),
+    state_protection(RESOLVE_STATE, PROTECTION),
+    makemana(RESOLVE_STATE, _, RESOLVE_SEQUENCE, TRIGGER_SEQUENCE),
+    noncreature_storm(TRIGGER_SEQUENCE, 4),
+    append(TRIGGER_SEQUENCE, ['sacrifice car'], SEQUENCE),
+    canpass(SEQUENCE),
+    !.
+
+beseech_car(START_HAND, START_DECK, SEQUENCE, PROTECTION, _{bargain:SACRIFICE}) :-
+    member_or_tutor('Beseech the Mirror', START_HAND, START_DECK),
+    member('The Fantasticar', START_DECK),
+    START_STATE = [START_HAND, [], [0, 0, 0, 0, 0, 0, 0], [], 0, START_DECK, 0],
+    prune_(4, START_STATE),
+    beseech_for_target('The Fantasticar', START_STATE, CAR_STATE, [], CAR_SEQUENCE, SACRIFICE),
+    noncreature_storm(CAR_SEQUENCE, X),
+    X < 4,
+    state_protection(CAR_STATE, PROTECTION),
+    makemana(CAR_STATE, _, CAR_SEQUENCE, TRIGGER_SEQUENCE),
+    noncreature_storm(TRIGGER_SEQUENCE, 4),
+    append(TRIGGER_SEQUENCE, ['sacrifice car'], SEQUENCE),
+    canpass(SEQUENCE),
+    !.
+
 % Can mill deck; might not win.
 %mill(HAND, SEQUENCE) :-
 %    mill(HAND, [], SEQUENCE).
@@ -190,7 +228,8 @@ win_condition(HAND, SB, CARD) :-
     CARD = 'Living Wish', member(CARD, HAND), member('Balustrade Spy', SB);
     CARD = 'Empty the Warrens', member(CARD, HAND),
     CARD = 'Elemental Eruption', member(CARD, HAND),
-    CARD = 'Stormscale Scion', member(CARD, HAND).
+    CARD = 'Stormscale Scion', member(CARD, HAND),
+    CARD = 'The Fantasticar', member(CARD, HAND).
 
 % Various ways to win
 
@@ -385,7 +424,7 @@ discard_reanimate(START_STATE, SEQUENCE, PROTECTION, WINCON, METADATA) :-
     role_in_hand(START_STATE, animate, ANIMATE),
     first_in_hand(['Balustrade Spy', 'Undercity Informer'], START_STATE, SPY),
     % Check for the total mana optimistically
-    card_property_default(DISCARD, self_discard, cmc, 0, DISCARD_CMC),
+    card_property_default(DISCARD, default, cmc, 0, DISCARD_CMC),
     card_property(ANIMATE, animate, cmc, ANIMATE_CMC),
     (
         SPY = 'Balustrade Spy',
@@ -405,13 +444,13 @@ discard_reanimate(START_STATE, SEQUENCE, PROTECTION, WINCON, METADATA) :-
         informerCombo(START_STATE, [], _, _, _)
     ),
     % Then look for actual sequences to generate the mana and combo
-    card_property_default(DISCARD, self_discard, cost, [0, 0, 0, 0, 0, 0, 0], DISCARD_COST),
-    card_property_default(DISCARD, base, protection, 0, BASE_PROTECTION),
+    card_property(DISCARD, default, cost, DISCARD_COST),
+    card_property_default(DISCARD, default, protection, 0, BASE_PROTECTION),
     card_property(ANIMATE, animate, cost, ANIMATE_COST),
-    makemana_goal(DISCARD, self_discard, START_STATE, STATE2, [], SEQUENCE1),
+    makemana_goal(DISCARD, START_STATE, STATE2, [], SEQUENCE1),
     spend_(DISCARD_COST, STATE2, STATE3),
     remove_from_hand(DISCARD, STATE3, STATE4),
-    cast(DISCARD, _, SEQUENCE_CAST_DISCARD, STATE4, STATE5_EXTRA_PROTECTION, _),
+    cast(DISCARD, _, SEQUENCE_CAST_DISCARD, STATE4, STATE5_EXTRA_PROTECTION, SEQUENCE1, _),
     state_protection(STATE5_EXTRA_PROTECTION, P5),
     P5_FIXED is P5 - BASE_PROTECTION,
     update_protection(STATE5_EXTRA_PROTECTION, P5_FIXED, STATE5),
@@ -422,7 +461,7 @@ discard_reanimate(START_STATE, SEQUENCE, PROTECTION, WINCON, METADATA) :-
     makemana_goal(ANIMATE, animate, STATE6, STATE7, DISCARD_SEQUENCE, ANIMATE_MANA_SEQUENCE),
     spend_(ANIMATE_COST, STATE7, STATE8),
     remove_from_hand(ANIMATE, STATE8, STATE9),
-    cast(ANIMATE, _, ANIMATE_STEPS, STATE9, STATE10, _),
+    cast(ANIMATE, _, ANIMATE_STEPS, STATE9, STATE10, ANIMATE_MANA_SEQUENCE, _),
     append(ANIMATE_MANA_SEQUENCE, [ANIMATE|ANIMATE_STEPS], ANIMATE_CAST_SEQUENCE),
     string_concat('->', SPY, SPY_INTO_PLAY),
     append(ANIMATE_CAST_SEQUENCE, [SPY_INTO_PLAY], ANIMATE_RESOLVING_SEQUENCE),
@@ -628,28 +667,37 @@ wish_informer_mill(START_HAND, START_DECK, SB, SEQUENCE) :-
     wish_informer_mill(START_HAND, [], [0,0,0,0,0,0,0], [], 0, START_DECK, _, _, _, _, _, [], SEQUENCE),
     !.
 
-ee_informer(START_HAND, START_DECK, _, SEQUENCE, PROTECTION, METADATA) :-
+ee_informer(START_HAND, START_DECK, _, SEQUENCE, PROTECTION, METADATA, WINCON) :-
     member('Undercity Informer', START_DECK),
-    ee_informer(START_HAND, [], [0,0,0,0,0,0,0], [], 0, START_DECK, SEQUENCE, PROTECTION, METADATA).
-ee_informer(H1, B1, M1, G1, S1, D1, SEQUENCE, PROTECTION, METADATA) :-
+    ee_informer(START_HAND, [], [0,0,0,0,0,0,0], [], 0, START_DECK, SEQUENCE, PROTECTION, METADATA, WINCON).
+ee_informer(H1, B1, M1, G1, S1, D1, SEQUENCE, PROTECTION, METADATA, WINCON) :-
     % Verify that its possible in the best case scenario for mana sequencing
-    member('Eldritch Evolution', H1),
-    prune(3, H1, B1, G1, D1, M1, 0),
+    (   SEARCH_CARD = 'Eldritch Evolution',
+        SEARCH_COST = [0, 0, 0, 0, 2, 0, 1],
+        SEARCH_CMC = 3
+    ;   SEARCH_CARD = 'Neoform',
+        SEARCH_COST = [0, 1, 0, 0, 1, 0, 0],
+        SEARCH_CMC = 2
+    ),
+    member(SEARCH_CARD, H1),
+    prune(SEARCH_CMC, H1, B1, G1, D1, M1, 0),
     canInformer(H1, G1, D1),
     informerCombo(H1, B1, D1, G1, M1, [], _, _, _),
     % Then attempt it for real
     makemana([H1, B1, M1, G1, S1, D1, 0], [H2, B2, M2, G2, S2, D2, P2], [], SEQUENCE1),
-    remove('Eldritch Evolution', H2, H3),
-    spend([0, 0, 0, 0, 2, 0, 1], M2, M3),
-    sacrifice_creature(CREATURE, [H3, B2, M3, G2, S2, D2, P2], [H4, B3, M4, G3, S3, D3, P3], SAC_SEQUENCE),
-    append(SEQUENCE1, ['Eldritch Evolution'], SEQUENCE2),
+    remove(SEARCH_CARD, H2, H3),
+    spend(SEARCH_COST, M2, M3),
+    sacrifice_creature(CREATURE, [H3, B2, M3, G2, S2, D2, P2], [H4, B3, M4, G3, S3, D3, P3], SEQUENCE1, SAC_SEQUENCE),
+    append(SEQUENCE1, [SEARCH_CARD], SEQUENCE2),
     append(SEQUENCE2, SAC_SEQUENCE, SEQUENCE3),
     append(SEQUENCE3, ['-> Undercity Informer'], SEQUENCE4),
-    % Creature should cost >= 1
+    % Creature should cost >= 1 for EE or exactly 2 for Neoform
     card(CREATURE, DATA),
     list_to_assoc(DATA, CARD),
     get_assoc(cmc, CARD, CMC),
-    CMC >= 1,
+    (   SEARCH_CARD = 'Eldritch Evolution', CMC >= 1
+    ;   SEARCH_CARD = 'Neoform', CMC = 2
+    ),
     remove('Undercity Informer', D3, D4),
     % Make 1 more, activate
     makemana([H4, B3, M4, G3, S3, D4, P3], [H5, B4, M5, G4, _, D5, P4], SEQUENCE4, SEQUENCE5),
@@ -657,33 +705,44 @@ ee_informer(H1, B1, M1, G1, S1, D1, SEQUENCE, PROTECTION, METADATA) :-
     informerCombo(H5, B4, D5, ['Undercity Informer'|G4], M6, SEQUENCE5, SEQUENCE, P5, METADATA),
     not(contains_spellsonly(SEQUENCE)),
     PROTECTION is P4 + P5,
+    atomic_list_concat([SEARCH_CARD, '->', 'Undercity Informer'], WINCON),
     !.
 
-ee_spy(START_HAND, START_DECK, _, SEQUENCE, PROTECTION, METADATA) :-
+ee_spy(START_HAND, START_DECK, _, SEQUENCE, PROTECTION, METADATA, WINCON) :-
     member('Balustrade Spy', START_DECK),
-    ee_spy(START_HAND, [], [0,0,0,0,0,0,0], [], 0, START_DECK, SEQUENCE, PROTECTION, METADATA).
-ee_spy(H1, B1, M1, G1, S1, D1, SEQUENCE, PROTECTION, METADATA) :-
+    ee_spy(START_HAND, [], [0,0,0,0,0,0,0], [], 0, START_DECK, SEQUENCE, PROTECTION, METADATA, WINCON).
+ee_spy(H1, B1, M1, G1, S1, D1, SEQUENCE, PROTECTION, METADATA, WINCON) :-
     % Verify that its possible in the best case scenario for mana sequencing
-    member('Eldritch Evolution', H1),
-    prune(3, H1, B1, G1, D1, M1, 0),
+    (   SEARCH_CARD = 'Eldritch Evolution',
+        SEARCH_COST = [0, 0, 0, 0, 2, 0, 1],
+        SEARCH_CMC = 3
+    ;   SEARCH_CARD = 'Neoform',
+        SEARCH_COST = [0, 1, 0, 0, 1, 0, 0],
+        SEARCH_CMC = 2
+    ),
+    member(SEARCH_CARD, H1),
+    prune(SEARCH_CMC, H1, B1, G1, D1, M1, 0),
     canInformer(H1, G1, D1),
     informerCombo(H1, B1, D1, G1, M1, [], _, _, _),
     % Then attempt it for real
     makemana([H1, B1, M1, G1, S1, D1, 0], [H2, B2, M2, G2, S2, D2, P2], [], SEQUENCE1),
-    remove('Eldritch Evolution', H2, H3),
-    spend([0, 0, 0, 0, 2, 0, 1], M2, M3),
-    sacrifice_creature(CREATURE, [H3, B2, M3, G2, S2, D2, P2], [H4, B3, M4, G3, _, D3, P3], SAC_SEQUENCE),
-    append(SEQUENCE1, ['Eldritch Evolution'], SEQUENCE2),
+    remove(SEARCH_CARD, H2, H3),
+    spend(SEARCH_COST, M2, M3),
+    sacrifice_creature(CREATURE, [H3, B2, M3, G2, S2, D2, P2], [H4, B3, M4, G3, _, D3, P3], SEQUENCE1, SAC_SEQUENCE),
+    append(SEQUENCE1, [SEARCH_CARD], SEQUENCE2),
     append(SEQUENCE2, SAC_SEQUENCE, SEQUENCE3),
     append(SEQUENCE3, ['-> Balustrade Spy'], SEQUENCE4),
-    % Creature should cost >= 2
+    % Creature should cost >= 2 for EE or exactly 3 for Neoform
     card(CREATURE, DATA),
     list_to_assoc(DATA, CARD),
     get_assoc(cmc, CARD, CMC),
-    CMC >= 2,
+    (   SEARCH_CARD = 'Eldritch Evolution', CMC >= 2
+    ;   SEARCH_CARD = 'Neoform', CMC = 3
+    ),
     remove('Balustrade Spy', D3, D4),
     informerCombo(H4, ['Balustrade Spy'|B3], D4, G3, M4, SEQUENCE4, SEQUENCE, P4, METADATA),
     PROTECTION is P3 + P4,
+    atomic_list_concat([SEARCH_CARD, '->', 'Balustrade Spy'], WINCON),
     !.
 
 informerCombo([HAND, BOARD, MANA, GRAVEYARD, _, LIBRARY, _], PRIOR_SEQUENCE, TOTAL_SEQUENCE, PROTECTION, METADATA) :-
@@ -880,6 +939,20 @@ remove_all(ITEM, [H|T], [H|T2], REMOVED) :-
 canpass(SEQUENCE) :-
     not(member('Pact of Negation', SEQUENCE)),
     not(member('Summoner\'s Pact', SEQUENCE)).
+
+noncreature_storm([], 0).
+noncreature_storm([H | T], X) :-
+    noncreature_spell(H),
+    noncreature_storm(T, Y),
+    X is Y + 1,
+    !.
+noncreature_storm([H | T], X) :-
+    not(noncreature_spell(H)),
+    noncreature_storm(T, X),
+    !.
+noncreature_spell(CardName) :-
+    not(istype(CardName, creature)),
+    card_property(CardName, _, spell, 1).
 
 hand_maxprotection([], 0).
 hand_maxprotection([H|T], P) :-

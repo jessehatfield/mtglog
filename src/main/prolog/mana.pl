@@ -5,6 +5,9 @@ makemana(START_STATE, START_STATE, X, X).
 makemana(START_STATE, END_STATE, PRIOR_SEQUENCE, NEXT_SEQUENCE) :-
     (   state_hand(START_STATE, START_HAND),
         member(NAME, START_HAND)
+    ;   state_gy(START_STATE, START_GY),
+        member(NAME, START_GY),
+        card(NAME, _, flashback)
     ;   state_board(START_STATE, START_BOARD),
         member(NAME, START_BOARD),
         activates(NAME, _)
@@ -16,10 +19,20 @@ makemana(NAME, START_STATE, END_STATE, PRIOR_SEQUENCE, TOTAL_SEQUENCE) :-
     cast_from_hand(NAME, START_STATE, CAST_STATE, PRIOR_SEQUENCE, CAST_SEQUENCE),
     makemana(CAST_STATE, END_STATE, CAST_SEQUENCE, TOTAL_SEQUENCE).
 
+% Recursive case: play a specific mode of a specific card.
+makemana(NAME, START_STATE, END_STATE, PRIOR_SEQUENCE, TOTAL_SEQUENCE) :-
+    cast_from_hand(NAME, _, START_STATE, CAST_STATE, PRIOR_SEQUENCE, CAST_SEQUENCE),
+    makemana(CAST_STATE, END_STATE, CAST_SEQUENCE, TOTAL_SEQUENCE).
+
 % Recursive case: use an activated ability.
 makemana(NAME, START_STATE, END_STATE, PRIOR_SEQUENCE, TOTAL_SEQUENCE) :-
     activate_from_board(NAME, START_STATE, ACTIVATE_STATE, PRIOR_SEQUENCE, ACTIVATE_SEQUENCE),
     makemana(ACTIVATE_STATE, END_STATE, ACTIVATE_SEQUENCE, TOTAL_SEQUENCE).
+
+% Recursive case: play a card with Flashback from the graveyard.
+makemana(NAME, START_STATE, END_STATE, PRIOR_SEQUENCE, TOTAL_SEQUENCE) :-
+    cast_from_graveyard(NAME, START_STATE, CAST_STATE, PRIOR_SEQUENCE, CAST_SEQUENCE),
+    makemana(CAST_STATE, END_STATE, CAST_SEQUENCE, TOTAL_SEQUENCE).
 
 storm_up(TARGET_STORM, _, START_STATE, START_STATE, PRIOR_SEQUENCE, PRIOR_SEQUENCE) :-
     state_storm(START_STATE, START_STORM),
@@ -63,21 +76,12 @@ cast_from_hand(NAME,
         END_STATE,
         PRIOR_SEQUENCE,
         TOTAL_SEQUENCE) :-
-    check_timing(NAME, PRIOR_SEQUENCE),
-    card(NAME, DATA),
-    list_to_assoc(DATA, CARD),
-    get_assoc(cost, CARD, COST),
-    remove_first(NAME, START_HAND, NEXT_HAND),
-    spend(COST, START_MANA, NEXT_MANA),
-    diff_mana(START_MANA, NEXT_MANA, SPENT_MANA),
-    cast(NAME, YIELD, EXTRA_STEPS,
-        [NEXT_HAND, START_BOARD, NEXT_MANA, START_GY, START_STORM, START_DECK, START_PROTECTION],
-        CAST_STATE,
-        SPENT_MANA),
-    append(PRIOR_SEQUENCE, [NAME|EXTRA_STEPS], TOTAL_SEQUENCE),
-    state_mana(CAST_STATE, CAST_MANA),
-    addmana(YIELD, CAST_MANA, RESULT_MANA),
-    update_mana(CAST_STATE, RESULT_MANA, END_STATE).
+     cast_from_hand(NAME, MODE,
+        [START_HAND, START_BOARD, START_MANA, START_GY, START_STORM, START_DECK, START_PROTECTION],
+        END_STATE,
+        PRIOR_SEQUENCE,
+        TOTAL_SEQUENCE),
+    dif(MODE, flashback).
 
 cast_from_hand(NAME,
         MODE,
@@ -90,9 +94,10 @@ cast_from_hand(NAME,
     remove_first(NAME, START_HAND, NEXT_HAND),
     spend(COST, START_MANA, NEXT_MANA),
     diff_mana(START_MANA, NEXT_MANA, SPENT_MANA),
-    cast(NAME, YIELD, EXTRA_STEPS,
+    cast(NAME, MODE, YIELD, EXTRA_STEPS,
         [NEXT_HAND, START_BOARD, NEXT_MANA, START_GY, START_STORM, START_DECK, START_PROTECTION],
         CAST_STATE,
+        PRIOR_SEQUENCE,
         SPENT_MANA),
     append(PRIOR_SEQUENCE, [NAME|EXTRA_STEPS], TOTAL_SEQUENCE),
     state_mana(CAST_STATE, CAST_MANA),
@@ -114,7 +119,7 @@ activate_from_board(NAME,
     get_assoc(cost, ACTIVATION_CARD, COST),
     spend(COST, START_MANA, NEXT_MANA),
     diff_mana(START_MANA, NEXT_MANA, SPENT_MANA),
-    specialcast(ACTIVATED_NAME, YIELD,
+    specialcast(ACTIVATED_NAME, default, YIELD,
         [START_HAND, START_BOARD, NEXT_MANA, START_GY, START_STORM, START_DECK, START_PROTECTION],
         ACTIVATE_STATE,
         PRIOR_SEQUENCE,
@@ -124,6 +129,27 @@ activate_from_board(NAME,
     state_mana(ACTIVATE_STATE, ACTIVATE_MANA),
     addmana(YIELD, ACTIVATE_MANA, RESULT_MANA),
     update_mana(ACTIVATE_STATE, RESULT_MANA, END_STATE).
+
+cast_from_graveyard(NAME,
+        [START_HAND, START_BOARD, START_MANA, START_GY, START_STORM, START_DECK, START_PROTECTION],
+        END_STATE,
+        PRIOR_SEQUENCE,
+        TOTAL_SEQUENCE) :-
+    card(NAME, _, flashback),
+    check_timing(NAME, PRIOR_SEQUENCE),
+    card_property(NAME, flashback, cost, COST),
+    remove_first(NAME, START_GY, NEXT_GY),
+    spend(COST, START_MANA, NEXT_MANA),
+    diff_mana(START_MANA, NEXT_MANA, SPENT_MANA),
+    cast(NAME, flashback, YIELD, EXTRA_STEPS,
+        [START_HAND, START_BOARD, NEXT_MANA, NEXT_GY, START_STORM, START_DECK, START_PROTECTION],
+        CAST_STATE,
+        PRIOR_SEQUENCE,
+        SPENT_MANA),
+    append(PRIOR_SEQUENCE, [NAME|EXTRA_STEPS], TOTAL_SEQUENCE),
+    state_mana(CAST_STATE, CAST_MANA),
+    addmana(YIELD, CAST_MANA, RESULT_MANA),
+    update_mana(CAST_STATE, RESULT_MANA, END_STATE).
 
 % Cast a single card for free, ignoring timing
 cast_free(NAME,
@@ -135,6 +161,7 @@ cast_free(NAME,
     cast(NAME, YIELD, EXTRA_STEPS,
         [NEXT_HAND, START_BOARD, START_MANA, START_GY, START_STORM, START_DECK, START_PROTECTION],
         CAST_STATE,
+        PRIOR_SEQUENCE,
         [0, 0, 0, 0, 0, 0, 0]),
     append(PRIOR_SEQUENCE, [NAME|EXTRA_STEPS], TOTAL_SEQUENCE),
     state_mana(CAST_STATE, CAST_MANA),
@@ -216,14 +243,14 @@ makemana_cost_goal(TARGET_COST, TARGET_CARDS,
     (   % Attempt to do so by casting one card and recursing
         remove_first(NAME, START_HAND, NEXT_HAND),
         check_timing(NAME, PRIOR_SEQUENCE),
-        card(NAME, DATA),
-        list_to_assoc(DATA, CARD),
-        get_assoc(cost, CARD, COST),
+        card_property(NAME, MODE, cost, COST),
+        dif(MODE, flashback),
         spend(COST, START_MANA, NEXT_MANA),
         diff_mana(START_MANA, NEXT_MANA, SPENT_MANA),
-        cast(NAME, YIELD, EXTRA_STEPS,
+        cast(NAME, MODE, YIELD, EXTRA_STEPS,
             [NEXT_HAND, START_BOARD, NEXT_MANA, START_GY, START_STORM, START_DECK, START_PROTECTION],
             [CAST_HAND, CAST_BOARD, CAST_MANA, CAST_GY, CAST_STORM, CAST_DECK, CAST_PROTECTION],
+            PRIOR_SEQUENCE,
             SPENT_MANA),
         append(PRIOR_SEQUENCE, [NAME|EXTRA_STEPS], INTERMEDIATE_SEQUENCE)
     ;   % Or activating something
@@ -242,7 +269,7 @@ makemana_cost_goal(TARGET_COST, TARGET_CARDS,
         get_assoc(cost, ACTIVATION_CARD, COST),
         spend(COST, START_MANA, NEXT_MANA),
         diff_mana(START_MANA, NEXT_MANA, SPENT_MANA),
-        specialcast(ACTIVATED_NAME, YIELD,
+        specialcast(ACTIVATED_NAME, default, YIELD,
             [START_HAND, START_BOARD, NEXT_MANA, START_GY, START_STORM, START_DECK, START_PROTECTION],
             [CAST_HAND, CAST_BOARD, CAST_MANA, CAST_GY, CAST_STORM, CAST_DECK, CAST_PROTECTION],
             PRIOR_SEQUENCE,
@@ -418,9 +445,7 @@ prune_storm(REQUIRED, STATE) :-
 
 color_gain(NAME, GAIN) :-
     max_yield(NAME, [YW, YU, YB, YR, YG, YC | Y_REST]),
-    card(NAME, DATA),
-    list_to_assoc(DATA, CARD),
-    get_assoc(cost, CARD, [W, U, B, R, G, _, ANY | _]),
+    card_property(NAME, _, cost, [W, U, B, R, G, _, ANY | _]),
     spendExact([W, U, B, R, G, 0, 0], [YW, YU, YB, YR, YG, 0, 0], [GW, GU, GB, GR, GG | _], REMAINDER),
     total(REMAINDER, 0),
     (

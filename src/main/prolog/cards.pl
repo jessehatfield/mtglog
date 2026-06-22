@@ -7,18 +7,20 @@
 % Casting the land/spells (e.g. Turntimber Symbiosis)
 % Finale of Devastation
 % Once Upon a Time
-% LED + non-targeting Reanimate
-% Warp creatures + Neoform / Eldritch Evolution
-% + Pinnacle Emissary triggers for Mox Opal
-% Neoform -> Griselbrand, Atraxa, etc.
+% LED + Shallow Grave / Corpse Dance
+% Neoform / Eldritch Evolution for Griselbrand, Atraxa, etc.
 % Selective Memory / Doomsday
 %
 % for artifacts:
 % Irencrag Feat
 % Planar Nexus for colored mana
-% Candelabra of Tawnos
 % Mox Diamond
 % Transmute Artifact
+% Kappa Cannoneer
+% Tezzeret, Cruel Captain (untap Monolith, maybe tutor for storm/colored mana?)
+% Kozilek's Command (X=0, for storm)
+% activating Candelabra of Tawnos
+% Eldrazi Temple
 
 nb_setval(reveal_draws, false).
 
@@ -247,49 +249,6 @@ card('Burnt Offering', [
     board  - 0,
     gy     - 1,
     best   - [0, 0, 4, 4, 0, 0, 0],
-    restricted - true
-]).
-
-%card('Lion\'s Eye Diamond', [
-%    cost   - [0, 0, 0, 0, 0, 0, 0],
-%    yield  - [0, 0, 0, 0, 0, 0, 3],
-%    net    - 3,
-%    colors - [],
-%    types  - [],
-%    spell  - 1,
-%    board  - 0,
-%    gy     - 1
-%]).
-card('Lion\'s Eye Diamond', DATA) :-
-    (
-        YIELD = [3, 0, 0, 0, 0, 0, 0];
-        YIELD = [0, 3, 0, 0, 0, 0, 0];
-        YIELD = [0, 0, 3, 0, 0, 0, 0];
-        YIELD = [0, 0, 0, 3, 0, 0, 0];
-        YIELD = [0, 0, 0, 0, 3, 0, 0]
-    ),
-    DATA = [
-        cost   - [0, 0, 0, 0, 0, 0, 0],
-        yield  - YIELD,
-        best   - [0, 0, 0, 0, 0, 0, 3],
-        net    - 3,
-        colors - [],
-        types  - [artifact],
-        spell  - 1,
-        board  - 0,
-        gy     - 1
-    ].
-card('Lion\'s Eye Diamond_unused', [
-    base   - 'Lion\'s Eye Diamond',
-    cost   - [0, 0, 0, 0, 0, 0, 0],
-    yield  - [0, 0, 0, 0, 0, 0, 0],
-    best   - [0, 0, 0, 0, 0, 0, 0],
-    net    - 0,
-    colors - [],
-    types  - [artifact],
-    spell  - 1,
-    board  - 1,
-    gy     - 0,
     restricted - true
 ]).
 
@@ -927,6 +886,17 @@ card('Glaring Fleshraker', [
     board  - 1,
     gy     - 0
 ]).
+card('The Fantasticar', [
+    roles  - [combo],
+    cost   - [0, 0, 0, 0, 0, 0, 3],
+    yield  - [0, 0, 0, 0, 0, 0, 0],
+    net    - 0,
+    colors - [],
+    types  - [artifact],
+    spell  - 1,
+    board  - 1,
+    gy     - 0
+]).
 
 % Cards used in the combo
 
@@ -969,28 +939,6 @@ card('Phantasmagorian', [
     spell  - -1,
     board  - 0,
     gy     - 0
-]).
-card('Cabal Therapy', [
-    cost   - [0, 0, 1, 0, 0, 0, 0],
-    yield  - [0, 0, 0, 0, 0, 0, 0],
-    net    - 0,
-    colors - [b],
-    types  - [sorcery],
-    spell  - 1,
-    board  - 0,
-    gy     - 1,
-    protection - 1,
-    roles - [self_discard]
-]).
-card('Lingering Souls', [
-    cost   - [1, 0, 0, 0, 0, 0, 2],
-    yield  - [0, 0, 0, 0, 0, 0, 0],
-    net    - 0,
-    colors - [w],
-    types  - [sorcery],
-    spell  - 1,
-    board  - 0,
-    gy     - 1
 ]).
 card('Street Wraith', [
     cost   - [0, 0, 0, 0, 0, 0, 0],
@@ -1372,6 +1320,18 @@ card(NAME, [
     gy     - 0
 ]) :- permanent_card(NAME, COST, TYPES).
 
+% Tokens
+card('Drone Token', [
+    cost   - [0, 0, 0, 0, 0, 0, 0],
+    yield  - [0, 0, 0, 0, 0, 0, 0],
+    net    - 0,
+    colors - [],
+    types  - [artifact, creature],
+    spell  - -1,
+    board  - 1,
+    gy     - 0
+]).
+
 % Special non-real cards
 % Negative storm means uncastable
 
@@ -1396,8 +1356,41 @@ card('Chancellor of the Annex_used', [
     gy     - 0
 ]).
 
+card('Lion\'s Eye Diamond_unused', [
+    base   - 'Lion\'s Eye Diamond',
+    cost   - [0, 0, 0, 0, 0, 0, 0],
+    yield  - [0, 0, 0, 0, 0, 0, 0],
+    best   - [0, 0, 0, 0, 0, 0, 0],
+    net    - 0,
+    colors - [],
+    types  - [artifact],
+    spell  - 1,
+    board  - 1,
+    gy     - 0,
+    restricted - true
+]).
+
 % (Effectively) modal cards whose properties change in different modes
 card(CARDNAME, DATA) :- card(CARDNAME, DATA, base).
+
+card('Lion\'s Eye Diamond', [
+        cost   - [0, 0, 0, 0, 0, 0, 0],
+        best   - [0, 0, 0, 0, 0, 0, 3],
+        net    - 3,
+        colors - [],
+        types  - [artifact],
+        spell  - 1,
+        board  - 0,
+        gy     - 1,
+        options - true,
+        restricted - true
+], base).
+card('Lion\'s Eye Diamond', [yield - [0, 0, 0, 0, 0, 0, 0]], default).
+card('Lion\'s Eye Diamond', [yield - [3, 0, 0, 0, 0, 0, 0]], w).
+card('Lion\'s Eye Diamond', [yield - [0, 3, 0, 0, 0, 0, 0]], u).
+card('Lion\'s Eye Diamond', [yield - [0, 0, 3, 0, 0, 0, 0]], b).
+card('Lion\'s Eye Diamond', [yield - [0, 0, 0, 3, 0, 0, 0]], r).
+card('Lion\'s Eye Diamond', [yield - [0, 0, 0, 0, 3, 0, 0]], g).
 
 card('Lively Dirge', [
     cost   - [0, 0, 1, 0, 0, 0, 0],
@@ -1441,6 +1434,132 @@ card('Electrodominance', [
 card('Electrodominance', [
     cost   - [0, 0, 0, 2, 0, 0, C]
 ], C) :- number(C).
+
+card('Pinnacle Emissary', [
+    roles  - [],
+    cost   - [0, 1, 0, 1, 0, 0, 1],
+    yield  - [0, 0, 0, 0, 0, 0, 0],
+    net    - 0,
+    colors - [ur],
+    types  - [artifact, creature],
+    spell  - 1,
+    board  - 1,
+    gy     - 0,
+    cmc    - 3
+], base).
+card('Pinnacle Emissary', [], default).
+card('Pinnacle Emissary', [
+    cost   - [0, 1, 0, 0, 0, 0, 0]
+], warp_u).
+card('Pinnacle Emissary', [
+    cost   - [0, 0, 0, 1, 0, 0, 0]
+], warp_r).
+
+card('Cabal Therapy', [
+    cost   - [0, 0, 1, 0, 0, 0, 0],
+    yield  - [0, 0, 0, 0, 0, 0, 0],
+    net    - 0,
+    colors - [b],
+    types  - [sorcery],
+    spell  - 1,
+    board  - 0,
+    gy     - 1,
+    protection - 1,
+    roles - [self_discard]
+], base).
+card('Cabal Therapy', [], default).
+card('Cabal Therapy', [
+    cost   - [0, 0, 0, 0, 0, 0, 0],
+    gy     - 0,
+    restricted - true
+], flashback).
+
+card('Lingering Souls', [
+    cost   - [1, 0, 0, 0, 0, 0, 2],
+    yield  - [0, 0, 0, 0, 0, 0, 0],
+    net    - 0,
+    colors - [w],
+    types  - [sorcery],
+    spell  - 1,
+    board  - 0,
+    gy     - 1
+], base).
+card('Lingering Souls', [], default).
+card('Lingering Souls', [
+    gy     - 0,
+    cost   - [0, 0, 1, 0, 0, 0, 1]
+], flashback).
+
+card('Echo of Eons', [
+    cost   - [0, 2, 0, 0, 0, 0, 4],
+    yield  - [0, 0, 0, 0, 0, 0, 0],
+    net    - 0,
+    colors - [u],
+    types  - [sorcery],
+    spell  - 1,
+    board  - 0,
+    gy     - 1
+], base).
+card('Echo of Eons', [], default).
+card('Echo of Eons', [
+    gy     - 0,
+    cost   - [0, 1, 0, 0, 0, 0, 2]
+], flashback).
+
+card('Frogmite', [
+    cost   - [0, 0, 0, 0, 0, 0, 4],
+    yield  - [0, 0, 0, 0, 0, 0, 0],
+    net    - 0,
+    colors - [],
+    types  - [artifact, creature],
+    spell  - 1,
+    board  - 1,
+    gy     - 0,
+    cmc    - 4,
+    restricted - true
+], base).
+card('Thoughtcast', [
+    cost   - [0, 1, 0, 0, 0, 0, 4],
+    yield  - [0, 0, 0, 0, 0, 0, 0],
+    net    - 0,
+    colors - [u],
+    types  - [sorcery],
+    spell  - 1,
+    board  - 0,
+    gy     - 1,
+    cmc    - 5,
+    restricted - true
+], base).
+card('Emry, Lurker of the Loch', [
+    cost   - [0, 1, 0, 0, 0, 0, 2],
+    yield  - [0, 0, 0, 0, 0, 0, 0],
+    net    - 0,
+    colors - [u],
+    types  - [creature],
+    spell  - 1,
+    board  - 1,
+    gy     - 0,
+    cmc    - 3,
+    restricted - true
+], base).
+
+% Generates distinct modes for all possible Affinity discounts
+card(Name, [
+    cost   - [W, U, B, R, G, A, DiscountedGeneric],
+    restricted - true
+    ], [affinity, Type, N]) :-
+    affinity(Name, Type, Discounts),
+    card(Name, Data, base),
+    list_to_assoc(Data, Assoc),
+    get_assoc(cost, Assoc, [W, U, B, R, G, A, BaseGeneric]),
+    member(N, Discounts),
+    N =< BaseGeneric,
+    N >= 0,
+    DiscountedGeneric is BaseGeneric - N.
+
+affinity('Frogmite', artifact, [0, 1, 2, 3, 4]).
+affinity('Thoughtcast', artifact, [0, 1, 2, 3, 4]).
+affinity('Emry, Lurker of the Loch', artifact, [0, 1, 2]).
 
 card_key_value_default(CARDNAME, KEY, VALUE, DEFAULT) :-
     findall(DATA, card(CARDNAME, DATA), DATA_LIST),
@@ -1546,14 +1665,10 @@ permanent_card('Soul-Guide Lantern', [0, 0, 0, 0, 0, 0, 1], [artifact]).
 
 % Special rules for casting / making mana
 
-specialcast(NAME, YIELD, OLD_STATE, NEW_STATE, _, EXTRA_STEPS) :-
+specialcast(NAME, default, YIELD, OLD_STATE, NEW_STATE, _, _, EXTRA_STEPS) :-
     NAME == 'Chrome Mox', cmox(YIELD, OLD_STATE, NEW_STATE, EXTRA_STEPS);
-    NAME == 'Culling the Weak', culling(YIELD, OLD_STATE, NEW_STATE, EXTRA_STEPS);
-    NAME == 'Sacrifice', sacrifice(YIELD, OLD_STATE, NEW_STATE, EXTRA_STEPS);
-    NAME == 'Burnt Offering', burnt_offering(YIELD, OLD_STATE, NEW_STATE, EXTRA_STEPS);
     NAME == 'Crop Rotation', crop_rotation(YIELD, OLD_STATE, NEW_STATE, EXTRA_STEPS).
-specialcast(NAME, YIELD, OLD_STATE, NEW_STATE, _, []) :-
-    NAME == 'Lion\'s Eye Diamond', led(YIELD, OLD_STATE, NEW_STATE);
+specialcast(NAME, default, YIELD, OLD_STATE, NEW_STATE, _, _, []) :-
     NAME == 'Cabal Ritual', cabal(YIELD, OLD_STATE, NEW_STATE);
     NAME == 'Mox Opal', opal(YIELD, OLD_STATE, NEW_STATE);
     NAME == 'Rite of Flame', rite(YIELD, OLD_STATE, NEW_STATE);
@@ -1570,9 +1685,16 @@ specialcast(NAME, YIELD, OLD_STATE, NEW_STATE, _, []) :-
     NAME == 'Emergence Zone', alternate_version('Emergence Zone_untapped', YIELD, OLD_STATE, NEW_STATE);
     NAME == 'Once Upon a Time', once_upon_a_time(YIELD, OLD_STATE, NEW_STATE);
     NAME == 'exile Jack-o\'-Lantern', activate_jackolantern(YIELD, OLD_STATE, NEW_STATE).
-specialcast(NAME, YIELD, OLD_STATE, NEW_STATE, SPENT_MANA, []) :-
+specialcast(NAME, default, YIELD, OLD_STATE, NEW_STATE, PRIOR_STEPS, _, EXTRA_STEPS) :-
+    NAME == 'Culling the Weak', culling(YIELD, OLD_STATE, NEW_STATE, PRIOR_STEPS, EXTRA_STEPS);
+    NAME == 'Sacrifice', sacrifice(YIELD, OLD_STATE, NEW_STATE, PRIOR_STEPS, EXTRA_STEPS);
+    NAME == 'Burnt Offering', burnt_offering(YIELD, OLD_STATE, NEW_STATE, PRIOR_STEPS, EXTRA_STEPS).
+specialcast(NAME, default, YIELD, OLD_STATE, NEW_STATE, PRIOR_STEPS, _, EXTRA_STEPS) :-
+    (NAME = 'Voltaic Key_tapped'; NAME = 'Manifold Key_tapped'),
+    activate_key(NAME, YIELD, OLD_STATE, NEW_STATE, PRIOR_STEPS, EXTRA_STEPS).
+specialcast(NAME, default, YIELD, OLD_STATE, NEW_STATE, _, SPENT_MANA, []) :-
     NAME == 'Pentad Prism', pentad(YIELD, SPENT_MANA, OLD_STATE, NEW_STATE).
-specialcast(NAME, YIELD, OLD_STATE, NEW_STATE, _, [STEP]) :-
+specialcast(NAME, default, YIELD, OLD_STATE, NEW_STATE, _, _, [STEP]) :-
     NAME == 'Summoner\'s Pact', spact(YIELD, TARGET, OLD_STATE, NEW_STATE),
     atom_concat('find ', TARGET, STEP);
     (
@@ -1583,16 +1705,32 @@ specialcast(NAME, YIELD, OLD_STATE, NEW_STATE, _, [STEP]) :-
         NAME == 'Misdirection', pitch('Misdirection', u, YIELD, OLD_STATE, NEW_STATE, PITCH);
         NAME == 'Vine Dryad', pitch('Vine Dryad', g, YIELD, OLD_STATE, NEW_STATE, PITCH)
     ), atom_concat('pitch ', PITCH, STEP).
-specialcast(NAME, YIELD, OLD_STATE, NEW_STATE, _, SPENT_MANA, EXTRA_STEPS) :-
-    specialcast(NAME, YIELD, OLD_STATE, NEW_STATE, SPENT_MANA, EXTRA_STEPS).
-specialcast(NAME, YIELD, OLD_STATE, NEW_STATE, PRIOR_STEPS, _, EXTRA_STEPS) :-
-    (NAME = 'Voltaic Key_tapped'; NAME = 'Manifold Key_tapped'),
-    activate_key(NAME, YIELD, OLD_STATE, NEW_STATE, PRIOR_STEPS, EXTRA_STEPS).
+specialcast(NAME, MODE, YIELD, OLD_STATE, NEW_STATE, _, _, []) :-
+    NAME == 'Lion\'s Eye Diamond', led(MODE, YIELD, OLD_STATE, NEW_STATE).
+specialcast(NAME, [affinity, Type, N], YIELD, OLD_STATE, NEW_STATE, _, _, [AffinityCount]) :-
+    affinity(NAME, Type, Ns),
+    state_board(OLD_STATE, Battlefield),
+    zone_type_count(Battlefield, Type, N),
+    member(N, Ns),
+    normalcast(NAME, [affinity, Type, N], YIELD, OLD_STATE, NEW_STATE),
+    atomic_list_concat([N, ' ', type, '(s)'], AffinityCount).
+specialcast('Cabal Therapy', flashback, YIELD, OLD_STATE, NEW_STATE, PRIOR_STEPS, _, EXTRA_STEPS) :-
+    sacrifice_creature(_, OLD_STATE, SAC_STATE, PRIOR_STEPS, EXTRA_STEPS),
+    normalcast('Cabal Therapy', flashback, YIELD, SAC_STATE, CAST_STATE),
+    % This might happen after casting the wincon, in which case we can't count it as protection
+    (   any_has_role(PRIOR_STEPS, combo),
+        state_protection(CAST_STATE, P_PLUS_ONE),
+        P_CORRECT is P_PLUS_ONE - 1,
+        update_protection(CAST_STATE, P_CORRECT, NEW_STATE),
+        !
+    ;   NEW_STATE = CAST_STATE
+    ).
 
-led(YIELD,
+led(MODE,
+    YIELD,
     [START_HAND, START_BOARD, START_MANA, START_GY, START_STORM, START_DECK, PROTECTION],
     [[], END_BOARD, END_MANA, END_GY, END_STORM, END_DECK, PROTECTION]) :-
-    normalcast('Lion\'s Eye Diamond', YIELD,
+    normalcast('Lion\'s Eye Diamond', MODE, YIELD,
         [START_HAND, START_BOARD, START_MANA, START_GY, START_STORM, START_DECK, PROTECTION],
         [NEXT_HAND, END_BOARD, END_MANA, NEXT_GY, END_STORM, END_DECK, PROTECTION]),
     append(NEXT_GY, NEXT_HAND, END_GY).
@@ -1693,15 +1831,15 @@ alternate_version(ALT_NAME, YIELD,
         [START_HAND, START_BOARD, START_MANA, START_GY, START_STORM, START_DECK, PROTECTION],
         [END_HAND, END_BOARD, END_MANA, END_GY, END_STORM, END_DECK, PROTECTION]).
 
-culling(YIELD, START_STATE, END_STATE, STEPS) :-
-    sacrifice_creature_instant(_, START_STATE, NEXT_STATE, STEPS),
+culling(YIELD, START_STATE, END_STATE, HISTORY, STEPS) :-
+    sacrifice_creature_instant(_, START_STATE, NEXT_STATE, HISTORY, STEPS),
     normalcast('Culling the Weak', YIELD, NEXT_STATE, END_STATE).
-sacrifice([0, 0, CMC, 0, 0, 0, 0], START_STATE, END_STATE, STEPS) :-
-    sacrifice_creature_instant(CREATURE, START_STATE, NEXT_STATE, STEPS),
+sacrifice([0, 0, CMC, 0, 0, 0, 0], START_STATE, END_STATE, HISTORY, STEPS) :-
+    sacrifice_creature_instant(CREATURE, START_STATE, NEXT_STATE, HISTORY, STEPS),
     cmc(CREATURE, CMC),
     normalcast('Sacrifice', _, NEXT_STATE, END_STATE).
-burnt_offering([0, 0, B, R, 0, 0, 0], START_STATE, END_STATE, STEPS) :-
-    sacrifice_creature_instant(CREATURE, START_STATE, NEXT_STATE, SACRIFICE_STEPS),
+burnt_offering([0, 0, B, R, 0, 0, 0], START_STATE, END_STATE, HISTORY, STEPS) :-
+    sacrifice_creature_instant(CREATURE, START_STATE, NEXT_STATE, HISTORY, SACRIFICE_STEPS),
     cmc(CREATURE, CMC),
     normalcast('Burnt Offering', _, NEXT_STATE, END_STATE),
     between(0, CMC, B),
@@ -1747,6 +1885,7 @@ cmc(CARDNAME, CMC) :-
 sacrifice_creature(CARDNAME,
     [HAND, START_BOARD, MANA, START_GY, STORM, DECK, PROTECTION],
     [HAND, END_BOARD, MANA, [CARDNAME|START_GY], STORM, DECK, PROTECTION],
+    _,
     [SACRIFICE_STEP]) :-
     remove_first(CARDNAME, START_BOARD, END_BOARD),
     card(CARDNAME, DATA),
@@ -1758,14 +1897,15 @@ sacrifice_creature(CARDNAME,
 sacrifice_creature_instant(CARD_NAME,
     [START_HAND, BOARD, MANA, GY, STORM, DECK, PROTECTION],
     END_STATE,
+    HISTORY,
     STEPS) :-
     (CARD_NAME = 'Grief' ; CARD_NAME = 'Endurance'),
     remove_first(CARD_NAME, START_HAND, NEXT_HAND),
-    specialcast(CARD_NAME, _, [NEXT_HAND, BOARD, MANA, GY, STORM, DECK, PROTECTION], END_STATE, _, CAST_STEPS),
+    specialcast(CARD_NAME, _, _, [NEXT_HAND, BOARD, MANA, GY, STORM, DECK, PROTECTION], END_STATE, HISTORY, _, CAST_STEPS),
     atom_concat('sacrifice ', CARD_NAME, SACRIFICE_STEP),
     append(CAST_STEPS, [SACRIFICE_STEP], STEPS).
-sacrifice_creature_instant(CARDNAME, START_STATE, END_STATE, STEPS) :-
-    sacrifice_creature(CARDNAME, START_STATE, END_STATE, STEPS).
+sacrifice_creature_instant(CARDNAME, START_STATE, END_STATE, HISTORY, STEPS) :-
+    sacrifice_creature(CARDNAME, START_STATE, END_STATE, HISTORY, STEPS).
 
 sacrifice_bargain(CARDNAME,
     [HAND, START_BOARD, MANA, START_GY, STORM, DECK, PROTECTION],
@@ -2022,29 +2162,67 @@ zone_type_cards([H | T_ZONE], TYPE, T_TYPE) :-
 
 % General rules for casting
 
-cast(NAME, YIELD, STEPS, OLD_STATE, NEW_STATE, SPENT_MANA) :-
-    STEPS = [],
-    not(only_special(NAME)),
-    (special_optional(NAME); not(specialcast(NAME, _, OLD_STATE, _, _, _))),
-    normalcast(NAME, YIELD, OLD_STATE, NEW_STATE);
-    specialcast(NAME, YIELD, OLD_STATE, NEW_STATE, SPENT_MANA, STEPS).
+cast(NAME, YIELD, STEPS, OLD_STATE, NEW_STATE, PRIOR_STEPS, SPENT_MANA) :-
+    cast(NAME, default, YIELD, STEPS, OLD_STATE, NEW_STATE, PRIOR_STEPS, SPENT_MANA).
 
-normalcast(NAME, YIELD,
+cast(NAME, MODE, YIELD, STEPS, OLD_STATE, NEW_STATE, PRIOR_STEPS, SPENT_MANA) :-
+    cast_triggers(NAME, OLD_STATE, INTERMEDIATE_STATE, TRIGGERS),
+    (
+        specialcast(NAME, MODE, YIELD, INTERMEDIATE_STATE, NEW_STATE, PRIOR_STEPS, SPENT_MANA, INTERMEDIATE_STEPS)
+    ;
+        not(requires_special(NAME, MODE, INTERMEDIATE_STATE)),
+        normalcast(NAME, MODE, YIELD, INTERMEDIATE_STATE, NEW_STATE),
+        INTERMEDIATE_STEPS = []
+    ),
+    append(INTERMEDIATE_STEPS, TRIGGERS, STEPS).
+
+requires_special(Name, Mode, _) :-
+    card_property(Name, Mode, restricted, true),
+    !.
+requires_special(Name, Mode, State) :-
+    specialcast(Name, Mode, _, State, _, _, _, _), !,
+    not(card_property(Name, Mode, options, true)).
+
+normalcast(NAME, YIELD, START_STATE, END_STATE) :-
+    normalcast(NAME, default, YIELD, START_STATE, END_STATE).
+normalcast(NAME, MODE, YIELD,
     [START_HAND, START_BOARD, START_MANA, START_GY, START_STORM, START_DECK, START_PROTECTION],
     [START_HAND, END_BOARD, START_MANA, END_GY, END_STORM, START_DECK, END_PROTECTION]) :-
-    card(NAME, DATA),
-    list_to_assoc(DATA, CARD),
-    get_assoc(spell, CARD, SPELLS),
+    card_property(NAME, MODE, spell, SPELLS),
     SPELLS >= 0,
-    get_assoc(yield, CARD, YIELD),
-    get_assoc(gy, CARD, GY),
-    get_assoc(board, CARD, BOARD),
+    card_property(NAME, MODE, yield, YIELD),
+    card_property(NAME, MODE, gy, GY),
+    card_property(NAME, MODE, board, BOARD),
     END_STORM is START_STORM + SPELLS,
     yard(NAME, [START_HAND, START_BOARD, START_MANA, START_GY, START_STORM, START_DECK, START_PROTECTION], END_GY, GY),
     board(NAME, START_BOARD, END_BOARD, BOARD),
     type_max(1, land, END_BOARD),
-    get_or_default_carddata(protection, 0, DATA, ADDITIONAL_PROTECTION),
+    card_property_default(NAME, MODE, protection, 0, ADDITIONAL_PROTECTION),
     END_PROTECTION is START_PROTECTION + ADDITIONAL_PROTECTION.
+
+has_trigger(TRIGGER_CONDITION, NAME) :-
+    card_key_value_default(NAME, triggers, TRIGGERS, []),
+    member(TRIGGER_CONDITION, TRIGGERS).
+
+cast_triggers(CARDNAME, OLD_STATE, NEW_STATE, STEPS) :-
+    OLD_STATE = [_, START_BOARD, _, _, _, _, _],
+    card(CARDNAME, DATA),
+    list_to_assoc(DATA, CARD),
+    get_assoc(types, CARD, TYPES),
+    % trigger Pinnacle Emissary if appropriate
+    (   member(artifact, TYPES),
+        include(=('Pinnacle Emissary'), START_BOARD, EMISSARIES),
+        length(EMISSARIES, N),
+        N > 0,
+        n_copies(N, 'Drone Token', DRONES),
+        n_copies(N, 'Pinnacle Emissary trigger', STEPS),
+        append(START_BOARD, DRONES, NEW_BOARD),
+        update_board(OLD_STATE, NEW_BOARD, PINNACLE_STATE),
+        !
+    ;   PINNACLE_STATE = OLD_STATE,
+        STEPS = []
+    ),
+    NEW_STATE = PINNACLE_STATE.
 
 yard(_, START_STATE, END_GY, 0) :-
     state_gy(START_STATE, END_GY).
@@ -2125,7 +2303,7 @@ only_special(NAME) :-
 special_optional(NAME) :-
     card(NAME, DATA),
     list_to_assoc(DATA, CARD),
-    get_assoc(options, CARD, _).
+    get_assoc(options, CARD, true).
 
 % Misc. utility
 
@@ -2236,10 +2414,8 @@ tutors_for_('Once Upon a Time', TARGET_NAME, TARGET_ASSOC, DECK) :-
     (member(creature, TYPES); member(land, TYPES)).
 
 has_role(CARDNAME, ROLE) :-
-    ( 
-        card(CARDNAME, DATA),
-        list_to_assoc(DATA, ASSOC),
-        get_assoc(roles, ASSOC, ROLES),
+    (
+        card_property(CARDNAME, _, roles, ROLES),
         member(ROLE, ROLES),
         !
     ;   sub_string(CARDNAME, LENGTH_BEFORE, 2, LENGTH_AFTER, '->'),
@@ -2254,6 +2430,13 @@ all_have_role([H|T], ROLE) :-
     has_role(H, ROLE),
     all_have_role(T, ROLE).
 
+any_has_role([H|_], ROLE) :-
+    has_role(H, ROLE),
+    !.
+any_has_role([_|T], ROLE) :-
+    any_has_role(T, ROLE),
+    !.
+
 card_property(CARDNAME, MODE, PROPERTY, VALUE) :-
     % if the card isn't modal, get the default value
     card(CARDNAME, DATA),
@@ -2265,7 +2448,7 @@ card_property(CARDNAME, MODE, PROPERTY, VALUE) :-
     list_to_assoc(DATA, ASSOC),
     (
         get_assoc(PROPERTY, ASSOC, VALUE);
-        % but if this mode doesn't specify the property, use the default mode
+        % but if this mode doesn't specify the property, use the base mode
         not(get_assoc(PROPERTY, ASSOC, _)),
         card(CARDNAME, BASE_DATA, base),
         list_to_assoc(BASE_DATA, BASE_ASSOC),
